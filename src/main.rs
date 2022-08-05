@@ -1,9 +1,11 @@
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_actors::ws;
 use crate::config::get_server_port;
+use crate::system_info::SystemInfo;
 
 mod server;
 mod config;
+mod system_info;
 
 use self::server::MyWebSocket;
 
