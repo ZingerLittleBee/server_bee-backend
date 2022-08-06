@@ -1,15 +1,17 @@
-use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
-use actix_web_actors::ws;
 use crate::config::get_server_port;
 use crate::system_info::SystemInfo;
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web_actors::ws;
 
-mod server;
 mod config;
+mod server;
 mod system_info;
 
 use self::server::MyWebSocket;
 
 async fn index() -> impl Responder {
+    let sys = SystemInfo::new();
+    sys.get_disk_io();
     HttpResponse::Ok().body("Hello world!")
 }
 
@@ -35,8 +37,8 @@ async fn main() -> std::io::Result<()> {
             // enable logger
             .wrap(middleware::Logger::default())
     })
-        .workers(2)
-        .bind(("127.0.0.1", port))?
-        .run()
-        .await
+    .workers(2)
+    .bind(("127.0.0.1", port))?
+    .run()
+    .await
 }
