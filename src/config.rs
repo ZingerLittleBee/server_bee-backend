@@ -28,6 +28,6 @@ fn get_config_yml() -> Result<Config> {
 }
 
 pub fn get_server_port() -> u16 {
-    let d = get_config_yml().unwrap_or(Config::default());
-    return d.server.port;
+    let d = get_config_yml().unwrap_or_default();
+    d.server.port
 }

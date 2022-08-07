@@ -1,11 +1,13 @@
+#[cfg(target_os = "linux")]
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
+#[cfg(target_os = "linux")]
+use systemstat::{Platform, System as Systemstat};
 
 use serde::{Deserialize, Serialize};
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt};
-use systemstat::{Platform, System as Systemstat};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Overview {
@@ -168,7 +170,7 @@ impl SystemInfo {
     }
 
     #[cfg(not(target_os = "linux"))]
-    pub fn get_disk_io() -> DiskUsage {
+    pub fn get_disk_io(&self) -> DiskIO {
         Default::default()
     }
 
