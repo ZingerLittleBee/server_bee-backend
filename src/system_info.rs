@@ -12,8 +12,8 @@ pub struct Overview {
     pub cpu_usage: f32,
     pub memory_usage: Usage,
     pub disk_usage: Usage,
-    pub disk_io: DiskUsage,
-    pub network_io: NetworkUsage,
+    pub disk_io: DiskIO,
+    pub network_io: NetworkIO,
 }
 
 #[derive(Deserialize, Serialize, Default, Debug)]
@@ -24,7 +24,7 @@ pub struct Usage {
 }
 
 #[derive(Deserialize, Serialize, Default, Debug)]
-pub struct DiskUsage {
+pub struct DiskIO {
     pub read: u64,
     pub total_read: u64,
     pub write: u64,
@@ -32,7 +32,7 @@ pub struct DiskUsage {
 }
 
 #[derive(Deserialize, Serialize, Default, Debug)]
-pub struct NetworkUsage {
+pub struct NetworkIO {
     pub received: u64,
     pub total_received: u64,
     pub transmitted: u64,
@@ -50,13 +50,13 @@ pub struct SystemInfo {
     #[cfg(target_os = "linux")]
     sector_size_map: HashMap<String, u16>,
     #[cfg(target_os = "linux")]
-    disk_usage_map: Arc<RwLock<HashMap<String, DiskUsage>>>,
+    disk_usage_map: Arc<RwLock<HashMap<String, DiskIO>>>,
 }
 
 impl SystemInfo {
     pub fn new() -> Self {
         #[cfg(target_os = "linux")]
-        let disk_usage_map = Arc::new(RwLock::new(HashMap::<String, DiskUsage>::new()));
+        let disk_usage_map = Arc::new(RwLock::new(HashMap::<String, DiskIO>::new()));
         #[cfg(target_os = "linux")]
         SystemInfo::sector_thread(disk_usage_map.clone());
         SystemInfo {
@@ -69,7 +69,7 @@ impl SystemInfo {
     }
 
     #[cfg(target_os = "linux")]
-    fn sector_thread(disk_usage_map: Arc<RwLock<HashMap<String, DiskUsage>>>) {
+    fn sector_thread(disk_usage_map: Arc<RwLock<HashMap<String, DiskIO>>>) {
         use std::thread;
 
         thread::spawn(move || {
@@ -91,7 +91,7 @@ impl SystemInfo {
                         }
                         map.insert(
                             x.name.clone(),
-                            DiskUsage {
+                            DiskIO {
                                 read: sector_increase.read as u64,
                                 write: sector_increase.write as u64,
                                 total_read: x.read_sectors as u64,
@@ -134,9 +134,9 @@ impl SystemInfo {
         disk_usage
     }
 
-    pub fn get_network_io(&mut self) -> NetworkUsage {
+    pub fn get_network_io(&mut self) -> NetworkIO {
         self.sys.refresh_networks();
-        let mut network_io: NetworkUsage = Default::default();
+        let mut network_io: NetworkIO = Default::default();
         for (_, data) in self.sys.networks().iter() {
             network_io.received += data.received();
             network_io.total_received += data.total_received();
@@ -173,8 +173,8 @@ impl SystemInfo {
     }
 
     #[cfg(target_os = "linux")]
-    pub fn get_disk_io(&self) -> DiskUsage {
-        let mut total_disk_usage: DiskUsage = Default::default();
+    pub fn get_disk_io(&self) -> DiskIO {
+        let mut total_disk_usage: DiskIO = Default::default();
         let map = self.disk_usage_map.read().unwrap();
         map.iter().for_each(|(key, disk_usage)| {
             let sector_size = *self.sector_size_map.get(key).unwrap_or(&512) as u64;
@@ -187,14 +187,12 @@ impl SystemInfo {
     }
 
     pub fn get_overview(&mut self) -> Overview {
-        // TODO
-        let disk_io: DiskUsage = Default::default();
         Overview {
             cpu_usage: self.get_cpu_usage(),
             memory_usage: self.get_mem_usage(),
             network_io: self.get_network_io(),
             disk_usage: self.get_disk_usage(),
-            disk_io,
+            disk_io: self.get_disk_io(),
         }
     }
 }

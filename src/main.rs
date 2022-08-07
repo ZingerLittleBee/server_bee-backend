@@ -1,18 +1,18 @@
 use crate::config::get_server_port;
-use crate::system_info::SystemInfo;
+
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_actors::ws;
 
 mod config;
+mod formator;
 mod server;
 mod system_info;
 
 use self::server::MyWebSocket;
 
+/// To check service state
 async fn index() -> impl Responder {
-    let sys = SystemInfo::new();
-    sys.get_disk_io();
-    HttpResponse::Ok().body("Hello world!")
+    HttpResponse::Ok()
 }
 
 /// WebSocket handshake and start `MyWebSocket` actor.
@@ -30,7 +30,6 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            // WebSocket UI HTML file
             .service(web::resource("/").to(index))
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
