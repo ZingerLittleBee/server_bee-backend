@@ -7,7 +7,7 @@ use std::{
 use systemstat::{Platform, System as Systemstat};
 
 use serde::{Deserialize, Serialize};
-use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt};
+use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Overview {
@@ -45,6 +45,44 @@ pub struct NetworkIO {
 pub struct SectorIncrease {
     read: usize,
     write: usize,
+}
+
+#[derive(Deserialize, Serialize, Default, Debug, Clone)]
+pub struct User {
+    pub uid: String,
+    pub gid: String,
+    pub name: String,
+    pub groups: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Default, Debug, Clone)]
+pub struct OsOverview {
+    name: String,
+    kernel_version: String,
+    os_version: String,
+    hostname: String,
+    cpu_info: CpuInfo,
+    users: Vec<User>,
+}
+
+#[derive(Deserialize, Serialize, Default, Debug, Clone)]
+pub struct CpuInfo {
+    pub core_num: usize,
+    pub brand: String,
+    pub frequency: String,
+    pub vendor_id: String,
+}
+
+#[derive(Deserialize, Serialize, Default, Debug, Clone)]
+pub struct CpuStat {
+    pub total_usage: String,
+    pub cpu_usage: Vec<CpuUsage>,
+}
+
+#[derive(Deserialize, Serialize, Default, Debug, Clone)]
+pub struct CpuUsage {
+    pub name: String,
+    pub cpu_usage: String,
 }
 
 pub struct SystemInfo {
@@ -195,6 +233,62 @@ impl SystemInfo {
             network_io: self.get_network_io(),
             disk_usage: self.get_disk_usage(),
             disk_io: self.get_disk_io(),
+        }
+    }
+
+    pub fn get_cpu_info(&mut self) -> CpuInfo {
+        self.sys.refresh_cpu();
+        CpuInfo {
+            core_num: self.sys.physical_core_count().unwrap_or_default(),
+            brand: self.sys.cpus()[0].brand().to_string(),
+            frequency: self.sys.global_cpu_info().frequency().to_string(),
+            vendor_id: self.sys.cpus()[0].vendor_id().to_string(),
+        }
+    }
+
+    pub fn get_cpu_stat(&mut self) -> CpuStat {
+        self.sys.refresh_cpu();
+        CpuStat {
+            total_usage: format!("{}%", self.sys.global_cpu_info().cpu_usage()),
+            cpu_usage: self
+                .sys
+                .cpus()
+                .iter()
+                .map(|x| CpuUsage {
+                    name: x.name().to_string(),
+                    cpu_usage: format!("{}%", x.cpu_usage()),
+                })
+                .collect(),
+        }
+    }
+
+    pub fn get_os_overview(&mut self) -> OsOverview {
+        OsOverview {
+            name: self.sys.name().unwrap_or_else(|| "<unknown>".to_owned()),
+            kernel_version: self
+                .sys
+                .kernel_version()
+                .unwrap_or_else(|| "<unknown>".to_owned()),
+            os_version: self
+                .sys
+                .long_os_version()
+                .unwrap_or_else(|| "<unknown>".to_owned()),
+            hostname: self
+                .sys
+                .host_name()
+                .unwrap_or_else(|| "<unknown>".to_owned()),
+            cpu_info: self.get_cpu_info(),
+            users: self
+                .sys
+                .users()
+                .iter()
+                .map(|user| User {
+                    uid: user.id().to_string(),
+                    gid: user.group_id().to_string(),
+                    name: user.name().to_string(),
+                    groups: user.groups().iter().map(|x| x.to_string()).collect(),
+                })
+                .collect(),
         }
     }
 }
