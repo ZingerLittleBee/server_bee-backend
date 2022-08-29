@@ -6,84 +6,13 @@ use std::{
 #[cfg(target_os = "linux")]
 use systemstat::{Platform, System as Systemstat};
 
-use serde::{Deserialize, Serialize};
+use crate::model::cpu::{CpuInfo, CpuStat, CpuUsage};
+use crate::model::disk::DiskIO;
+use crate::model::network::NetworkIO;
+use crate::model::overview::{OsOverview, Overview};
+use crate::model::usage::Usage;
+use crate::model::user::User;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
-
-#[derive(Deserialize, Serialize, Default, Debug)]
-pub struct Overview {
-    pub cpu_usage: f32,
-    pub memory_usage: Usage,
-    pub disk_usage: Usage,
-    pub disk_io: DiskIO,
-    pub network_io: NetworkIO,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug)]
-pub struct Usage {
-    pub total: u64,
-    pub used: u64,
-    pub free: u64,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug)]
-pub struct DiskIO {
-    pub read: u64,
-    pub total_read: u64,
-    pub write: u64,
-    pub total_write: u64,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug)]
-pub struct NetworkIO {
-    pub received: u64,
-    pub total_received: u64,
-    pub transmitted: u64,
-    pub total_transmitted: u64,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
-pub struct SectorIncrease {
-    read: usize,
-    write: usize,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct User {
-    pub uid: String,
-    pub gid: String,
-    pub name: String,
-    pub groups: Vec<String>,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct OsOverview {
-    name: String,
-    kernel_version: String,
-    os_version: String,
-    hostname: String,
-    cpu_info: CpuInfo,
-    users: Vec<User>,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct CpuInfo {
-    pub core_num: usize,
-    pub brand: String,
-    pub frequency: String,
-    pub vendor_id: String,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct CpuStat {
-    pub total_usage: String,
-    pub cpu_usage: Vec<CpuUsage>,
-}
-
-#[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct CpuUsage {
-    pub name: String,
-    pub cpu_usage: String,
-}
 
 pub struct SystemInfo {
     sys: System,
@@ -186,6 +115,25 @@ impl SystemInfo {
         network_io
     }
 
+    pub fn get_boot_time(&mut self) -> u64 {
+        self.sys.boot_time()
+    }
+
+    pub fn get_uptime(&mut self) -> Vec<u64> {
+        let mut uptime = self.sys.uptime();
+        let days = uptime / 86400;
+        uptime -= days * 86400;
+        let hours = uptime / 3600;
+        uptime -= hours * 3600;
+        let minutes = uptime / 60;
+        vec![days, hours, minutes]
+    }
+
+    pub fn get_load_avg(&mut self) -> Vec<f64> {
+        let load_avg = self.sys.load_average();
+        vec![load_avg.one, load_avg.five, load_avg.fifteen]
+    }
+
     #[cfg(target_os = "linux")]
     fn init_sector_size() -> HashMap<String, u16> {
         use std::{
@@ -260,6 +208,13 @@ impl SystemInfo {
                 })
                 .collect(),
         }
+    }
+
+    pub fn get_disk_detail_usage(&mut self) {
+        self.sys.refresh_disks();
+        self.sys.disks().iter().for_each(|x| {
+            println!("{:?}", x);
+        });
     }
 
     pub fn get_os_overview(&mut self) -> OsOverview {

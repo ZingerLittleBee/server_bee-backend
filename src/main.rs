@@ -4,7 +4,7 @@ use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServ
 use actix_web_actors::ws;
 
 mod config;
-mod formator;
+mod model;
 mod server;
 mod system_info;
 

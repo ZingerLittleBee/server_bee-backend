@@ -1,13 +1,10 @@
 use std::time::{Duration, Instant};
 
+use crate::model::formator::{Convert, OverviewFormat};
+use crate::system_info::SystemInfo;
 use actix::prelude::*;
 use actix_web_actors::ws;
 use bytestring::ByteString;
-
-use crate::{
-    formator::{Convert, OverviewFormat},
-    system_info::SystemInfo,
-};
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -82,7 +79,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                     if let Some("/more") = command.next() {
                         // let param = command.next();
                     }
-
                 }
             }
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),

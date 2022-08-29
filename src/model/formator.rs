@@ -1,6 +1,8 @@
+use crate::model::disk::DiskIO;
+use crate::model::network::NetworkIO;
+use crate::model::overview::Overview;
+use crate::model::usage::Usage;
 use serde::{Deserialize, Serialize};
-
-use crate::system_info::{DiskIO, NetworkIO, Overview, Usage};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct FormatData {
