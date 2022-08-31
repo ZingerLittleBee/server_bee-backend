@@ -3,7 +3,7 @@
 </center>
 
 # Overview
-server_bee-backend for [server_probes](https://github.com/ZingerLittleBee/server_probes) power by rust with actix
+server_bee-backend for [server_bee](https://github.com/ZingerLittleBee/server_bee) power by rust with actix
 
 # Known Issues
 
