@@ -5,6 +5,7 @@ use actix_web_actors::ws;
 
 mod config;
 mod model;
+mod vo;
 mod server;
 mod system_info;
 

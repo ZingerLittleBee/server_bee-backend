@@ -7,9 +7,10 @@ use std::{
 use systemstat::{Platform, System as Systemstat};
 
 use crate::model::cpu::{CpuInfo, CpuStat, CpuUsage};
-use crate::model::disk::DiskIO;
-use crate::model::network::NetworkIO;
+use crate::model::disk::{DiskDetailUsage, DiskIO};
+use crate::model::network::{NetworkDetail, NetworkIO};
 use crate::model::overview::{OsOverview, Overview};
+use crate::model::process::Process;
 use crate::model::usage::Usage;
 use crate::model::user::User;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
@@ -210,11 +211,19 @@ impl SystemInfo {
         }
     }
 
-    pub fn get_disk_detail_usage(&mut self) {
+    pub fn get_disk_detail_usage(&mut self) -> Vec<DiskDetailUsage> {
         self.sys.refresh_disks();
-        self.sys.disks().iter().for_each(|x| {
-            println!("{:?}", x);
-        });
+        self.sys.disks().iter().map(|x| x.into()).collect()
+    }
+
+    pub fn get_network_detail(&mut self) -> Vec<NetworkDetail> {
+        self.sys.refresh_networks();
+        NetworkDetail::new_list(self.sys.networks())
+    }
+
+    pub fn get_process(&mut self) -> Vec<Process> {
+        self.sys.refresh_processes();
+        self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
     pub fn get_os_overview(&mut self) -> OsOverview {

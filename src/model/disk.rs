@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use sysinfo::DiskUsage as SysDiskUsage;
 use sysinfo::{Disk, DiskExt, DiskType};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
@@ -7,6 +8,14 @@ pub struct DiskIO {
     pub total_read: u64,
     pub write: u64,
     pub total_write: u64,
+}
+
+#[derive(Deserialize, Serialize, Default, Debug)]
+pub struct DiskUsage {
+    pub total_written_bytes: u64,
+    pub written_bytes: u64,
+    pub total_read_bytes: u64,
+    pub read_bytes: u64,
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
@@ -25,8 +34,19 @@ pub struct DiskDetailUsage {
     pub is_removable: bool,
 }
 
-impl From<Disk> for DiskDetailUsage {
-    fn from(disk: Disk) -> Self {
+impl From<SysDiskUsage> for DiskUsage {
+    fn from(disk: SysDiskUsage) -> Self {
+        DiskUsage {
+            total_written_bytes: disk.total_written_bytes,
+            written_bytes: disk.written_bytes,
+            total_read_bytes: disk.total_read_bytes,
+            read_bytes: disk.read_bytes,
+        }
+    }
+}
+
+impl From<&Disk> for DiskDetailUsage {
+    fn from(disk: &Disk) -> Self {
         DiskDetailUsage {
             disk_type: match disk.type_() {
                 DiskType::HDD => "HDD".to_string(),

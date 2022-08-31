@@ -1,7 +1,8 @@
 use std::time::{Duration, Instant};
 
-use crate::model::formator::{Convert, OverviewFormat};
 use crate::system_info::SystemInfo;
+use crate::vo::formator::Convert;
+use crate::vo::overview::OverviewVo;
 use actix::prelude::*;
 use actix_web_actors::ws;
 use bytestring::ByteString;
@@ -91,8 +92,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
     }
 }
 
-impl From<OverviewFormat> for ByteString {
-    fn from(overview: OverviewFormat) -> Self {
+impl From<OverviewVo> for ByteString {
+    fn from(overview: OverviewVo) -> Self {
         serde_json::to_string(&overview).unwrap().into()
     }
 }
