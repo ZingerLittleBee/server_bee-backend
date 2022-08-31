@@ -1,5 +1,5 @@
 [package]
-name = "server_probes-backend"
+name = "server_bee-backend"
 version = "0.1.0"
 edition = "2021"
 
