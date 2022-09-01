@@ -25,7 +25,7 @@ pub struct SectorIncrease {
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct DiskDetailUsage {
+pub struct DiskDetail {
     pub disk_type: String,
     pub device_name: String,
     pub file_system: String,
@@ -45,9 +45,9 @@ impl From<SysDiskUsage> for DiskUsage {
     }
 }
 
-impl From<&Disk> for DiskDetailUsage {
+impl From<&Disk> for DiskDetail {
     fn from(disk: &Disk) -> Self {
-        DiskDetailUsage {
+        DiskDetail {
             disk_type: match disk.type_() {
                 DiskType::HDD => "HDD".to_string(),
                 DiskType::SSD => "SSD".to_string(),

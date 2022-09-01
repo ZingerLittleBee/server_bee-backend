@@ -1,6 +1,8 @@
 use crate::model::disk::DiskUsage;
 use sysinfo::{PidExt, Process as SysProcess, ProcessExt};
+use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Process {
     pub name: String,
 

@@ -21,3 +21,20 @@ impl Convert<NetworkIOVo> for NetworkIO {
         }
     }
 }
+
+#[derive(Deserialize, Serialize, Default, Debug)]
+pub struct NetworkDetailVo {
+    pub name: String,
+    pub received: u64,
+    pub total_received: u64,
+    pub transmitted: u64,
+    pub total_transmitted: u64,
+    pub packets_received: u64,
+    pub total_packets_received: u64,
+    pub packets_transmitted: u64,
+    pub total_packets_transmitted: u64,
+    pub errors_on_received: u64,
+    pub total_errors_on_received: u64,
+    pub errors_on_transmitted: u64,
+    pub total_errors_on_transmitted: u64,
+}

@@ -10,14 +10,20 @@ use bytestring::ByteString;
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 
-const OVERVIEW_INTERVAL: Duration = Duration::from_secs(1);
+const TASK_INTERVAL: Duration = Duration::from_secs(1);
 
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+enum Signal {
+    More,
+    Less
+}
+
 pub struct MyWebSocket {
     hb: Instant,
     sys: SystemInfo,
+    signal: Signal
 }
 
 impl MyWebSocket {
@@ -25,6 +31,7 @@ impl MyWebSocket {
         Self {
             hb: Instant::now(),
             sys: SystemInfo::new(),
+            signal: Signal::Less
         }
     }
 
@@ -46,9 +53,15 @@ impl MyWebSocket {
         });
     }
 
-    fn overview(&self, ctx: &mut <Self as Actor>::Context) {
-        ctx.run_interval(OVERVIEW_INTERVAL, |act, ctx| {
-            ctx.text(act.sys.get_overview().convert())
+    fn task(&self, ctx: &mut <Self as Actor>::Context) {
+        ctx.run_interval(TASK_INTERVAL, |act, ctx| {
+            ctx.text(
+                match act.signal {
+                    // TODO
+                    Signal::More => act.sys.get_overview().convert(),
+                    Signal::Less => act.sys.get_overview().convert(),
+                }
+            )
         });
     }
 }
@@ -58,7 +71,7 @@ impl Actor for MyWebSocket {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
-        self.overview(ctx);
+        self.task(ctx);
     }
 }
 
@@ -79,6 +92,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
 
                     if let Some("/more") = command.next() {
                         // let param = command.next();
+                        self.signal = Signal::More;
+                    }
+                    if let Some("/less") = command.next() {
+                        self.signal = Signal::Less;
                     }
                 }
             }

@@ -4,3 +4,8 @@ pub mod memory;
 pub mod network;
 pub mod overview;
 pub mod usage;
+pub mod realtime_status;
+pub mod fusion;
+pub mod cpu;
+pub mod user;
+pub mod process;

@@ -22,4 +22,5 @@ pub struct OsOverview {
     pub hostname: String,
     pub cpu_info: CpuInfo,
     pub users: Vec<User>,
+    pub boot_time: u64,
 }

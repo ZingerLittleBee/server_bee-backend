@@ -6,8 +6,8 @@ use std::{
 #[cfg(target_os = "linux")]
 use systemstat::{Platform, System as Systemstat};
 
-use crate::model::cpu::{CpuInfo, CpuStat, CpuUsage};
-use crate::model::disk::{DiskDetailUsage, DiskIO};
+use crate::model::cpu::{CpuInfo, CpuUsage};
+use crate::model::disk::{DiskDetail, DiskIO};
 use crate::model::network::{NetworkDetail, NetworkIO};
 use crate::model::overview::{OsOverview, Overview};
 use crate::model::process::Process;
@@ -195,23 +195,19 @@ impl SystemInfo {
         }
     }
 
-    pub fn get_cpu_stat(&mut self) -> CpuStat {
+    pub fn get_cpu_stat(&mut self) -> Vec<CpuUsage> {
         self.sys.refresh_cpu();
-        CpuStat {
-            total_usage: format!("{}%", self.sys.global_cpu_info().cpu_usage()),
-            cpu_usage: self
-                .sys
-                .cpus()
-                .iter()
-                .map(|x| CpuUsage {
-                    name: x.name().to_string(),
-                    cpu_usage: format!("{}%", x.cpu_usage()),
-                })
-                .collect(),
-        }
+        self.sys
+            .cpus()
+            .iter()
+            .map(|x| CpuUsage {
+                name: x.name().to_string(),
+                cpu_usage: format!("{}%", x.cpu_usage()),
+            })
+            .collect()
     }
 
-    pub fn get_disk_detail_usage(&mut self) -> Vec<DiskDetailUsage> {
+    pub fn get_disk_detail_usage(&mut self) -> Vec<DiskDetail> {
         self.sys.refresh_disks();
         self.sys.disks().iter().map(|x| x.into()).collect()
     }
@@ -253,6 +249,7 @@ impl SystemInfo {
                     groups: user.groups().iter().map(|x| x.to_string()).collect(),
                 })
                 .collect(),
+            boot_time: self.get_boot_time(),
         }
     }
 }

@@ -40,3 +40,13 @@ impl Convert<DiskIOFormat> for DiskIO {
         }
     }
 }
+
+#[derive(Deserialize, Serialize, Default, Debug, Clone)]
+pub struct DiskDetailVo {
+    pub disk_type: String,
+    pub device_name: String,
+    pub file_system: String,
+    pub total_space: u64,
+    pub available_space: u64,
+    pub is_removable: bool,
+}
