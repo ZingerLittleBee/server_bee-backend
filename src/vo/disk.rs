@@ -1,38 +1,19 @@
-use crate::model::disk::DiskIO;
-use crate::model::usage::Usage;
+use crate::model::disk::{DiskDetail, DiskIO};
 use crate::vo::formator::{Convert, FormatData, Formator};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
-pub struct DiskUsageVo {
-    pub total: FormatData,
-    pub used: FormatData,
-    pub free: FormatData,
-}
-
-impl Convert<DiskUsageVo> for Usage {
-    fn convert(&self) -> DiskUsageVo {
-        let formator = Formator::new();
-        DiskUsageVo {
-            total: formator.format_from_byte(self.total),
-            used: formator.format_from_byte(self.used),
-            free: formator.format_from_byte(self.free),
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, Default, Debug)]
-pub struct DiskIOFormat {
+pub struct DiskIOVo {
     pub read: FormatData,
     pub total_read: FormatData,
     pub write: FormatData,
     pub total_write: FormatData,
 }
 
-impl Convert<DiskIOFormat> for DiskIO {
-    fn convert(&self) -> DiskIOFormat {
+impl Convert<DiskIOVo> for DiskIO {
+    fn convert(&self) -> DiskIOVo {
         let formator = Formator::new();
-        DiskIOFormat {
+        DiskIOVo {
             read: formator.format_from_byte(self.read),
             total_read: formator.format_from_byte(self.total_read),
             write: formator.format_from_byte(self.write),
@@ -49,4 +30,17 @@ pub struct DiskDetailVo {
     pub total_space: u64,
     pub available_space: u64,
     pub is_removable: bool,
+}
+
+impl Convert<DiskDetailVo> for DiskDetail {
+    fn convert(&self) -> DiskDetailVo {
+        DiskDetailVo {
+            disk_type: self.disk_type.clone(),
+            device_name: self.device_name.clone(),
+            file_system: self.file_system.clone(),
+            total_space: self.total_space,
+            available_space: self.available_space,
+            is_removable: self.is_removable,
+        }
+    }
 }

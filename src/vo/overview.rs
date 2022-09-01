@@ -1,18 +1,27 @@
-use crate::model::overview::Overview;
-use crate::vo::disk::{DiskIOFormat, DiskUsageVo};
+use bytestring::ByteString;
+use crate::model::overview::{OsOverview, Overview};
+use crate::vo::disk::DiskIOVo;
 use crate::vo::formator::Convert;
 use crate::vo::memory::MemUsageVo;
 use crate::vo::network::NetworkIOVo;
 use serde::{Deserialize, Serialize};
-use crate::model::cpu::CpuInfo;
+use crate::vo::cpu::CpuInfoVo;
+use crate::vo::usage::UsageVo;
+use crate::vo::user::UserVo;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct OverviewVo {
     pub cpu_usage: String,
     pub memory_usage: MemUsageVo,
-    pub disk_usage: DiskUsageVo,
-    pub disk_io: DiskIOFormat,
+    pub disk_usage: UsageVo,
+    pub disk_io: DiskIOVo,
     pub network_io: NetworkIOVo,
+}
+
+impl From<OverviewVo> for ByteString {
+    fn from(overview: OverviewVo) -> Self {
+        serde_json::to_string(&overview).unwrap().into()
+    }
 }
 
 impl Convert<OverviewVo> for Overview {
@@ -28,7 +37,7 @@ impl Convert<OverviewVo> for Overview {
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
-pub struct OsOverview {
+pub struct OsOverviewVo {
     pub name: String,
     pub kernel_version: String,
     pub os_version: String,
@@ -36,4 +45,18 @@ pub struct OsOverview {
     pub cpu_info: CpuInfoVo,
     pub users: Vec<UserVo>,
     pub boot_time: u64,
+}
+
+impl Convert<OsOverviewVo> for OsOverview {
+    fn convert(&self) -> OsOverviewVo {
+        OsOverviewVo {
+            name: self.name.clone(),
+            kernel_version: self.kernel_version.clone(),
+            os_version: self.os_version.clone(),
+            hostname: self.hostname.clone(),
+            cpu_info: self.cpu_info.convert(),
+            users: self.users.iter().map(|user| user.convert()).collect(),
+            boot_time: self.boot_time,
+        }
+    }
 }

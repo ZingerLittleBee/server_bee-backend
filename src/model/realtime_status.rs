@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 pub struct RealtimeStatus {
     pub cpu: Vec<CpuUsage>,
     pub load_avg: Vec<f64>,
-    pub process: Process,
-    pub network: NetworkDetail,
-    pub disk: DiskDetail,
-    pub uptime: u64,
+    pub process: Vec<Process>,
+    pub network: Vec<NetworkDetail>,
+    pub disk: Vec<DiskDetail>,
+    pub uptime: Vec<u64>,
 }

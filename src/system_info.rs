@@ -14,6 +14,9 @@ use crate::model::process::Process;
 use crate::model::usage::Usage;
 use crate::model::user::User;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
+use crate::model::realtime_status::RealtimeStatus;
+use crate::vo::formator::Convert;
+use crate::vo::fusion::Fusion;
 
 pub struct SystemInfo {
     sys: System,
@@ -207,7 +210,7 @@ impl SystemInfo {
             .collect()
     }
 
-    pub fn get_disk_detail_usage(&mut self) -> Vec<DiskDetail> {
+    pub fn get_disk_detail(&mut self) -> Vec<DiskDetail> {
         self.sys.refresh_disks();
         self.sys.disks().iter().map(|x| x.into()).collect()
     }
@@ -251,5 +254,30 @@ impl SystemInfo {
                 .collect(),
             boot_time: self.get_boot_time(),
         }
+    }
+
+    pub fn get_realtime_status(&mut self) -> RealtimeStatus {
+        RealtimeStatus {
+            cpu: self.get_cpu_stat(),
+            load_avg: self.get_load_avg(),
+            process: self.get_process(),
+            network: self.get_network_detail(),
+            disk: self.get_disk_detail(),
+            uptime: self.get_uptime()
+        }
+    }
+
+    pub fn get_full_fusion(&mut self) -> Fusion {
+        Fusion::new_full(
+            self.get_overview().convert(),
+            Option::from(self.get_os_overview().convert()),
+            Option::from(self.get_realtime_status().convert()),
+        )
+    }
+
+    pub fn get_less_fusion(&mut self) -> Fusion {
+        Fusion::new_less(
+            self.get_overview().convert(),
+        )
     }
 }

@@ -1,11 +1,8 @@
 use std::time::{Duration, Instant};
 
 use crate::system_info::SystemInfo;
-use crate::vo::formator::Convert;
-use crate::vo::overview::OverviewVo;
 use actix::prelude::*;
 use actix_web_actors::ws;
-use bytestring::ByteString;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -57,9 +54,8 @@ impl MyWebSocket {
         ctx.run_interval(TASK_INTERVAL, |act, ctx| {
             ctx.text(
                 match act.signal {
-                    // TODO
-                    Signal::More => act.sys.get_overview().convert(),
-                    Signal::Less => act.sys.get_overview().convert(),
+                    Signal::More => act.sys.get_full_fusion(),
+                    Signal::Less => act.sys.get_less_fusion(),
                 }
             )
         });
@@ -90,12 +86,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                 if msg.starts_with('/') {
                     let mut command = msg.splitn(2, ' ');
 
-                    if let Some("/more") = command.next() {
+                    match command.next() {
                         // let param = command.next();
-                        self.signal = Signal::More;
-                    }
-                    if let Some("/less") = command.next() {
-                        self.signal = Signal::Less;
+                        Some("/more") => self.signal = Signal::More,
+                        Some("/less") => self.signal = Signal::Less,
+                        _ => {},
                     }
                 }
             }
@@ -106,11 +101,5 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
             }
             _ => ctx.stop(),
         }
-    }
-}
-
-impl From<OverviewVo> for ByteString {
-    fn from(overview: OverviewVo) -> Self {
-        serde_json::to_string(&overview).unwrap().into()
     }
 }

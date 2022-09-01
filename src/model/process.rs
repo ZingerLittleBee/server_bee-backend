@@ -1,4 +1,4 @@
-use crate::model::disk::DiskUsage;
+use crate::model::disk::DiskIO;
 use sysinfo::{PidExt, Process as SysProcess, ProcessExt};
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +35,7 @@ pub struct Process {
 
     pub cpu_usage: f32,
 
-    pub disk_usage: DiskUsage,
+    pub disk_usage: DiskIO,
 
     pub user_id: Option<String>,
 
@@ -59,7 +59,7 @@ impl From<&SysProcess> for Process {
             start_time: pro.start_time(),
             run_time: pro.run_time(),
             cpu_usage: pro.cpu_usage(),
-            disk_usage: DiskUsage::from(pro.disk_usage()),
+            disk_usage: DiskIO::from(pro.disk_usage()),
             user_id: pro.user_id().map(|u| u.to_string()),
             group_id: pro.group_id().map(|g| g.to_string()),
         }

@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::DiskUsage as SysDiskUsage;
-use sysinfo::{Disk, DiskExt, DiskType};
+use sysinfo::{Disk, DiskExt, DiskType, DiskUsage};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct DiskIO {
@@ -10,12 +9,15 @@ pub struct DiskIO {
     pub total_write: u64,
 }
 
-#[derive(Deserialize, Serialize, Default, Debug)]
-pub struct DiskUsage {
-    pub total_written_bytes: u64,
-    pub written_bytes: u64,
-    pub total_read_bytes: u64,
-    pub read_bytes: u64,
+impl From<DiskUsage> for DiskIO {
+    fn from(usage: DiskUsage) -> Self {
+        DiskIO {
+            read: usage.read_bytes,
+            total_read: usage.total_read_bytes,
+            write: usage.written_bytes,
+            total_write: usage.total_written_bytes
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
@@ -32,17 +34,6 @@ pub struct DiskDetail {
     pub total_space: u64,
     pub available_space: u64,
     pub is_removable: bool,
-}
-
-impl From<SysDiskUsage> for DiskUsage {
-    fn from(disk: SysDiskUsage) -> Self {
-        DiskUsage {
-            total_written_bytes: disk.total_written_bytes,
-            written_bytes: disk.written_bytes,
-            total_read_bytes: disk.total_read_bytes,
-            read_bytes: disk.read_bytes,
-        }
-    }
 }
 
 impl From<&Disk> for DiskDetail {

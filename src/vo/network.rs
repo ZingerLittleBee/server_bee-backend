@@ -1,4 +1,4 @@
-use crate::model::network::NetworkIO;
+use crate::model::network::{NetworkDetail, NetworkIO};
 use crate::vo::formator::{Convert, FormatData, Formator};
 use serde::{Deserialize, Serialize};
 
@@ -37,4 +37,25 @@ pub struct NetworkDetailVo {
     pub total_errors_on_received: u64,
     pub errors_on_transmitted: u64,
     pub total_errors_on_transmitted: u64,
+}
+
+impl Convert<NetworkDetailVo> for NetworkDetail {
+    fn convert(&self) -> NetworkDetailVo {
+        NetworkDetailVo {
+            name: self.name.clone(),
+            received: self.received,
+            total_received: self.total_received,
+            transmitted: self.transmitted,
+            total_transmitted: self.total_transmitted,
+            packets_received: self.packets_received,
+            total_packets_received: self.total_packets_received,
+            packets_transmitted: self.packets_transmitted,
+            total_packets_transmitted: self.total_packets_transmitted,
+            errors_on_received: self.errors_on_received,
+            total_errors_on_received: self.total_errors_on_received,
+            errors_on_transmitted: self.errors_on_transmitted,
+            total_errors_on_transmitted: self.total_errors_on_transmitted
+        }
+            
+    }
 }
