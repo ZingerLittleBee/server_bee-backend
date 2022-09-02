@@ -1,12 +1,16 @@
-use bytestring::ByteString;
-use serde::{Deserialize, Serialize};
 use crate::vo::overview::{OsOverviewVo, OverviewVo};
 use crate::vo::realtime_status::RealtimeStatusVo;
+use bytestring::ByteString;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Fusion {
     pub overview: OverviewVo,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub os: Option<OsOverviewVo>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub realtime: Option<RealtimeStatusVo>,
 }
 
@@ -21,15 +25,19 @@ impl Fusion {
         Fusion {
             overview,
             os: None,
-            realtime: None
+            realtime: None,
         }
     }
 
-    pub fn new_full(overview: OverviewVo, os: Option<OsOverviewVo>, realtime: Option<RealtimeStatusVo>) -> Self {
+    pub fn new_full(
+        overview: OverviewVo,
+        os: Option<OsOverviewVo>,
+        realtime: Option<RealtimeStatusVo>,
+    ) -> Self {
         Fusion {
             overview,
             os,
-            realtime
+            realtime,
         }
     }
 }

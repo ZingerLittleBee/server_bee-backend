@@ -11,12 +11,12 @@ use crate::model::disk::{DiskDetail, DiskIO};
 use crate::model::network::{NetworkDetail, NetworkIO};
 use crate::model::overview::{OsOverview, Overview};
 use crate::model::process::Process;
+use crate::model::realtime_status::RealtimeStatus;
 use crate::model::usage::Usage;
 use crate::model::user::User;
-use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
-use crate::model::realtime_status::RealtimeStatus;
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
+use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
 
 pub struct SystemInfo {
     sys: System,
@@ -44,6 +44,8 @@ impl SystemInfo {
     #[cfg(target_os = "linux")]
     fn sector_thread(disk_usage_map: Arc<RwLock<HashMap<String, DiskIO>>>) {
         use std::thread;
+
+        use crate::model::disk::SectorIncrease;
 
         thread::spawn(move || {
             let systemstat = Systemstat::new();
@@ -78,12 +80,10 @@ impl SystemInfo {
     }
 
     pub fn get_cpu_usage(&mut self) -> f32 {
-        self.sys.refresh_cpu();
         self.sys.global_cpu_info().cpu_usage()
     }
 
     pub fn get_mem_usage(&mut self) -> Usage {
-        self.sys.refresh_memory();
         Usage {
             total: self.sys.total_memory(),
             used: self.sys.used_memory(),
@@ -92,7 +92,6 @@ impl SystemInfo {
     }
 
     pub fn get_disk_usage(&mut self) -> Usage {
-        self.sys.refresh_disks();
         let mut disk_usage: Usage = Default::default();
         for disk in self.sys.disks() {
             match disk.type_() {
@@ -108,7 +107,6 @@ impl SystemInfo {
     }
 
     pub fn get_network_io(&mut self) -> NetworkIO {
-        self.sys.refresh_networks();
         let mut network_io: NetworkIO = Default::default();
         for (_, data) in self.sys.networks().iter() {
             network_io.received += data.received();
@@ -189,7 +187,6 @@ impl SystemInfo {
     }
 
     pub fn get_cpu_info(&mut self) -> CpuInfo {
-        self.sys.refresh_cpu();
         CpuInfo {
             core_num: self.sys.physical_core_count().unwrap_or_default(),
             brand: self.sys.cpus()[0].brand().to_string(),
@@ -199,7 +196,6 @@ impl SystemInfo {
     }
 
     pub fn get_cpu_stat(&mut self) -> Vec<CpuUsage> {
-        self.sys.refresh_cpu();
         self.sys
             .cpus()
             .iter()
@@ -211,17 +207,14 @@ impl SystemInfo {
     }
 
     pub fn get_disk_detail(&mut self) -> Vec<DiskDetail> {
-        self.sys.refresh_disks();
         self.sys.disks().iter().map(|x| x.into()).collect()
     }
 
     pub fn get_network_detail(&mut self) -> Vec<NetworkDetail> {
-        self.sys.refresh_networks();
         NetworkDetail::new_list(self.sys.networks())
     }
 
     pub fn get_process(&mut self) -> Vec<Process> {
-        self.sys.refresh_processes();
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
@@ -263,11 +256,12 @@ impl SystemInfo {
             process: self.get_process(),
             network: self.get_network_detail(),
             disk: self.get_disk_detail(),
-            uptime: self.get_uptime()
+            uptime: self.get_uptime(),
         }
     }
 
     pub fn get_full_fusion(&mut self) -> Fusion {
+        self.sys.refresh_all();
         Fusion::new_full(
             self.get_overview().convert(),
             Option::from(self.get_os_overview().convert()),
@@ -276,8 +270,7 @@ impl SystemInfo {
     }
 
     pub fn get_less_fusion(&mut self) -> Fusion {
-        Fusion::new_less(
-            self.get_overview().convert(),
-        )
+        self.sys.refresh_all();
+        Fusion::new_less(self.get_overview().convert())
     }
 }

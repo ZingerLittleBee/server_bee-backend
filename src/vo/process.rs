@@ -1,7 +1,9 @@
-use serde::{Deserialize, Serialize};
 use crate::model::process::Process;
 use crate::vo::disk::DiskIOVo;
 use crate::vo::formator::Convert;
+use serde::{Deserialize, Serialize};
+
+use super::formator::{FormatData, Formator};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct ProcessVo {
@@ -22,9 +24,9 @@ pub struct ProcessVo {
 
     pub root: String,
 
-    pub memory: u64,
+    pub memory: FormatData,
 
-    pub virtual_memory: u64,
+    pub vir_mem: FormatData,
 
     pub parent: Option<u32>,
 
@@ -34,9 +36,9 @@ pub struct ProcessVo {
 
     pub run_time: u64,
 
-    pub cpu_usage: f32,
+    pub cpu: f32,
 
-    pub disk_usage: DiskIOVo,
+    pub disk: DiskIOVo,
 
     pub user_id: Option<String>,
 
@@ -45,6 +47,7 @@ pub struct ProcessVo {
 
 impl Convert<ProcessVo> for Process {
     fn convert(&self) -> ProcessVo {
+        let formator = Formator::new();
         ProcessVo {
             name: self.name.clone(),
             cmd: self.cmd.clone(),
@@ -53,14 +56,14 @@ impl Convert<ProcessVo> for Process {
             environ: self.environ.clone(),
             cwd: self.cwd.clone(),
             root: self.root.clone(),
-            memory: self.memory,
-            virtual_memory: self.virtual_memory,
+            memory: formator.format_from_kilo_byte(self.memory as f64),
+            vir_mem: formator.format_from_kilo_byte(self.virtual_memory as f64),
             parent: self.parent,
             status: self.status.clone(),
             start_time: self.start_time,
             run_time: self.run_time,
-            cpu_usage: self.cpu_usage,
-            disk_usage: self.disk_usage.convert(),
+            cpu: self.cpu_usage,
+            disk: self.disk_usage.convert(),
             user_id: self.user_id.clone(),
             group_id: self.group_id.clone(),
         }

@@ -15,15 +15,15 @@ impl From<DiskUsage> for DiskIO {
             read: usage.read_bytes,
             total_read: usage.total_read_bytes,
             write: usage.written_bytes,
-            total_write: usage.total_written_bytes
+            total_write: usage.total_written_bytes,
         }
     }
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
 pub struct SectorIncrease {
-    read: usize,
-    write: usize,
+    pub read: usize,
+    pub write: usize,
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]

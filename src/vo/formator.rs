@@ -1,9 +1,18 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Default, Debug)]
+#[derive(Deserialize, Default, Debug, Clone)]
 pub struct FormatData {
     value: String,
     unit: String,
+}
+
+impl Serialize for FormatData {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        (&self.value, &self.unit).serialize(serializer)
+    }
 }
 
 impl FormatData {

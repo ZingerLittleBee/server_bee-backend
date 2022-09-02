@@ -1,6 +1,6 @@
 use crate::model::disk::DiskIO;
-use sysinfo::{PidExt, Process as SysProcess, ProcessExt};
 use serde::{Deserialize, Serialize};
+use sysinfo::{PidExt, Process as SysProcess, ProcessExt};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Process {

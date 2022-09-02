@@ -5,9 +5,9 @@ use actix_web_actors::ws;
 
 mod config;
 mod model;
-mod vo;
 mod server;
 mod system_info;
+mod vo;
 
 use self::server::MyWebSocket;
 
@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
     })
     .workers(2)
-    .bind(("127.0.0.1", port))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await
 }

@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use crate::model::cpu::{CpuInfo, CpuUsage};
 use crate::vo::formator::Convert;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
 pub struct CpuInfoVo {
@@ -10,18 +10,17 @@ pub struct CpuInfoVo {
     pub vendor_id: String,
 }
 
-
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
 pub struct CpuUsageVo {
     pub name: String,
-    pub cpu_usage: String,
+    pub usage: String,
 }
 
 impl Convert<CpuUsageVo> for CpuUsage {
     fn convert(&self) -> CpuUsageVo {
         CpuUsageVo {
             name: self.name.clone(),
-            cpu_usage: self.cpu_usage.clone(),
+            usage: self.cpu_usage.clone(),
         }
     }
 }

@@ -4,58 +4,62 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct NetworkIOVo {
-    pub received: FormatData,
-    pub total_received: FormatData,
-    pub transmitted: FormatData,
-    pub total_transmitted: FormatData,
+    pub rx: FormatData,
+    pub ttl_rx: FormatData,
+    pub tx: FormatData,
+    pub ttl_tx: FormatData,
 }
 
 impl Convert<NetworkIOVo> for NetworkIO {
     fn convert(&self) -> NetworkIOVo {
         let formator = Formator::new();
         NetworkIOVo {
-            received: formator.format_from_byte(self.received),
-            total_received: formator.format_from_byte(self.total_received),
-            transmitted: formator.format_from_byte(self.transmitted),
-            total_transmitted: formator.format_from_byte(self.total_transmitted),
+            rx: formator.format_from_byte(self.received),
+            ttl_rx: formator.format_from_byte(self.total_received),
+            tx: formator.format_from_byte(self.transmitted),
+            ttl_tx: formator.format_from_byte(self.total_transmitted),
         }
     }
 }
 
+/// rx = received
+/// tx = transmitted
+/// pkts = packets
+/// ttl = total
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct NetworkDetailVo {
     pub name: String,
-    pub received: u64,
-    pub total_received: u64,
-    pub transmitted: u64,
-    pub total_transmitted: u64,
-    pub packets_received: u64,
-    pub total_packets_received: u64,
-    pub packets_transmitted: u64,
-    pub total_packets_transmitted: u64,
-    pub errors_on_received: u64,
-    pub total_errors_on_received: u64,
-    pub errors_on_transmitted: u64,
-    pub total_errors_on_transmitted: u64,
+    pub rx: FormatData,
+    pub ttl_rx: FormatData,
+    pub tx: FormatData,
+    pub ttl_tx: FormatData,
+    pub pkt_rx: FormatData,
+    pub ttl_pkt_rx: FormatData,
+    pub pkt_tx: FormatData,
+    pub ttl_pkt_tx: FormatData,
+    pub err_rx: FormatData,
+    pub ttl_err_rx: FormatData,
+    pub err_tx: FormatData,
+    pub ttl_err_tx: FormatData,
 }
 
 impl Convert<NetworkDetailVo> for NetworkDetail {
     fn convert(&self) -> NetworkDetailVo {
+        let formator = Formator::new();
         NetworkDetailVo {
             name: self.name.clone(),
-            received: self.received,
-            total_received: self.total_received,
-            transmitted: self.transmitted,
-            total_transmitted: self.total_transmitted,
-            packets_received: self.packets_received,
-            total_packets_received: self.total_packets_received,
-            packets_transmitted: self.packets_transmitted,
-            total_packets_transmitted: self.total_packets_transmitted,
-            errors_on_received: self.errors_on_received,
-            total_errors_on_received: self.total_errors_on_received,
-            errors_on_transmitted: self.errors_on_transmitted,
-            total_errors_on_transmitted: self.total_errors_on_transmitted
+            rx: formator.format_from_byte(self.received),
+            ttl_rx: formator.format_from_byte(self.total_received),
+            tx: formator.format_from_byte(self.transmitted),
+            ttl_tx: formator.format_from_byte(self.total_transmitted),
+            pkt_rx: formator.format_from_byte(self.packets_received),
+            ttl_pkt_rx: formator.format_from_byte(self.total_packets_received),
+            pkt_tx: formator.format_from_byte(self.packets_transmitted),
+            ttl_pkt_tx: formator.format_from_byte(self.total_packets_transmitted),
+            err_rx: formator.format_from_byte(self.errors_on_received),
+            ttl_err_rx: formator.format_from_byte(self.total_errors_on_received),
+            err_tx: formator.format_from_byte(self.errors_on_transmitted),
+            ttl_err_tx: formator.format_from_byte(self.total_errors_on_transmitted),
         }
-            
     }
 }

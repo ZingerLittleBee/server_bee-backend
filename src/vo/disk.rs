@@ -27,19 +27,20 @@ pub struct DiskDetailVo {
     pub disk_type: String,
     pub device_name: String,
     pub file_system: String,
-    pub total_space: u64,
-    pub available_space: u64,
+    pub total_space: FormatData,
+    pub available_space: FormatData,
     pub is_removable: bool,
 }
 
 impl Convert<DiskDetailVo> for DiskDetail {
     fn convert(&self) -> DiskDetailVo {
+        let formator = Formator::new();
         DiskDetailVo {
             disk_type: self.disk_type.clone(),
             device_name: self.device_name.clone(),
             file_system: self.file_system.clone(),
-            total_space: self.total_space,
-            available_space: self.available_space,
+            total_space: formator.format_from_byte(self.total_space),
+            available_space: formator.format_from_byte(self.available_space),
             is_removable: self.is_removable,
         }
     }
