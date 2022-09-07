@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 pub struct CpuInfo {
     pub core_num: usize,
     pub brand: String,
-    pub frequency: String,
+    pub frequency: u64,
     pub vendor_id: String,
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
 pub struct CpuUsage {
     pub name: String,
-    pub cpu_usage: String,
+    pub cpu_usage: f32,
 }

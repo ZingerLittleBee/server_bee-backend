@@ -6,14 +6,14 @@ use serde::{Deserialize, Serialize};
 pub struct CpuInfoVo {
     pub core_num: usize,
     pub brand: String,
-    pub frequency: String,
+    pub frequency: u64,
     pub vendor_id: String,
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
 pub struct CpuUsageVo {
     pub name: String,
-    pub usage: String,
+    pub usage: f32,
 }
 
 impl Convert<CpuUsageVo> for CpuUsage {
@@ -30,7 +30,7 @@ impl Convert<CpuInfoVo> for CpuInfo {
         CpuInfoVo {
             core_num: self.core_num,
             brand: self.brand.clone(),
-            frequency: self.frequency.clone(),
+            frequency: self.frequency,
             vendor_id: self.vendor_id.clone(),
         }
     }

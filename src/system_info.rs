@@ -190,7 +190,7 @@ impl SystemInfo {
         CpuInfo {
             core_num: self.sys.physical_core_count().unwrap_or_default(),
             brand: self.sys.cpus()[0].brand().to_string(),
-            frequency: self.sys.global_cpu_info().frequency().to_string(),
+            frequency: self.sys.global_cpu_info().frequency(),
             vendor_id: self.sys.cpus()[0].vendor_id().to_string(),
         }
     }
@@ -201,7 +201,9 @@ impl SystemInfo {
             .iter()
             .map(|x| CpuUsage {
                 name: x.name().to_string(),
-                cpu_usage: format!("{}%", x.cpu_usage()),
+                cpu_usage: format!("{:.1}", x.cpu_usage())
+                    .parse::<f32>()
+                    .unwrap_or_default(),
             })
             .collect()
     }
