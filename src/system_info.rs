@@ -6,7 +6,6 @@ use std::{
 #[cfg(target_os = "linux")]
 use systemstat::{Platform, System as Systemstat};
 
-use crate::model::cpu::{CpuInfo, CpuUsage};
 use crate::model::disk::{DiskDetail, DiskIO};
 use crate::model::network::{NetworkDetail, NetworkIO};
 use crate::model::overview::{OsOverview, Overview};
@@ -14,6 +13,10 @@ use crate::model::process::Process;
 use crate::model::realtime_status::RealtimeStatus;
 use crate::model::usage::Usage;
 use crate::model::user::User;
+use crate::model::{
+    cpu::{CpuInfo, CpuUsage},
+    memory::MemoryUsage,
+};
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
@@ -83,11 +86,14 @@ impl SystemInfo {
         self.sys.global_cpu_info().cpu_usage()
     }
 
-    pub fn get_mem_usage(&mut self) -> Usage {
-        Usage {
+    pub fn get_mem_usage(&mut self) -> MemoryUsage {
+        MemoryUsage {
             total: self.sys.total_memory(),
             used: self.sys.used_memory(),
-            free: self.sys.total_memory() - self.sys.used_memory(),
+            free: self.sys.free_memory(),
+            swap_total: self.sys.total_swap(),
+            swap_used: self.sys.used_swap(),
+            swap_free: self.sys.free_swap(),
         }
     }
 

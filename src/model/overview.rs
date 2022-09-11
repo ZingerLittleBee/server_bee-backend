@@ -5,10 +5,12 @@ use crate::model::usage::Usage;
 use crate::model::user::User;
 use serde::{Deserialize, Serialize};
 
+use super::memory::MemoryUsage;
+
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Overview {
     pub cpu_usage: f32,
-    pub memory_usage: Usage,
+    pub memory_usage: MemoryUsage,
     pub disk_usage: Usage,
     pub disk_io: DiskIO,
     pub network_io: NetworkIO,

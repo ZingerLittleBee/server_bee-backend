@@ -1,13 +1,13 @@
-use bytestring::ByteString;
 use crate::model::overview::{OsOverview, Overview};
+use crate::vo::cpu::CpuInfoVo;
 use crate::vo::disk::DiskIOVo;
 use crate::vo::formator::Convert;
 use crate::vo::memory::MemUsageVo;
 use crate::vo::network::NetworkIOVo;
-use serde::{Deserialize, Serialize};
-use crate::vo::cpu::CpuInfoVo;
 use crate::vo::usage::UsageVo;
 use crate::vo::user::UserVo;
+use bytestring::ByteString;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct OverviewVo {
