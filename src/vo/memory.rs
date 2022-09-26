@@ -16,12 +16,12 @@ impl Convert<MemUsageVo> for MemoryUsage {
     fn convert(&self) -> MemUsageVo {
         let formator = Formator::new();
         MemUsageVo {
-            total: formator.format_from_kilo_byte(self.total as f64),
-            used: formator.format_from_kilo_byte(self.used as f64),
-            free: formator.format_from_kilo_byte(self.free as f64),
-            swap_total: formator.format_from_kilo_byte(self.swap_total as f64),
-            swap_used: formator.format_from_kilo_byte(self.swap_used as f64),
-            swap_free: formator.format_from_kilo_byte(self.swap_free as f64),
+            total: formator.format_from_byte(self.total),
+            used: formator.format_from_byte(self.used),
+            free: formator.format_from_byte(self.free),
+            swap_total: formator.format_from_byte(self.swap_total),
+            swap_used: formator.format_from_byte(self.swap_used),
+            swap_free: formator.format_from_byte(self.swap_free),
         }
     }
 }
