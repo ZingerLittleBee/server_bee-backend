@@ -15,14 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl, x86_64-apple-darwin]
         package: [web]
-        include:
-          - target: x86_64-pc-windows-gnu
-            archive: zip
-          - target: x86_64-unknown-linux-musl
-            archive: tar.gz tar.xz
-          - target: x86_64-apple-darwin
-            archive: zip
     steps:
       - uses: actions/checkout@master
       - name: Compile and release
@@ -33,7 +27,6 @@ jobs:
           RUSTTARGET: ${{ matrix.target }}
           SRC_DIR: ${{ matrix.package }}
           ARCHIVE_NAME: serverbee-${{ matrix.target }}
-          ARCHIVE_TYPES: ${{ matrix.archive }}
           UPLOAD_MODE: none
       - name: Upload artifact
         uses: actions/upload-artifact@v3
