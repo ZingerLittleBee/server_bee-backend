@@ -32,9 +32,8 @@ jobs:
         uses: rust-build/rust-build.action@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          SRC_DIR: ${{ matrix.package }}
           RUSTTARGET: ${{ matrix.target }}
+          SRC_DIR: ${{ matrix.package }}
           ARCHIVE_NAME: serverbee-${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
           UPLOAD_MODE: none
