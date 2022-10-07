@@ -15,16 +15,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        package: [web]
         include:
           - target: x86_64-pc-windows-gnu
             archive: zip
-            package: [web]
           - target: x86_64-unknown-linux-musl
             archive: tar.gz tar.xz
-            package: [web]
           - target: x86_64-apple-darwin
             archive: zip
-            package: [web]
     steps:
       - uses: actions/checkout@master
       - name: Compile and release
