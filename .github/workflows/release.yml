@@ -35,3 +35,7 @@ jobs:
           path: |
             ${{ steps.compile.outputs.BUILT_ARCHIVE }}
             ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: serverbee-${{ matrix.target }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
