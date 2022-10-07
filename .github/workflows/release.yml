@@ -32,6 +32,7 @@ jobs:
         uses: rust-build/rust-build.action@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           SRC_DIR: ${{ matrix.package }}
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_NAME: serverbee-${{ matrix.target }}
@@ -40,7 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Binary
+          name: serverbee-${{ matrix.target }}
           path: |
             ${{ steps.compile.outputs.BUILT_ARCHIVE }}
             ${{ steps.compile.outputs.BUILT_CHECKSUM }}
