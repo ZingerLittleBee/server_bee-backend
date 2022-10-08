@@ -28,14 +28,15 @@ jobs:
           SRC_DIR: ${{ matrix.package }}
           ARCHIVE_NAME: serverbee-${{ matrix.target }}
           UPLOAD_MODE: none
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: serverbee-${{ matrix.target }}
-          path: |
-            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: serverbee-${{ matrix.target }}
+#          path: |
+#            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+#            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+      - run: ls -a
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: serverbee-${{ matrix.target }}.zip
+          artifacts: "serverbee-x86_64-apple-darwin.zip,serverbee-x86_64-pc-windows-gnu.zip,serverbee-x86_64-unknown-linux-musl.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
