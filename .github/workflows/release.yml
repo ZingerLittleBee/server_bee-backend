@@ -28,14 +28,14 @@ jobs:
           SRC_DIR: ${{ matrix.package }}
           ARCHIVE_NAME: serverbee-${{ matrix.target }}
           UPLOAD_MODE: none
-#      - name: Upload artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: serverbee-${{ matrix.target }}
-#          path: |
-#            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-#            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
-      - run: ls output
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: serverbee-${{ matrix.target }}
+          path: |
+            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+      - run: ls -a
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "output/*.zip"
