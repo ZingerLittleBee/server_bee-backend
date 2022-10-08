@@ -35,8 +35,8 @@ jobs:
 #          path: |
 #            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
 #            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
-      - run: ls -a
+      - run: ls output
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "serverbee-x86_64-apple-darwin.zip,serverbee-x86_64-pc-windows-gnu.zip,serverbee-x86_64-unknown-linux-musl.zip"
+          artifacts: "output/*.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
