@@ -46,38 +46,43 @@ impl SystemInfo {
 
     #[cfg(target_os = "linux")]
     fn sector_thread(disk_usage_map: Arc<RwLock<HashMap<String, DiskIO>>>) {
-        use std::thread;
+        use std::{thread, time::Instant};
+
+        use systemstat::Duration;
 
         use crate::model::disk::SectorIncrease;
 
         thread::spawn(move || {
             let systemstat = Systemstat::new();
+            let mut pre_time = Instant::now();
             loop {
-                let mut map = disk_usage_map.write().unwrap();
-                systemstat
-                    .block_device_statistics()
-                    .unwrap()
-                    .values()
-                    .for_each(|x| {
-                        let mut sector_increase = SectorIncrease::default();
-                        if let Some(disk_usage) = map.get_mut(&x.name) {
-                            sector_increase.read =
-                                x.read_sectors.wrapping_sub(disk_usage.total_read as usize);
-                            sector_increase.write = x
-                                .write_sectors
-                                .wrapping_sub(disk_usage.total_write as usize);
-                        }
-                        map.insert(
-                            x.name.clone(),
-                            DiskIO {
-                                read: sector_increase.read as u64,
-                                write: sector_increase.write as u64,
-                                total_read: x.read_sectors as u64,
-                                total_write: x.write_sectors as u64,
-                            },
-                        );
-                    });
-                thread::sleep(std::time::Duration::from_secs(1));
+                if Instant::now() - pre_time >= Duration::from_secs(1) {
+                    let mut map = disk_usage_map.write().unwrap();
+                    systemstat
+                        .block_device_statistics()
+                        .unwrap()
+                        .values()
+                        .for_each(|x| {
+                            let mut sector_increase = SectorIncrease::default();
+                            if let Some(disk_usage) = map.get_mut(&x.name) {
+                                sector_increase.read =
+                                    x.read_sectors.wrapping_sub(disk_usage.total_read as usize);
+                                sector_increase.write = x
+                                    .write_sectors
+                                    .wrapping_sub(disk_usage.total_write as usize);
+                            }
+                            map.insert(
+                                x.name.clone(),
+                                DiskIO {
+                                    read: sector_increase.read as u64,
+                                    write: sector_increase.write as u64,
+                                    total_read: x.read_sectors as u64,
+                                    total_write: x.write_sectors as u64,
+                                },
+                            );
+                        });
+                    pre_time = Instant::now();
+                }
             }
         });
     }
