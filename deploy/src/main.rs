@@ -4,31 +4,63 @@ use std::borrow::BorrowMut;
 use std::path::Path;
 use std::process::Command;
 use std::{env, fs, io};
-use tokio::fs::File;
+use std::fs::File;
 use tokio::io::AsyncWriteExt;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let base_url = "https://cdn.jsdelivr.net/gh/ZingerLittleBee/server_bee-backend@release/release";
-    let version = "0.0.1";
-    let file_name = "serverbee-x86_64-unknown-linux-musl.zip";
-
-    let path = Path::new(base_url).join(version).join(file_name);
 
     let mut response = reqwest::Client::new()
-        .get(path.to_str().unwrap())
+        .get(url()?)
         .send()
         .await?;
-    let mut file = File::create(file_name).await?;
+
+    if response.status().as_u16() >= 400 {
+        println!("{}, download failed", response.status());
+        return Ok(())
+    }
+
+    let mut file = tokio::fs::File::create(get_filename()).await?;
 
     while let Some(mut item) = response.chunk().await? {
         file.write_all_buf(item.borrow_mut()).await?;
     }
 
-    let tokio_file = File::open(file_name).await?;
+    let tokio_file = tokio::fs::File::open(get_filename()).await?;
     let std_file = tokio_file.into_std().await;
 
-    let mut archive = zip::ZipArchive::new(std_file).unwrap();
+    unzip(std_file);
+
+    create_daemon();
+
+    Ok(())
+}
+
+fn get_filename() -> &'static str {
+    if cfg!(target_os = "macos") {
+        "serverbee-x86_64-apple-darwin.zip"
+    } else if cfg!(target_os = "linux") {
+        "serverbee-x86_64-unknown-linux-musl.zip"
+    } else if cfg!(target_os = "windows") {
+        "serverbee-x86_64-pc-windows-gnu.zip"
+    } else {
+        println!("unknown os");
+        "serverbee-x86_64-unknown-linux-musl.zip"
+    }
+}
+
+fn url() -> Result<String> {
+    let base_url = "https://cdn.jsdelivr.net/gh/ZingerLittleBee/server_bee-backend@release/release";
+    let version = env!("CARGO_PKG_VERSION");
+
+    let path = Path::new(base_url).join(version).join(get_filename());
+    let url = path.to_str().unwrap();
+    println!("download url: {}", url);
+    Ok(url.to_string())
+}
+
+fn unzip(file: File) {
+    let mut archive = zip::ZipArchive::new(file).unwrap();
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
@@ -73,9 +105,11 @@ async fn main() -> Result<()> {
             }
         }
     }
+}
 
-    let stdout = fs::File::create("/tmp/serverbee-web.out").unwrap();
-    let stderr = fs::File::create("/tmp/serverbee-web.err").unwrap();
+fn create_daemon() {
+    let stdout = File::create("/tmp/serverbee-web.out").unwrap();
+    let stderr = File::create("/tmp/serverbee-web.err").unwrap();
 
     let daemonize = Daemonize::new()
         .pid_file("/tmp/serverbee-web.pid")
@@ -92,5 +126,4 @@ async fn main() -> Result<()> {
         Ok(_) => println!("Success, daemonized"),
         Err(_e) => eprintln!("Error, {}", _e),
     };
-    Ok(())
 }
