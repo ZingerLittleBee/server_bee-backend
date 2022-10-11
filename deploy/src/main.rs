@@ -8,6 +8,7 @@ use std::path::Path;
 use std::process::Command;
 use std::{env, fs, io};
 use std::fs::File;
+use auto_launch::AutoLaunchBuilder;
 use port_killer::kill_by_pids;
 use tokio::io::AsyncWriteExt;
 use crate::cli::Config;
@@ -27,13 +28,15 @@ async fn main() -> Result<()> {
         serde_yaml::to_writer(f, &config).unwrap();
     }
 
+    let url = url(args.release)?;
+    println!("正在下载 {}", url.clone());
     let mut response = reqwest::Client::new()
-        .get(url(args.release)?)
+        .get(url)
         .send()
         .await?;
 
     if response.status().as_u16() >= 400 {
-        println!("{}, download failed", response.status());
+        println!("文件下载失败 {}", response.status());
         return Ok(())
     }
 
@@ -49,6 +52,9 @@ async fn main() -> Result<()> {
     unzip(std_file);
 
     create_daemon();
+    println!("程序后台运行成功");
+
+    set_auto_launch();
 
     Ok(())
 }
@@ -72,7 +78,6 @@ fn url(version: Option<String>) -> Result<String> {
 
     let path = Path::new(base_url).join(version).join(get_filename());
     let url = path.to_str().unwrap();
-    println!("download url: {}", url);
     Ok(url.to_string())
 }
 
@@ -124,11 +129,33 @@ fn unzip(file: File) {
     }
 }
 
+fn set_auto_launch() {
+    let app_name = env!("CARGO_PKG_NAME");
+    let current_dir = env::current_dir().unwrap().as_path().join(format!("{}.exe", app_name));
+    println!("当前执行目录: {}", current_dir.display());
+
+    let auto = AutoLaunchBuilder::new()
+        .set_app_name(app_name)
+        .set_app_path(current_dir.to_str().unwrap())
+        .set_use_launch_agent(true)
+        .build()
+        .unwrap();
+
+    if auto.is_enabled().unwrap() {
+        println!("已经设置开机启动");
+    } else {
+        auto.enable().unwrap();
+        println!("设置开机启动成功");
+    }
+    // auto.disable().unwrap();
+    // auto.is_enabled().unwrap();
+}
+
 #[cfg(windows)]
 fn create_daemon() {
     Command::new("powershell")
         .args(["/C", r".\serverbee-web.exe"])
-        .spawn().expect("failed to execute serverbee-web.exe");
+        .spawn().expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
 
 #[cfg(not(windows))]
