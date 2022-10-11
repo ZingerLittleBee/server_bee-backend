@@ -3,7 +3,6 @@ mod cli;
 use cli::Args;
 use clap::Parser;
 use anyhow::Result;
-use daemonize::Daemonize;
 use std::borrow::BorrowMut;
 use std::path::Path;
 use std::process::Command;
@@ -125,7 +124,17 @@ fn unzip(file: File) {
     }
 }
 
+#[cfg(windows)]
 fn create_daemon() {
+    Command::new("powershell")
+        .args(["/C", r".\serverbee-web.exe"])
+        .spawn().expect("failed to execute serverbee-web.exe");
+}
+
+#[cfg(not(windows))]
+fn create_daemon() {
+    use daemonize::Daemonize;
+
     let stdout = File::create("/tmp/serverbee-web.out").unwrap();
     let stderr = File::create("/tmp/serverbee-web.err").unwrap();
 
