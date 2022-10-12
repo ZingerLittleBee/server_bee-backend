@@ -61,14 +61,14 @@ async fn main() -> Result<()> {
 
 fn get_filename() -> &'static str {
     if cfg!(target_os = "macos") {
-        "serverbee-x86_64-apple-darwin.zip"
+        "serverbee-web-x86_64-apple-darwin.zip"
     } else if cfg!(target_os = "linux") {
-        "serverbee-x86_64-unknown-linux-musl.zip"
+        "serverbee-web-x86_64-unknown-linux-musl.zip"
     } else if cfg!(target_os = "windows") {
-        "serverbee-x86_64-pc-windows-gnu.zip"
+        "serverbee-web-x86_64-pc-windows-gnu.zip"
     } else {
         println!("unknown os");
-        "serverbee-x86_64-unknown-linux-musl.zip"
+        "serverbee-web-x86_64-unknown-linux-musl.zip"
     }
 }
 
