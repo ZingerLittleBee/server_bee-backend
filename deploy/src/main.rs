@@ -6,10 +6,11 @@ use anyhow::Result;
 use std::borrow::BorrowMut;
 use std::path::Path;
 use std::process::Command;
-use std::{env, fs, io};
+use std::{env, fs, io, thread};
 use std::fs::File;
+use std::io::stdin;
+use std::time::Duration;
 use auto_launch::AutoLaunchBuilder;
-use port_killer::kill_by_pids;
 use tokio::io::AsyncWriteExt;
 use crate::cli::Config;
 
@@ -40,21 +41,30 @@ async fn main() -> Result<()> {
         return Ok(())
     }
 
-    let mut file = tokio::fs::File::create(get_filename()).await?;
+    let file_path = env::current_dir().unwrap().join(get_filename());
+    println!("下载文件路径: {}", file_path.display());
+
+    let mut file = tokio::fs::File::create(file_path.clone()).await?;
 
     while let Some(mut item) = response.chunk().await? {
         file.write_all_buf(item.borrow_mut()).await?;
     }
+    println!("文件 {} 下载成功, 正在解压", file_path.display());
 
-    let tokio_file = tokio::fs::File::open(get_filename()).await?;
+    let tokio_file = tokio::fs::File::open(file_path).await?;
     let std_file = tokio_file.into_std().await;
 
     unzip(std_file);
+    println!("文件解压完毕");
 
-    create_daemon();
-    println!("程序后台运行成功");
+    set_auto_launch(!args.auto_launch);
 
-    set_auto_launch();
+    start_process();
+
+    println!("按回车键退出...");
+    stdin()
+        .read_line(&mut String::new())
+        .expect("Failed to read line");
 
     Ok(())
 }
@@ -129,71 +139,63 @@ fn unzip(file: File) {
     }
 }
 
-fn set_auto_launch() {
+fn set_auto_launch(enable: bool) {
     let app_name = env!("CARGO_PKG_NAME");
-    let current_dir = env::current_dir().unwrap().as_path().join(format!("{}.exe", app_name));
-    println!("当前执行目录: {}", current_dir.display());
 
-    let auto = AutoLaunchBuilder::new()
-        .set_app_name(app_name)
-        .set_app_path(current_dir.to_str().unwrap())
-        .set_use_launch_agent(true)
-        .build()
-        .unwrap();
+    if let Ok(current_dir) = env::current_dir() {
+        let full_path= if cfg!(target_os = "windows") {
+            current_dir.as_path().join(format!("{}.exe", app_name))
+        } else {
+             current_dir.as_path().join(app_name)
+        };
+        println!("自启执行文件: {}", full_path.display());
 
-    if auto.is_enabled().unwrap() {
-        println!("已经设置开机启动");
-    } else {
-        auto.enable().unwrap();
-        println!("设置开机启动成功");
+        let auto = AutoLaunchBuilder::new()
+            .set_app_name(app_name)
+            .set_app_path(
+                full_path.to_str().unwrap())
+            .set_use_launch_agent(false)
+            .build()
+            .unwrap();
+
+        if enable {
+            if auto.is_enabled().unwrap() {
+                println!("已经设置开机启动");
+            } else {
+                auto.enable().unwrap();
+                println!("设置开机启动成功");
+            }
+        } else if auto.is_enabled().unwrap() {
+            auto.disable().unwrap();
+            println!("取消开机启动成功");
+        } else {
+            println!("已经取消开机启动");
+        }
     }
-    // auto.disable().unwrap();
-    // auto.is_enabled().unwrap();
 }
 
 #[cfg(windows)]
-fn create_daemon() {
+fn start_process() {
     Command::new("powershell")
         .args(["/C", r".\serverbee-web.exe"])
         .spawn().expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
 
 #[cfg(not(windows))]
-fn create_daemon() {
-    use daemonize::Daemonize;
+fn start_process() {
+    let full_path = env::current_dir().unwrap().join("serverbee-web");
+    println!("文件全路径: {}", env::current_dir().unwrap().join("serverbee-web").display());
 
-    let stdout = File::create("/tmp/serverbee-web.out").unwrap();
-    let stderr = File::create("/tmp/serverbee-web.err").unwrap();
+    let cmd = format!("nohup {} > serverbee-web.log &", full_path.to_str().unwrap());
 
-    let pid_path = "/tmp/serverbee-web.pid";
+    Command::new("sh").args(["-c", cmd.as_str()])
+        .spawn().expect("运行 serverbee-web 失败, 请尝试手动运行");
 
-    if Path::new(pid_path).is_file() {
-        let pre_pid = fs::read_to_string(pid_path).unwrap().parse::<u32>().unwrap();
+    let out = Command::new("cat").arg(
+        "serverbee-web.log")
+        .output();
 
-        match kill_by_pids(&[pre_pid]) {
-            Ok(_) => println!("kill pid: {} success", pre_pid),
-            Err(e) => println!("kill pid {} failed: {}", pre_pid, e),
-        }
-
-        match fs::remove_file(pid_path) {
-            Ok(_) => println!("remove pid file: {}", pid_path),
-            Err(_e) => println!("remove {} failed: {}", pid_path, _e)
-        }
-    }
-
-    let daemonize = Daemonize::new()
-        .pid_file("/tmp/serverbee-web.pid")
-        .working_directory(env::current_dir().unwrap().to_str().unwrap())
-        .stdout(stdout)
-        .stderr(stderr)
-        .privileged_action(|| {
-            Command::new("./serverbee-web")
-                .status()
-                .expect("failed to execute process")
-        });
-
-    match daemonize.start() {
-        Ok(_) => println!("Success, daemonized"),
-        Err(_e) => eprintln!("Error, {}", _e),
-    };
+    thread::sleep(Duration::from_secs(1));
+    println!("启动日志: {:?}", out.unwrap());
+    println!("完整日志请查看 serverbee-web.log 文件");
 }
