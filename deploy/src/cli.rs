@@ -19,21 +19,29 @@ pub struct Args {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct Config {
-    server: Port
+pub struct WebConfig {
+    server: Port,
 }
 
-impl Config {
-    pub fn new(port: u16) -> Self {
-        Config {
-            server: Port {
-                port
-            }
-        }
+impl WebConfig {
+    pub fn new(port: Port) -> Self {
+        WebConfig { server: port }
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
-struct Port {
-    port: u16
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
+pub struct Port {
+    port: u16,
+}
+
+impl Port {
+    pub fn new(port: u16) -> Self {
+        Port { port }
+    }
+}
+
+impl Default for Port {
+    fn default() -> Self {
+        Port { port: 8080 }
+    }
 }

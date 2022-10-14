@@ -1,65 +1,62 @@
 mod cli;
+mod config;
 
-use cli::Args;
-use clap::Parser;
+use crate::cli::{Port, WebConfig};
+use crate::config::Config;
 use anyhow::Result;
+use clap::Parser;
+use cli::Args;
 use std::borrow::BorrowMut;
-use std::path::Path;
-use std::process::Command;
-use std::{env, fs, io, thread};
 use std::fs::File;
 use std::io::stdin;
+use std::process::Command;
 use std::time::Duration;
-use auto_launch::AutoLaunchBuilder;
+use std::{fs, io, thread};
 use tokio::io::AsyncWriteExt;
-use crate::cli::Config;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-
     let args = Args::parse();
+    let config = Config::new();
 
-    if args.port.is_some() {
-        let config = Config::new(args.port.unwrap());
-        let f = fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open("config.yml")
-            .expect("Couldn't open file");
-        serde_yaml::to_writer(f, &config).unwrap();
+    if args.release.is_some() {
+        config.set_version(args.release.unwrap().as_str());
     }
 
-    let url = url(args.release)?;
-    println!("正在下载 {}", url.clone());
+    if args.port.is_some() {
+        config.set_port(Port::new(args.port.unwrap()));
+    }
+
     let mut response = reqwest::Client::new()
-        .get(url)
+        .get(config.url().to_str().unwrap())
         .send()
         .await?;
+    println!("正在下载 {}", config.url().display());
 
     if response.status().as_u16() >= 400 {
         println!("文件下载失败 {}", response.status());
-        return Ok(())
+        return Ok(());
     }
 
-    let file_path = env::current_dir().unwrap().join(get_filename());
-    println!("下载文件路径: {}", file_path.display());
+    let web_file_path = config.web_bin_zip_path();
+    println!("下载文件路径: {}", web_file_path.display());
 
-    let mut file = tokio::fs::File::create(file_path.clone()).await?;
+    let mut file = tokio::fs::File::create(&web_file_path).await?;
 
     while let Some(mut item) = response.chunk().await? {
         file.write_all_buf(item.borrow_mut()).await?;
     }
-    println!("文件 {} 下载成功, 正在解压", file_path.display());
+    println!("文件 {} 下载成功, 正在解压", web_file_path.display());
 
-    let tokio_file = tokio::fs::File::open(file_path).await?;
+    let tokio_file = tokio::fs::File::open(web_file_path).await?;
     let std_file = tokio_file.into_std().await;
 
     unzip(std_file);
     println!("文件解压完毕");
 
-    set_auto_launch(!args.auto_launch);
+    config.set_auto_launch(!args.auto_launch);
 
-    start_process();
+    start_process(Config::web_bin_path().to_str().unwrap());
 
     println!("按回车键退出...");
     stdin()
@@ -67,28 +64,6 @@ async fn main() -> Result<()> {
         .expect("Failed to read line");
 
     Ok(())
-}
-
-fn get_filename() -> &'static str {
-    if cfg!(target_os = "macos") {
-        "serverbee-web-x86_64-apple-darwin.zip"
-    } else if cfg!(target_os = "linux") {
-        "serverbee-web-x86_64-unknown-linux-musl.zip"
-    } else if cfg!(target_os = "windows") {
-        "serverbee-web-x86_64-pc-windows-gnu.zip"
-    } else {
-        println!("unknown os");
-        "serverbee-web-x86_64-unknown-linux-musl.zip"
-    }
-}
-
-fn url(version: Option<String>) -> Result<String> {
-    let base_url = "https://cdn.jsdelivr.net/gh/ZingerLittleBee/server_bee-backend@release/release";
-    let version = version.unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_string());
-
-    let path = Path::new(base_url).join(version).join(get_filename());
-    let url = path.to_str().unwrap();
-    Ok(url.to_string())
 }
 
 fn unzip(file: File) {
@@ -139,61 +114,32 @@ fn unzip(file: File) {
     }
 }
 
-fn set_auto_launch(enable: bool) {
-    let app_name = env!("CARGO_PKG_NAME");
-
-    if let Ok(current_dir) = env::current_dir() {
-        let full_path= if cfg!(target_os = "windows") {
-            current_dir.as_path().join(format!("{}.exe", app_name))
-        } else {
-             current_dir.as_path().join(app_name)
-        };
-        println!("自启执行文件: {}", full_path.display());
-
-        let auto = AutoLaunchBuilder::new()
-            .set_app_name(app_name)
-            .set_app_path(
-                full_path.to_str().unwrap())
-            .set_use_launch_agent(false)
-            .build()
-            .unwrap();
-
-        if enable {
-            if auto.is_enabled().unwrap() {
-                println!("已经设置开机启动");
-            } else {
-                auto.enable().unwrap();
-                println!("设置开机启动成功");
-            }
-        } else if auto.is_enabled().unwrap() {
-            auto.disable().unwrap();
-            println!("取消开机启动成功");
-        } else {
-            println!("已经取消开机启动");
-        }
-    }
-}
-
 #[cfg(windows)]
 fn start_process() {
     Command::new("powershell")
         .args(["/C", r".\serverbee-web.exe"])
-        .spawn().expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
+        .spawn()
+        .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
 
 #[cfg(not(windows))]
-fn start_process() {
-    let full_path = env::current_dir().unwrap().join("serverbee-web");
-    println!("文件全路径: {}", env::current_dir().unwrap().join("serverbee-web").display());
+fn start_process(bin_full_path: &str) {
+    println!(
+        "文件全路径: {}",
+        bin_full_path
+    );
 
-    let cmd = format!("nohup {} > serverbee-web.log &", full_path.to_str().unwrap());
+    let cmd = format!(
+        "nohup {} > serverbee-web.log &",
+        bin_full_path
+    );
 
-    Command::new("sh").args(["-c", cmd.as_str()])
-        .spawn().expect("运行 serverbee-web 失败, 请尝试手动运行");
+    Command::new("sh")
+        .args(["-c", cmd.as_str()])
+        .spawn()
+        .expect("运行 serverbee-web 失败, 请尝试手动运行");
 
-    let out = Command::new("cat").arg(
-        "serverbee-web.log")
-        .output();
+    let out = Command::new("cat").arg("serverbee-web.log").output();
 
     thread::sleep(Duration::from_secs(1));
     println!("启动日志: {:?}", out.unwrap());
