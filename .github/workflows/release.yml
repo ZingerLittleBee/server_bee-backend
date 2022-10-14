@@ -19,6 +19,11 @@ jobs:
         package: [web, deploy]
     steps:
       - uses: actions/checkout@master
+      - name: Get git tag
+        uses: olegtarasov/get-tag@v2.1
+        id: tagName
+        with:
+        tagRegex: "v(.*)"
       - name: Compile and release
         id: compile
         uses: rust-build/rust-build.action@latest
@@ -26,7 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUSTTARGET: ${{ matrix.target }}
           SRC_DIR: ${{ matrix.package }}
-          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}
+          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}-${{ steps.tagName.outputs.tag }}
           UPLOAD_MODE: none
       - name: Upload artifact
         uses: actions/upload-artifact@v3
