@@ -23,7 +23,7 @@ jobs:
         uses: olegtarasov/get-tag@v2.1
         id: tagName
         with:
-        tagRegex: "v(.*)"
+          tagRegex: "v(.*)"
       - name: Compile and release
         id: compile
         uses: rust-build/rust-build.action@latest
