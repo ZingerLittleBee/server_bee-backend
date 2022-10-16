@@ -61,7 +61,7 @@ impl<'a> Config<'a> {
         Config::current_dir().join(self.get_filename())
     }
 
-    pub fn url(&self) -> PathBuf {
+    pub fn bin_zip_url(&self) -> PathBuf {
         let base_url =
             "https://cdn.jsdelivr.net/gh/ZingerLittleBee/server_bee-backend@release/release";
 

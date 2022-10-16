@@ -15,6 +15,7 @@ port-killer = "0.1.0"
 auto-launch = "0.4.0"
 
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 serde_yaml = "0.9.4"
 
 [target.'cfg(not(windows))'.dependencies]

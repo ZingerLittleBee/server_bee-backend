@@ -1573,6 +1573,7 @@ dependencies = [
  "port-killer",
  "reqwest",
  "serde",
+ "serde_json",
  "serde_yaml",
  "tokio",
  "zip",

@@ -27,11 +27,21 @@ async fn main() -> Result<()> {
         config.set_port(Port::new(args.port.unwrap()));
     }
 
+    // get latest version
+    // let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
+    //     .await?
+    //     .json::<serde_json::Value>()
+    //     .await?;
+    //
+    // println!("Latest version: {:#?}", latest_version.get("versions").unwrap().as_array().unwrap().first().unwrap().as_str().unwrap());
+    //
+    // return Ok(());
+
     let mut response = reqwest::Client::new()
-        .get(config.url().to_str().unwrap())
+        .get(config.bin_zip_url().to_str().unwrap())
         .send()
         .await?;
-    println!("正在下载 {}", config.url().display());
+    println!("正在下载 {}", config.bin_zip_url().display());
 
     if response.status().as_u16() >= 400 {
         println!("文件下载失败 {}", response.status());
@@ -53,6 +63,8 @@ async fn main() -> Result<()> {
 
     unzip(std_file);
     println!("文件解压完毕");
+
+    return Ok(());
 
     config.set_auto_launch(!args.auto_launch);
 
