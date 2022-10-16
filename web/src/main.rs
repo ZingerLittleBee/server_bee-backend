@@ -16,6 +16,10 @@ async fn index() -> impl Responder {
     HttpResponse::Ok()
 }
 
+async fn version() -> impl Responder {
+    env!("CARGO_PKG_VERSION")
+}
+
 /// WebSocket handshake and start `MyWebSocket` actor.
 async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     ws::start(MyWebSocket::new(), &req, stream)
@@ -32,6 +36,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(web::resource("/").to(index))
+            .service(web::resource("/version").to(version))
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
             // enable logger

@@ -10,8 +10,7 @@ use std::borrow::BorrowMut;
 use std::fs::File;
 use std::io::stdin;
 use std::process::Command;
-use std::time::Duration;
-use std::{fs, io, thread};
+use std::{fs, io};
 use tokio::io::AsyncWriteExt;
 
 #[tokio::main]
@@ -127,15 +126,18 @@ fn unzip(file: File) {
 }
 
 #[cfg(windows)]
-fn start_process() {
+fn start_process(bin_full_path: &str) {
     Command::new("powershell")
-        .args(["/C", r".\serverbee-web.exe"])
+        .args(["/C", bin_full_path])
         .spawn()
         .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
 
 #[cfg(not(windows))]
 fn start_process(bin_full_path: &str) {
+    use std::time::Duration;
+    use std::thread;
+
     println!(
         "文件全路径: {}",
         bin_full_path
