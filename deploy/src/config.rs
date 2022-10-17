@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Config<'a> {
-    port: Port,
-    version: &'a str,
+    pub port: Port,
+    pub version: &'a str,
 }
 
 impl<'a> Config<'a> {
@@ -53,12 +53,25 @@ impl<'a> Config<'a> {
         }
     }
 
-    pub fn web_bin_path() -> PathBuf {
-        Config::current_dir().join("serverbee-web")
+    // Ex CWD/0.0.1/
+    pub fn web_bin_dir(&self) -> PathBuf {
+        Config::current_dir().join(self.version)
+    }
+
+    pub fn log_path(&self) -> PathBuf {
+        self.web_bin_dir().join("serverbee-web.log")
+    }
+
+    pub fn web_bin_path(&self) -> PathBuf {
+        if cfg!(target_os = "windows") {
+            self.web_bin_dir().join("serverbee-web.exe")
+        } else {
+            self.web_bin_dir().join("serverbee-web")
+        }
     }
 
     pub fn web_bin_zip_path(&self) -> PathBuf {
-        Config::current_dir().join(self.get_filename())
+        self.web_bin_dir().join(self.get_filename())
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
@@ -72,42 +85,36 @@ impl<'a> Config<'a> {
 
     pub fn set_auto_launch(&self, enable: bool) {
         let app_name = env!("CARGO_PKG_NAME");
-        println!("自启执行文件: {}", self.deploy_bin_path().display());
+        println!("自启执行文件: {}", env::current_exe().unwrap().to_str().unwrap());
 
         let auto = AutoLaunchBuilder::new()
             .set_app_name(app_name)
-            .set_app_path(self.deploy_bin_path().to_str().unwrap())
+            .set_app_path(env::current_exe().unwrap().to_str().unwrap())
             .set_use_launch_agent(false)
             .build()
-            .unwrap();
+            .expect("Couldn't build auto launch");
 
         if enable {
-            if auto.is_enabled().unwrap() {
+            if auto.is_enabled().expect("Couldn't check auto launch") {
                 println!("已经设置开机启动");
             } else {
-                auto.enable().unwrap();
+                auto.enable().expect("Couldn't enable auto launch");
                 println!("设置开机启动成功");
             }
-        } else if auto.is_enabled().unwrap() {
-            auto.disable().unwrap();
+        } else if auto.is_enabled().expect("Couldn't check auto launch") {
+            auto.disable().expect("Couldn't disable auto launch");
             println!("取消开机启动成功");
         } else {
             println!("已经取消开机启动");
         }
     }
 
-    fn current_dir() -> PathBuf {
-        env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
-    }
-
-    fn deploy_bin_path(&self) -> PathBuf {
-        let app_name = env!("CARGO_PKG_NAME");
-        if cfg!(target_os = "windows") {
-            Config::current_dir()
-                .as_path()
-                .join(format!("{}.exe", app_name))
-        } else {
-            Config::current_dir().as_path().join(app_name)
+    pub fn current_dir() -> PathBuf {
+        if let Ok(current_exe) = env::current_exe() {
+            if let Some(parent) = current_exe.parent() {
+                return parent.to_path_buf();
+            }
         }
+        env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
     }
 }
