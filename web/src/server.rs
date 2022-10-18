@@ -3,6 +3,7 @@ use std::time::{Duration, Instant};
 use crate::system_info::SystemInfo;
 use actix::prelude::*;
 use actix_web_actors::ws;
+use log::warn;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -37,7 +38,7 @@ impl MyWebSocket {
             // check client heartbeats
             if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT {
                 // heartbeat timed out
-                println!("Websocket Client heartbeat failed, disconnecting!");
+                warn!("Websocket Client heartbeat failed, disconnecting!");
 
                 // stop actor
                 ctx.stop();

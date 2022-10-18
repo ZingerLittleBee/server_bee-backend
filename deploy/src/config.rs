@@ -8,7 +8,7 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use log::{info, LevelFilter};
+use log::{info, LevelFilter, warn};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Config<'a> {
@@ -73,7 +73,7 @@ impl<'a> Config<'a> {
         } else if cfg!(target_os = "windows") {
             format!("serverbee-web-x86_64-pc-windows-gnu-{}.zip", self.version)
         } else {
-            println!("unknown os");
+            warn!("unknown os");
             format!(
                 "serverbee-web-x86_64-unknown-linux-musl-{}.zip",
                 self.version

@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
             if let Some(version_vec) = version_value.as_array() {
                 if let Some(version) = version_vec.first() {
                     if let Some(version_str) = version.as_str() {
-                        println!("latest version: {}", version_str);
+                        info!("latest version: {}", version_str);
                         config.set_version(version_str);
                     }
                 }
@@ -162,33 +162,33 @@ fn start_process(bin_full_path: &str) {
 
 #[cfg(not(windows))]
 fn start_process(bin_full_path: &str, log_path: &str) {
-    use std::time::Duration;
-    use std::thread;
 
     info!(
         "文件全路径: {}",
         bin_full_path
     );
 
-    info!(
-        "日志路径: {}",
-        log_path
-    );
+    // info!(
+    //     "日志路径: {}",
+    //     log_path
+    // );
 
-    let cmd = format!(
-        "nohup {} > {} &",
-        bin_full_path,
-        log_path
-    );
+    // let cmd = format!(
+    //     "nohup {} > {} &",
+    //     bin_full_path,
+    //     log_path
+    // );
+    //
+    // Command::new("sh")
+    //     .args(["-c", cmd.as_str()])
+    //     .spawn()
+    //     .expect("运行 serverbee-web 失败, 请尝试手动运行");
+    //
+    // let out = Command::new("cat").arg(log_path).output();
+    //
+    // thread::sleep(Duration::from_secs(1));
 
-    Command::new("sh")
-        .args(["-c", cmd.as_str()])
+    Command::new(bin_full_path)
         .spawn()
-        .expect("运行 serverbee-web 失败, 请尝试手动运行");
-
-    let out = Command::new("cat").arg(log_path).output();
-
-    thread::sleep(Duration::from_secs(1));
-    info!("启动日志: {:?}", String::from_utf8_lossy(&*out.unwrap().stdout));
-    info!("完整日志请查看 {}", log_path);
+        .expect(&*format!("运行 {} 失败, 请尝试手动运行", bin_full_path));
 }
