@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
+
 mod cli;
 mod config;
 
@@ -8,15 +10,19 @@ use clap::Parser;
 use cli::Args;
 use std::borrow::BorrowMut;
 use std::fs::File;
-use std::io::stdin;
 use std::process::Command;
 use std::{fs, io};
 use std::path::{Path, PathBuf};
+use log::{info, warn};
 use tokio::io::AsyncWriteExt;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+
+    Config::init_logging();
+
     let args = Args::parse();
+
     let config = Config::new();
 
     if args.release.is_some() {
@@ -49,10 +55,10 @@ async fn main() -> Result<()> {
             .get(config.bin_zip_url().to_str().unwrap())
             .send()
             .await?;
-        println!("正在下载 {}", config.bin_zip_url().display());
+        info!("正在下载 {}", config.bin_zip_url().display());
 
         if response.status().as_u16() >= 400 {
-            println!("文件下载失败 {}", response.status());
+            warn!("文件下载失败 {}", response.status());
             return Ok(());
         }
 
@@ -64,32 +70,33 @@ async fn main() -> Result<()> {
             }
         }
 
-        println!("文件存放路径: {}", web_file_path.display());
+        info!("文件存放路径: {}", web_file_path.display());
 
         let mut file = tokio::fs::File::create(&web_file_path).await?;
 
         while let Some(mut item) = response.chunk().await? {
             file.write_all_buf(item.borrow_mut()).await?;
         }
-        println!("文件 {} 下载成功, 正在解压", web_file_path.display());
+        info!("文件 {} 下载成功, 正在解压", web_file_path.display());
 
         let tokio_file = tokio::fs::File::open(web_file_path).await?;
         let std_file = tokio_file.into_std().await;
 
         unzip(std_file, config.web_bin_dir());
-        println!("文件解压完毕");
+        info!("文件解压完毕");
     } else {
-        println!("文件已存在, 跳过下载");
+        info!("文件已存在, 跳过下载");
     }
 
     config.set_auto_launch(!args.auto_launch);
 
-    start_process(config.web_bin_path().to_str().unwrap(), config.log_path().to_str().unwrap());
+    #[cfg(windows)]
+    start_process(config.web_bin_path().to_str().unwrap());
 
-    println!("按回车键退出...");
-    stdin()
-        .read_line(&mut String::new())
-        .expect("Failed to read line");
+    info!("启动成功");
+
+    #[cfg(not(windows))]
+    start_process(config.web_bin_path().to_str().unwrap(), config.log_path().to_str().unwrap());
 
     Ok(())
 }
@@ -110,15 +117,15 @@ fn unzip(file: File, out_dir: PathBuf) {
         {
             let comment = file.comment();
             if !comment.is_empty() {
-                println!("File {} comment: {}", i, comment);
+                info!("File {} comment: {}", i, comment);
             }
         }
 
         if (*file.name()).ends_with('/') {
-            println!("File {} extracted to \"{}\"", i, outpath.display());
+            info!("File {} extracted to \"{}\"", i, outpath.display());
             fs::create_dir_all(&outpath).unwrap();
         } else {
-            println!(
+            info!(
                 "File {} extracted to \"{}\" ({} bytes)",
                 i,
                 outpath.display(),
@@ -158,12 +165,12 @@ fn start_process(bin_full_path: &str, log_path: &str) {
     use std::time::Duration;
     use std::thread;
 
-    println!(
+    info!(
         "文件全路径: {}",
         bin_full_path
     );
 
-    println!(
+    info!(
         "日志路径: {}",
         log_path
     );
@@ -182,6 +189,6 @@ fn start_process(bin_full_path: &str, log_path: &str) {
     let out = Command::new("cat").arg(log_path).output();
 
     thread::sleep(Duration::from_secs(1));
-    println!("启动日志: {:?}", String::from_utf8_lossy(&*out.unwrap().stdout));
-    println!("完整日志请查看 {}", log_path);
+    info!("启动日志: {:?}", String::from_utf8_lossy(&*out.unwrap().stdout));
+    info!("完整日志请查看 {}", log_path);
 }

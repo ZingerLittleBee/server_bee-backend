@@ -4,6 +4,11 @@ use auto_launch::AutoLaunchBuilder;
 use std::env;
 use std::fs::OpenOptions;
 use std::path::{Path, PathBuf};
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Root};
+use log4rs::encode::pattern::PatternEncoder;
+use log::{info, LevelFilter};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Config<'a> {
@@ -17,6 +22,29 @@ impl<'a> Config<'a> {
             port: Default::default(),
             version: env!("CARGO_PKG_VERSION"),
         }
+    }
+
+    pub fn init_logging() {
+        // init logging
+        let stdout: ConsoleAppender = ConsoleAppender::builder()
+            .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {l}] {m}{n}")))
+            .build();
+
+        // Logging to log file.
+        let logfile = FileAppender::builder()
+            // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
+            .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {l}] {m}{n}")))
+            .build(Config::deploy_log_path())
+            .unwrap();
+
+        let log_config = log4rs::config::Config::builder()
+            .appender(Appender::builder().build("stdout", Box::new(stdout)))
+            .appender(Appender::builder().build("logfile", Box::new(logfile)))
+            .build(Root::builder().appender("stdout")
+                .appender("logfile")
+                .build(LevelFilter::Info))
+            .unwrap();
+        log4rs::init_config(log_config).unwrap();
     }
 
     pub fn set_version(mut self, version: &'a str) {
@@ -58,6 +86,7 @@ impl<'a> Config<'a> {
         Config::current_dir().join(self.version)
     }
 
+    #[cfg(not(windows))]
     pub fn log_path(&self) -> PathBuf {
         self.web_bin_dir().join("serverbee-web.log")
     }
@@ -85,7 +114,7 @@ impl<'a> Config<'a> {
 
     pub fn set_auto_launch(&self, enable: bool) {
         let app_name = env!("CARGO_PKG_NAME");
-        println!("自启执行文件: {}", env::current_exe().unwrap().to_str().unwrap());
+        info!("自启执行文件: {}", env::current_exe().unwrap().to_str().unwrap());
 
         let auto = AutoLaunchBuilder::new()
             .set_app_name(app_name)
@@ -96,16 +125,16 @@ impl<'a> Config<'a> {
 
         if enable {
             if auto.is_enabled().expect("Couldn't check auto launch") {
-                println!("已经设置开机启动");
+                info!("已经设置开机启动");
             } else {
                 auto.enable().expect("Couldn't enable auto launch");
-                println!("设置开机启动成功");
+                info!("设置开机启动成功");
             }
         } else if auto.is_enabled().expect("Couldn't check auto launch") {
             auto.disable().expect("Couldn't disable auto launch");
-            println!("取消开机启动成功");
+            info!("取消开机启动成功");
         } else {
-            println!("已经取消开机启动");
+            info!("已经取消开机启动");
         }
     }
 
@@ -116,5 +145,9 @@ impl<'a> Config<'a> {
             }
         }
         env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
+    }
+
+    pub fn deploy_log_path() -> PathBuf {
+        Config::current_dir().join("deploy.log")
     }
 }

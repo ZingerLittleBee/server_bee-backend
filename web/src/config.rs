@@ -1,15 +1,22 @@
+use std::env;
 use std::fs::File;
+use std::path::PathBuf;
 use anyhow::Result;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Root};
+use log4rs::encode::pattern::PatternEncoder;
+use log::LevelFilter;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-struct Config {
+struct WebConfig {
     server: Port
 }
 
-impl Default for Config {
+impl Default for WebConfig {
     fn default() -> Self {
-        Config {
+        WebConfig {
             server: Port {
                 port: 8080,
             }
@@ -22,12 +29,54 @@ struct Port {
     port: u16
 }
 
-fn get_config_yml() -> Result<Config> {
-    let config_file = File::open("config.yml")?;
-    Ok(serde_yaml::from_reader::<File, Config>(config_file)?)
-}
+#[derive(Clone, Copy, Debug)]
+pub struct Config {}
 
-pub fn get_server_port() -> u16 {
-    let d = get_config_yml().unwrap_or_default();
-    d.server.port
+impl Config {
+    pub fn init_logging() {
+        // init logging
+        let stdout: ConsoleAppender = ConsoleAppender::builder()
+            .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {T} {l}] {m}{n}")))
+            .build();
+
+        // Logging to log file.
+        let logfile = FileAppender::builder()
+            // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
+            .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {T} {l}] {m}{n}")))
+            .build(Config::log_path())
+            .unwrap();
+
+        let log_config = log4rs::config::Config::builder()
+            .appender(Appender::builder().build("stdout", Box::new(stdout)))
+            .appender(Appender::builder().build("logfile", Box::new(logfile)))
+            .build(Root::builder().appender("stdout")
+                .appender("logfile")
+                .build(LevelFilter::Info))
+            .unwrap();
+
+        log4rs::init_config(log_config).unwrap();
+    }
+
+    fn get_config_yml() -> Result<WebConfig> {
+        let config_file = File::open("config.yml")?;
+        Ok(serde_yaml::from_reader::<File, WebConfig>(config_file)?)
+    }
+
+    pub fn get_server_port() -> u16 {
+        let d = Config::get_config_yml().unwrap_or_default();
+        d.server.port
+    }
+
+    pub fn current_dir() -> PathBuf {
+        if let Ok(current_exe) = env::current_exe() {
+            if let Some(parent) = current_exe.parent() {
+                return parent.to_path_buf();
+            }
+        }
+        env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
+    }
+
+    pub fn log_path() -> PathBuf {
+        Config::current_dir().join("web.log")
+    }
 }

@@ -1,7 +1,10 @@
-use crate::config::get_server_port;
+#![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
+
+use crate::config::Config;
 
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_actors::ws;
+use log::info;
 
 mod config;
 mod model;
@@ -27,11 +30,12 @@ async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse,
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let port = get_server_port();
+    Config::init_logging();
 
-    log::info!("starting HTTP server at http://localhost:{}", port);
+    let port = Config::get_server_port();
+
+    info!("starting HTTP server at http://localhost:{}", port);
 
     HttpServer::new(|| {
         App::new()
