@@ -125,11 +125,10 @@ impl<'a> Config<'a> {
 
         if enable {
             if auto.is_enabled().expect("Couldn't check auto launch") {
-                info!("已经设置开机启动");
-            } else {
-                auto.enable().expect("Couldn't enable auto launch");
-                info!("设置开机启动成功");
+                auto.disable().expect("Couldn't disable auto launch");
             }
+            auto.enable().expect("Couldn't enable auto launch");
+            info!("设置开机启动成功");
         } else if auto.is_enabled().expect("Couldn't check auto launch") {
             auto.disable().expect("Couldn't disable auto launch");
             info!("取消开机启动成功");
