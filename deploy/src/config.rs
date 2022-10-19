@@ -64,18 +64,18 @@ impl<'a> Config<'a> {
 
     pub fn get_filename(&self) -> String {
         if cfg!(target_os = "macos") {
-            format!("serverbee-web-x86_64-apple-darwin-{}.zip", self.version)
+            format!("serverbee-web-{}-x86_64-apple-darwin.zip", self.version)
         } else if cfg!(target_os = "linux") {
             format!(
-                "serverbee-web-x86_64-unknown-linux-musl-{}.zip",
+                "serverbee-web-{}-x86_64-unknown-linux-musl.zip",
                 self.version
             )
         } else if cfg!(target_os = "windows") {
-            format!("serverbee-web-x86_64-pc-windows-gnu-{}.zip", self.version)
+            format!("serverbee-web-{}-x86_64-pc-windows-gnu.zip", self.version)
         } else {
             warn!("unknown os");
             format!(
-                "serverbee-web-x86_64-unknown-linux-musl-{}.zip",
+                "serverbee-web-{}-x86_64-unknown-linux-musl.zip",
                 self.version
             )
         }
@@ -105,7 +105,7 @@ impl<'a> Config<'a> {
 
     pub fn bin_zip_url(&self) -> PathBuf {
         let base_url =
-            "https://cdn.jsdelivr.net/gh/ZingerLittleBee/server_bee-backend@release/release";
+            "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com";
 
         Path::new(base_url)
             .join(self.version)

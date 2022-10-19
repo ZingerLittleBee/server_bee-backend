@@ -31,7 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUSTTARGET: ${{ matrix.target }}
           SRC_DIR: ${{ matrix.package }}
-          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}-${{ steps.tagName.outputs.tag }}
+          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ steps.tagName.outputs.tag }}-${{ matrix.target }}
           UPLOAD_MODE: none
       - name: Upload artifact
         uses: actions/upload-artifact@v3
