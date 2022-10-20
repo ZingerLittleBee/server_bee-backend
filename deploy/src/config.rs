@@ -1,14 +1,14 @@
 use crate::cli::Port;
 use crate::WebConfig;
 use auto_launch::AutoLaunchBuilder;
-use std::env;
-use std::fs::OpenOptions;
-use std::path::{Path, PathBuf};
+use log::{info, warn, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use log::{info, LevelFilter, warn};
+use std::env;
+use std::fs::OpenOptions;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Config<'a> {
@@ -27,22 +27,29 @@ impl<'a> Config<'a> {
     pub fn init_logging() {
         // init logging
         let stdout: ConsoleAppender = ConsoleAppender::builder()
-            .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {l}] {m}{n}")))
+            .encoder(Box::new(PatternEncoder::new(
+                "[{d(%Y-%m-%d %H:%M:%S)} {l}] {m}{n}",
+            )))
             .build();
 
         // Logging to log file.
         let logfile = FileAppender::builder()
             // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
-            .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {l}] {m}{n}")))
+            .encoder(Box::new(PatternEncoder::new(
+                "[{d(%Y-%m-%d %H:%M:%S)} {l}] {m}{n}",
+            )))
             .build(Config::deploy_log_path())
             .unwrap();
 
         let log_config = log4rs::config::Config::builder()
             .appender(Appender::builder().build("stdout", Box::new(stdout)))
             .appender(Appender::builder().build("logfile", Box::new(logfile)))
-            .build(Root::builder().appender("stdout")
-                .appender("logfile")
-                .build(LevelFilter::Info))
+            .build(
+                Root::builder()
+                    .appender("stdout")
+                    .appender("logfile")
+                    .build(LevelFilter::Info),
+            )
             .unwrap();
         log4rs::init_config(log_config).unwrap();
     }
@@ -64,31 +71,20 @@ impl<'a> Config<'a> {
 
     pub fn get_filename(&self) -> String {
         if cfg!(target_os = "macos") {
-            format!("serverbee-web-{}-x86_64-apple-darwin.zip", self.version)
+            "serverbee-web-x86_64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            format!(
-                "serverbee-web-{}-x86_64-unknown-linux-musl.zip",
-                self.version
-            )
+            "serverbee-web-x86_64-unknown-linux-musl.zip".into()
         } else if cfg!(target_os = "windows") {
-            format!("serverbee-web-{}-x86_64-pc-windows-gnu.zip", self.version)
+            "serverbee-web-x86_64-pc-windows-gnu.zip".into()
         } else {
             warn!("unknown os");
-            format!(
-                "serverbee-web-{}-x86_64-unknown-linux-musl.zip",
-                self.version
-            )
+            "serverbee-web-x86_64-unknown-linux-musl.zip".into()
         }
     }
 
     // Ex CWD/0.0.1/
     pub fn web_bin_dir(&self) -> PathBuf {
         Config::current_dir().join(self.version)
-    }
-
-    #[cfg(not(windows))]
-    pub fn log_path(&self) -> PathBuf {
-        self.web_bin_dir().join("serverbee-web.log")
     }
 
     pub fn web_bin_path(&self) -> PathBuf {
@@ -104,8 +100,7 @@ impl<'a> Config<'a> {
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let base_url =
-            "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com";
+        let base_url = "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com";
 
         Path::new(base_url)
             .join(self.version)
@@ -114,7 +109,10 @@ impl<'a> Config<'a> {
 
     pub fn set_auto_launch(&self, enable: bool) {
         let app_name = env!("CARGO_PKG_NAME");
-        info!("自启执行文件: {}", env::current_exe().unwrap().to_str().unwrap());
+        info!(
+            "自启执行文件: {}",
+            env::current_exe().unwrap().to_str().unwrap()
+        );
 
         let auto = AutoLaunchBuilder::new()
             .set_app_name(app_name)

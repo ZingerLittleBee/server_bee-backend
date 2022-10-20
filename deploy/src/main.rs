@@ -90,13 +90,9 @@ async fn main() -> Result<()> {
 
     config.set_auto_launch(!args.auto_launch);
 
-    #[cfg(windows)]
     start_process(config.web_bin_path().to_str().unwrap());
 
     info!("启动成功");
-
-    #[cfg(not(windows))]
-    start_process(config.web_bin_path().to_str().unwrap(), config.log_path().to_str().unwrap());
 
     Ok(())
 }
@@ -154,6 +150,12 @@ fn unzip(file: File, out_dir: PathBuf) {
 
 #[cfg(windows)]
 fn start_process(bin_full_path: &str) {
+
+    info!(
+        "文件全路径: {}",
+        bin_full_path
+    );
+
     Command::new("powershell")
         .args(["/C", bin_full_path])
         .spawn()
@@ -161,32 +163,12 @@ fn start_process(bin_full_path: &str) {
 }
 
 #[cfg(not(windows))]
-fn start_process(bin_full_path: &str, log_path: &str) {
+fn start_process(bin_full_path: &str) {
 
     info!(
         "文件全路径: {}",
         bin_full_path
     );
-
-    // info!(
-    //     "日志路径: {}",
-    //     log_path
-    // );
-
-    // let cmd = format!(
-    //     "nohup {} > {} &",
-    //     bin_full_path,
-    //     log_path
-    // );
-    //
-    // Command::new("sh")
-    //     .args(["-c", cmd.as_str()])
-    //     .spawn()
-    //     .expect("运行 serverbee-web 失败, 请尝试手动运行");
-    //
-    // let out = Command::new("cat").arg(log_path).output();
-    //
-    // thread::sleep(Duration::from_secs(1));
 
     Command::new(bin_full_path)
         .spawn()

@@ -1,4 +1,4 @@
-Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
+Language : [🇺🇸 English](./README.md) | 🇨🇳 简体中文
 
 <center>
     <h1>server_bee-backend</h1>
@@ -13,27 +13,26 @@ Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
 </div>
 
 # Overview
-server_bee-backend for [ServerBee APP](https://github.com/ZingerLittleBee/server_bee) power by rust with actix
+[ServerBee APP](https://github.com/ZingerLittleBee/server_bee) 的后端程序, 使用 rust 和 actix 编写
 
 # Features
 
-- CPU load
-- load average
-- memory usage
-- uptime / boot time
-- filesystem mounts (and disk usage)
-- disk I/O statistics
-- network interfaces
-- network traffic statistics
+- CPU 负载
+- 平均负载
+- 内存使用情况
+- 正常运行、启动时间
+- 文件系统装载（和磁盘使用）
+- 磁盘I/O统计信息
+- 网络接口
+- 网络流量统计
 
-# How to use
+# 如何使用
 
-## Installation
-
+## 安装
 ### Linux、MacOS
 
 ```bash
-# Get latest version, replace `latest` with the version you want
+# 获取最新版本, 将 `latest` 替换为所需版本
 wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/latest/serverbee-deploy-x86_64-apple-darwin.zip
 
 unzip serverbee-deploy-x86_64-apple-darwin.zip
@@ -42,24 +41,28 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 ```
 
 ### Windows
-1. Download the latest version from [release](https://github.com/ZingerLittleBee/server_bee-backend/releases)
 
-2. unzip serverbee-deploy-x86_64-pc-windows-gnu.zip
+1. 下载最新版本 [release](https://github.com/ZingerLittleBee/server_bee-backend/releases)
 
-3. run serverbee-deploy.exe
+2. 解压 serverbee-deploy-x86_64-pc-windows-gnu.zip
 
-## Use custom port
+3. 启动 serverbee-deploy.exe
+
+## 使用自定义端口
 ```bash
 ./serverbee-deploy -p 8081
 ```
 
-## Disable auto launch
+## 禁用开机启动
 ```bash
 ./serverbee-deploy -a
 ```
 
-# Release Notes
+
+# 发行说明
+
 SEE [CHANGELOG](CHANGELOG.md)
 
-# Found an issue or have a proposal
-[Create an issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
+# 发现问题或提出建议
+
+[创建 issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
