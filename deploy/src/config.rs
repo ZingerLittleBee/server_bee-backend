@@ -64,8 +64,8 @@ impl<'a> Config<'a> {
         let f = OpenOptions::new()
             .write(true)
             .create(true)
-            .open("config.yml")
-            .expect("Couldn't open file");
+            .open(self.web_bin_dir().join("config.yml"))
+            .expect("Couldn't open config.yml file");
         serde_yaml::to_writer(f, &web_config).unwrap();
     }
 

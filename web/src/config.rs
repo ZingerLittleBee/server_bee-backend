@@ -58,7 +58,14 @@ impl Config {
     }
 
     fn get_config_yml() -> Result<WebConfig> {
-        let config_file = File::open("config.yml")?;
+        let mut config_path = PathBuf::from("config.yml");
+        if let Ok(current_exe) = env::current_exe() {
+            if let Some(parent) = current_exe.parent() {
+                config_path = parent.join("config.yml");
+            }
+        }
+
+        let config_file = File::open(config_path)?;
         Ok(serde_yaml::from_reader::<File, WebConfig>(config_file)?)
     }
 
