@@ -3,7 +3,7 @@ use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "windows"))]
 use systemstat::{Platform, System as Systemstat};
 
 use crate::model::disk::{DiskDetail, DiskIO};
@@ -27,6 +27,9 @@ pub struct SystemInfo {
     sector_size_map: HashMap<String, u16>,
     #[cfg(target_os = "linux")]
     disk_usage_map: Arc<RwLock<HashMap<String, DiskIO>>>,
+
+    #[cfg(target_os = "macos")]
+    systemstat: Systemstat,
 }
 
 impl SystemInfo {
@@ -41,6 +44,9 @@ impl SystemInfo {
             sector_size_map: SystemInfo::init_sector_size(),
             #[cfg(target_os = "linux")]
             disk_usage_map,
+
+            #[cfg(target_os = "macos")]
+            systemstat: Systemstat::new(),
         }
     }
 
@@ -91,6 +97,31 @@ impl SystemInfo {
         self.sys.global_cpu_info().cpu_usage()
     }
 
+    #[cfg(target_os = "macos")]
+    pub fn get_mem_usage(&mut self) -> MemoryUsage {
+        let mut memory_usage = MemoryUsage::default();
+
+        if let Ok(mem) = self.systemstat.memory() {
+            let total = mem.total.as_u64();
+            let free = mem.free.as_u64();
+            let used = total - free;
+            memory_usage.total = total;
+            memory_usage.used = used;
+            memory_usage.free = free;
+        }
+
+        if let Ok(swap_mem) = self.systemstat.swap() {
+            let total = swap_mem.total.as_u64();
+            let free = swap_mem.free.as_u64();
+            let used = total - free;
+            memory_usage.swap_total = total;
+            memory_usage.swap_used = used;
+            memory_usage.swap_free = free;
+        }
+        memory_usage
+    }
+
+    #[cfg(not(target_os = "macos"))]
     pub fn get_mem_usage(&mut self) -> MemoryUsage {
         MemoryUsage {
             total: self.sys.total_memory(),
