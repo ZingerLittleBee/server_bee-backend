@@ -6,6 +6,8 @@ Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
 
 <div align="center">
 
+Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714)
+
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ZingerLittleBee/server_bee-backend?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ZingerLittleBee/server_bee-backend?style=flat-square)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ZingerLittleBee/server_bee-backend/Release?style=flat-square)
@@ -13,7 +15,8 @@ Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
 </div>
 
 # Overview
-server_bee-backend for [ServerBee APP](https://github.com/ZingerLittleBee/server_bee) power by rust with actix
+- module `web` provide data from server
+- module `deploy` provide **AutoLaunch**、**AutoUpdate**、**SetPort**、**DownloadWebModule**
 
 # Features
 
@@ -58,8 +61,8 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 ./serverbee-deploy -a
 ```
 
-# Release Notes
-SEE [CHANGELOG](CHANGELOG.md)
-
 # Found an issue or have a proposal
 [Create an issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
+
+# Release Notes
+SEE [CHANGELOG](CHANGELOG.md)

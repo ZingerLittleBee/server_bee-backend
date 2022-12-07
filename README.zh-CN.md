@@ -6,16 +6,19 @@ Language : [🇺🇸 English](./README.md) | 🇨🇳 简体中文
 
 <div align="center">
 
+iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的后端 
+
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ZingerLittleBee/server_bee-backend?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ZingerLittleBee/server_bee-backend?style=flat-square)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ZingerLittleBee/server_bee-backend/Release?style=flat-square)
 
 </div>
 
-# Overview
-[ServerBee APP](https://github.com/ZingerLittleBee/server_bee) 的后端程序, 使用 rust 和 actix 编写
+# 概述
+- `web` 模块提供来自机器的数据
+- `deploy` 模块提供 **开机启动**、**自动更新**、**设置端口**、**下载 Web 模块** 的功能
 
-# Features
+# 特点
 
 - CPU 负载
 - 平均负载
@@ -58,11 +61,10 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 ./serverbee-deploy -a
 ```
 
+# 发现问题或提出建议
+
+[创建 issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
 
 # 发行说明
 
 SEE [CHANGELOG](CHANGELOG.md)
-
-# 发现问题或提出建议
-
-[创建 issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
