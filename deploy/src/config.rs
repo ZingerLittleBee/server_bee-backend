@@ -123,10 +123,8 @@ impl<'a> Config<'a> {
 
         if enable {
             if auto.is_enabled().expect("Couldn't check auto launch") {
-                auto.disable().expect("Couldn't disable auto launch");
+                info!("开机启动项已存在, 无需重复设置");
             }
-            auto.enable().expect("Couldn't enable auto launch");
-            info!("设置开机启动成功");
         } else if auto.is_enabled().expect("Couldn't check auto launch") {
             auto.disable().expect("Couldn't disable auto launch");
             info!("取消开机启动成功");
