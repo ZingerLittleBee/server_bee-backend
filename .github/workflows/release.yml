@@ -9,47 +9,70 @@ on:
             - v[0-9]+.*
 
 jobs:
-    build:
-        name: release ${{ matrix.target }}
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                target:
-                    [
-                        x86_64-pc-windows-gnu,
-                        x86_64-unknown-linux-musl,
-                        x86_64-apple-darwin
-                    ]
-                package: [web, deploy]
-        steps:
-            - uses: actions/checkout@master
-            - name: Compile and release
-              id: compile
-              uses: rust-build/rust-build.action@v1.3.2
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  RUSTTARGET: ${{ matrix.target }}
-                  SRC_DIR: ${{ matrix.package }}
-                  ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}
-                  UPLOAD_MODE: none
-            - name: Upload artifact
-              uses: actions/upload-artifact@v3
-              with:
-                  name: serverbee-${{ matrix.target }}
-                  path: |
-                      ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-                      ${{ steps.compile.outputs.BUILT_CHECKSUM }}
-    release:
-        name: Release
-        runs-on: ubuntu-latest
-        needs:
-            - build
-        steps:
-            - uses: actions/download-artifact@v3
-            - name: Display structure of downloaded files
-              run: ls -R
-            - uses: ncipollo/release-action@v1
-              with:
-                  artifacts: 'serverbee-*/*.zip'
-                  token: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    name: release ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          [
+            x86_64-pc-windows-gnu,
+            x86_64-unknown-linux-musl
+          ]
+        package: [web, deploy]
+    steps:
+      - uses: actions/checkout@master
+      - name: Compile and release
+        id: compile
+        uses: rust-build/rust-build.action@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUSTTARGET: ${{ matrix.target }}
+          SRC_DIR: ${{ matrix.package }}
+          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}
+          UPLOAD_MODE: none
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: serverbee-${{ matrix.target }}
+          path: |
+            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+  build-macos:
+    name: release macOS
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [web, deploy]
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all-features
+      - name: 'Zip artifact'
+        run: zip -j serverbee-${{ matrix.package }}-x86_64-apple-darwin ./target/release/serverbee-${{ matrix.package }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: serverbee-${{ matrix.package }}-x86_64-apple-darwin
+          path: serverbee-${{ matrix.package }}-x86_64-apple-darwin.zip
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - build-macos
+    steps:
+      - uses: actions/download-artifact@v3
+      - name: Display structure of downloaded files
+        run: ls -R
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'serverbee-*/*.zip'
+          token: ${{ secrets.GITHUB_TOKEN }}
