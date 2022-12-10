@@ -61,6 +61,12 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 ./serverbee-deploy -a
 ```
 
+# How to compile
+```bash
+cargo build --release
+```
+and then you can find the binary file in `target/release`
+
 # Found an issue or have a proposal
 [Create an issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
 

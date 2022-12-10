@@ -61,6 +61,12 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 ./serverbee-deploy -a
 ```
 
+# 如何编译
+```bash
+cargo build --release
+```
+然后你可以在 `target/release` 找到可执行文件
+
 # 发现问题或提出建议
 
 [创建 issue](https://github.com/zingerlittlebee/server_bee-backend/issues/new)
