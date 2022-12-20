@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sysinfo::{Disk, DiskExt, DiskType, DiskUsage};
 
-#[derive(Deserialize, Serialize, Default, Debug)]
+#[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
 pub struct DiskIO {
     pub read: u64,
     pub total_read: u64,

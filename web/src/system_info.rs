@@ -156,7 +156,7 @@ impl SystemInfo {
     }
 
     #[cfg(target_os = "linux")]
-    pub fn get_disk_io(&self) -> DiskIO {
+    pub fn get_disk_io(&mut self) -> DiskIO {
         let mut total_read = 0;
         let mut total_write = 0;
         self.systemstat
@@ -175,6 +175,7 @@ impl SystemInfo {
         }
         disk_usage.total_read = total_read;
         disk_usage.total_write = total_write;
+        self.last_disk_io = disk_usage.clone();
         disk_usage
     }
 
