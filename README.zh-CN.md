@@ -34,12 +34,15 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 ## 安装
 ### Linux、MacOS
 
+从 [Release页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 获取最新版本下载地址
+
 ```bash
-# 获取最新版本, 将 `latest` 替换为所需版本
+# 根据系统架构下载对应版本
 wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/latest/serverbee-deploy-x86_64-apple-darwin.zip
 
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
+# 默认端口是 9527
 ./serverbee-deploy
 ```
 

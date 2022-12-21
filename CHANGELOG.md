@@ -1,8 +1,11 @@
-# Changelog
+## `1.0.1` (2022-12-21)
 
-All notable changes to this project will be documented in this file.
+### Bug Fixes
 
-## [`0.0.1`] - 2022-10-21
+- [high cpu usage in linux bug](https://github.com/ZingerLittleBee/server_bee-backend/issues/5)
+
+
+## `1.0.0` (2022-10-21)
 
 ### Features
 
@@ -15,3 +18,4 @@ All notable changes to this project will be documented in this file.
 - network interfaces
 - network traffic statistics
 - switch between overview and details info
+

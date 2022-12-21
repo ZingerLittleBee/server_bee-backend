@@ -35,12 +35,15 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 
 ### Linux、MacOS
 
+From [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releases) get the latest version download address
+
 ```bash
-# Get latest version, replace `latest` with the version you want
+# download the corresponding version according to the system architecture
 wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/latest/serverbee-deploy-x86_64-apple-darwin.zip
 
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
+# default port is 9527
 ./serverbee-deploy
 ```
 
