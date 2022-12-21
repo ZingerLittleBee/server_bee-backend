@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    /// 端口号, 默认 8080
+    /// 端口号, 默认 9527
     #[clap(short, long)]
     pub port: Option<u16>,
 
@@ -42,6 +42,6 @@ impl Port {
 
 impl Default for Port {
     fn default() -> Self {
-        Port { port: 8080 }
+        Port { port: 9527 }
     }
 }

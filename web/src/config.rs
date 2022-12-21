@@ -18,7 +18,7 @@ impl Default for WebConfig {
     fn default() -> Self {
         WebConfig {
             server: Port {
-                port: 8080,
+                port: 9527,
             }
         }
     }
