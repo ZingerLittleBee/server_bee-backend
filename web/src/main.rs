@@ -1,11 +1,14 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
+use cli::Args;
 use crate::config::Config;
 
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_actors::ws;
+use clap::Parser;
 use log::info;
 
+mod cli;
 mod config;
 mod model;
 mod server;
@@ -31,9 +34,12 @@ async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse,
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    Config::init_logging();
+    let args = Args::parse();
 
-    let port = Config::get_server_port();
+    Config::init_logging(args.log_path);
+
+    let port =
+        args.port.unwrap_or_else(Config::get_server_port);
 
     info!("starting HTTP server at http://localhost:{}", port);
 

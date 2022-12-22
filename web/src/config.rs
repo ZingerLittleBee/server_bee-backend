@@ -6,7 +6,7 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use log::LevelFilter;
+use log::{info, LevelFilter};
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -33,7 +33,16 @@ struct Port {
 pub struct Config {}
 
 impl Config {
-    pub fn init_logging() {
+    pub fn init_logging(log_path: Option<String>) {
+        let log_path = match log_path {
+            Some(path) => PathBuf::from(path),
+            None => {
+                Config::log_path()
+            }
+        };
+
+        info!("日志路径: {:?}", log_path);
+
         // init logging
         let stdout: ConsoleAppender = ConsoleAppender::builder()
             .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {T} {l}] {m}{n}")))
@@ -43,7 +52,7 @@ impl Config {
         let logfile = FileAppender::builder()
             // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
             .encoder(Box::new(PatternEncoder::new("[{d(%Y-%m-%d %H:%M:%S)} {T} {l}] {m}{n}")))
-            .build(Config::log_path())
+            .build(log_path)
             .unwrap();
 
         let log_config = log4rs::config::Config::builder()

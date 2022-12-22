@@ -18,6 +18,8 @@ actix-web-actors = "4.1"
 awc = "3"
 bytestring = "1.1.0"
 
+clap = { version = "4.0.11", features = ["derive"] }
+
 log = "0.4"
 log4rs = "1.2.0"
 
