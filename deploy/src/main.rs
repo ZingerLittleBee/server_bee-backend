@@ -2,6 +2,7 @@
 
 mod cli;
 mod config;
+mod storage_config;
 
 use crate::cli::{Port, WebConfig};
 use crate::config::Config;
@@ -23,7 +24,7 @@ async fn main() -> Result<()> {
 
     let args = Args::parse();
 
-    let config = Config::new();
+    let mut config = Config::new();
 
     if args.release.is_some() {
         config.set_version(args.release.unwrap().as_str());
@@ -50,7 +51,7 @@ async fn main() -> Result<()> {
         config.set_port(Port::new(args.port.unwrap()));
     }
 
-    if !Path::new(&config.web_bin_path()).exists() {
+    if !Path::new(config.web_bin_path().as_path().to_str().unwrap()).exists() {
         let mut response = reqwest::Client::new()
             .get(config.bin_zip_url().to_str().unwrap())
             .send()
@@ -90,7 +91,7 @@ async fn main() -> Result<()> {
 
     config.set_auto_launch(!args.auto_launch);
 
-    start_process(config.web_bin_path().to_str().unwrap());
+    start_process(config.web_bin_path().to_str().unwrap(), config.port.get_value());
 
     info!("启动成功");
 
@@ -149,7 +150,7 @@ fn unzip(file: File, out_dir: PathBuf) {
 }
 
 #[cfg(windows)]
-fn start_process(bin_full_path: &str) {
+fn start_process(bin_full_path: &str, port: u16) {
 
     info!(
         "文件全路径: {}",
@@ -158,12 +159,13 @@ fn start_process(bin_full_path: &str) {
 
     Command::new("powershell")
         .args(["/C", bin_full_path])
+        .args(["-p", port.to_string()])
         .spawn()
         .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
 
 #[cfg(not(windows))]
-fn start_process(bin_full_path: &str) {
+fn start_process(bin_full_path: &str, port: u16) {
 
     info!(
         "文件全路径: {}",
@@ -171,6 +173,8 @@ fn start_process(bin_full_path: &str) {
     );
 
     Command::new(bin_full_path)
+        .arg("-p")
+        .arg(port.to_string())
         .spawn()
         .expect(&*format!("运行 {} 失败, 请尝试手动运行", bin_full_path));
 }

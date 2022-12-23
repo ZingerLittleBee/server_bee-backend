@@ -9,19 +9,37 @@ use log4rs::encode::pattern::PatternEncoder;
 use std::env;
 use std::fs::OpenOptions;
 use std::path::{Path, PathBuf};
+use crate::storage_config::StorageConfig;
 
-#[derive(Clone, Copy, Debug)]
-pub struct Config<'a> {
+#[derive(Clone, Debug)]
+pub struct Config {
     pub port: Port,
-    pub version: &'a str,
+    pub is_auto_launch: bool,
+    pub storage_config: StorageConfig,
 }
 
-impl<'a> Config<'a> {
+impl Config {
     pub fn new() -> Self {
-        Self {
-            port: Default::default(),
-            version: env!("CARGO_PKG_VERSION"),
+        let mut port = Default::default();
+        let mut is_auto_launch = true;
+        let storage_config = StorageConfig::new();
+
+        if let Some(storage_port) = storage_config.port {
+            port = storage_port;
         }
+        if let Some(storage_is_auto_launch) = storage_config.is_auto_launch {
+            is_auto_launch = storage_is_auto_launch;
+        }
+
+        Self {
+            port,
+            is_auto_launch,
+            storage_config,
+        }
+    }
+
+    pub fn get_version(&self) -> String {
+        self.storage_config.get_version()
     }
 
     pub fn init_logging() {
@@ -54,11 +72,12 @@ impl<'a> Config<'a> {
         log4rs::init_config(log_config).unwrap();
     }
 
-    pub fn set_version(mut self, version: &'a str) {
-        self.version = version;
+    pub fn set_version(&mut self, version: &str) {
+        self.storage_config.version = Some(version.into());
+        self.storage_config.save_config();
     }
 
-    pub fn set_port(mut self, port: Port) {
+    pub fn set_port(&mut self, port: Port) {
         self.port = port;
         let web_config = WebConfig::new(self.port);
         let f = OpenOptions::new()
@@ -69,7 +88,7 @@ impl<'a> Config<'a> {
         serde_yaml::to_writer(f, &web_config).unwrap();
     }
 
-    pub fn get_filename(&self) -> String {
+    pub fn get_filename() -> String {
         if cfg!(target_os = "macos") {
             "serverbee-web-x86_64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
@@ -84,7 +103,7 @@ impl<'a> Config<'a> {
 
     // Ex CWD/0.0.1/
     pub fn web_bin_dir(&self) -> PathBuf {
-        Config::current_dir().join(self.version)
+        Config::current_dir().join(self.get_version())
     }
 
     pub fn web_bin_path(&self) -> PathBuf {
@@ -96,15 +115,15 @@ impl<'a> Config<'a> {
     }
 
     pub fn web_bin_zip_path(&self) -> PathBuf {
-        self.web_bin_dir().join(self.get_filename())
+        self.web_bin_dir().join(Config::get_filename())
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
         let base_url = "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com";
 
         Path::new(base_url)
-            .join(self.version)
-            .join(self.get_filename())
+            .join(self.get_version())
+            .join(Config::get_filename())
     }
 
     pub fn set_auto_launch(&self, enable: bool) {

@@ -38,6 +38,10 @@ impl Port {
     pub fn new(port: u16) -> Self {
         Port { port }
     }
+
+    pub fn get_value(&self) -> u16 {
+        self.port
+    }
 }
 
 impl Default for Port {
