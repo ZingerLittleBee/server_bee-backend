@@ -6,32 +6,48 @@ use crate::config::Config;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StorageConfig {
-    pub port: Option<Port>,
-    pub version: Option<String>,
+    pub port: Option<u16>,
     pub is_auto_launch: Option<bool>,
+    pub github_download: Option<bool>
 }
 
 impl StorageConfig {
     pub fn new() -> Self {
         if StorageConfig::deploy_config_path().exists() {
-            let config = StorageConfig::load_config();
-            config
+            StorageConfig::load_config()
         } else {
             Self {
                 port: None,
-                version: Some(env!("CARGO_PKG_VERSION").into()),
                 is_auto_launch: None,
+                github_download: None,
             }
         }
     }
 
-    pub fn get_version(&self) -> String {
-        self.version.clone().unwrap()
+    pub fn set_auto_launch(&mut self, is_auto_launch: bool) {
+        if self.is_auto_launch.is_none() || self.is_auto_launch.unwrap() != is_auto_launch {
+            self.is_auto_launch = Some(is_auto_launch);
+            self.save_config();
+        }
+    }
+
+    pub fn set_is_github_download(&mut self, is_github_download: bool) {
+        if self.github_download.is_none() || self.github_download.unwrap() != is_github_download {
+            self.github_download = Some(is_github_download);
+            self.save_config();
+        }
+    }
+
+    pub fn set_port(&mut self, port: Port) {
+        if self.port.is_none() || self.port.unwrap() != port.get_value() {
+            self.port = Some(port.get_value());
+            self.save_config();
+        }
     }
 
     pub fn load_config() -> Self {
         let config_file = File::open(StorageConfig::deploy_config_path()).unwrap();
-        let config: StorageConfig = serde_json::from_reader(config_file).unwrap();
+        let config: StorageConfig = serde_yaml::from_reader(config_file).unwrap();
         config
     }
 
@@ -41,12 +57,12 @@ impl StorageConfig {
             .create(true)
             .open(StorageConfig::deploy_config_path())
             .unwrap();
-        serde_json::to_writer_pretty(config_file, self).unwrap();
+        serde_yaml::to_writer(config_file, self).unwrap();
     }
 
     pub fn deploy_config_path() -> PathBuf {
         let mut path = Config::current_dir();
-        path.push("deploy.yml");
+        path.push("deploy-config.yml");
         path
     }
 }

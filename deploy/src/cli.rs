@@ -9,24 +9,18 @@ pub struct Args {
     #[clap(short, long)]
     pub port: Option<u16>,
 
-    /// 版本号, 默认使用最新版本
-    #[clap(short, long)]
-    pub release: Option<String>,
-
     /// 是否开机自启, 默认自启
     #[clap(short, long)]
     pub auto_launch: bool,
+
+    /// 从 Github 下载, 默认是, 否则从国内镜像下载
+    #[clap(short, long)]
+    pub github_download: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct WebConfig {
     server: Port,
-}
-
-impl WebConfig {
-    pub fn new(port: Port) -> Self {
-        WebConfig { server: port }
-    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]

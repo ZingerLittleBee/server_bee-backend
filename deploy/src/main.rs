@@ -4,7 +4,7 @@ mod cli;
 mod config;
 mod storage_config;
 
-use crate::cli::{Port, WebConfig};
+use crate::cli::Port;
 use crate::config::Config;
 use anyhow::Result;
 use clap::Parser;
@@ -26,22 +26,20 @@ async fn main() -> Result<()> {
 
     let mut config = Config::new();
 
-    if args.release.is_some() {
-        config.set_version(args.release.unwrap().as_str());
-    } else {
-        // get latest version
-        let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
-            .await?
-            .json::<serde_json::Value>()
-            .await?;
+    config.set_is_github_download(!args.github_download);
 
-        if let Some(version_value) = latest_version.get("versions") {
-            if let Some(version_vec) = version_value.as_array() {
-                if let Some(version) = version_vec.first() {
-                    if let Some(version_str) = version.as_str() {
-                        info!("latest version: {}", version_str);
-                        config.set_version(version_str);
-                    }
+    // get latest version
+    let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
+
+    if let Some(version_value) = latest_version.get("versions") {
+        if let Some(version_vec) = version_value.as_array() {
+            if let Some(version) = version_vec.first() {
+                if let Some(version_str) = version.as_str() {
+                    info!("latest version: {}", version_str);
+                    config.set_version(version_str);
                 }
             }
         }
@@ -91,7 +89,7 @@ async fn main() -> Result<()> {
 
     config.set_auto_launch(!args.auto_launch);
 
-    start_process(config.web_bin_path().to_str().unwrap(), config.port.get_value());
+    start_process(config.web_bin_path().to_str().unwrap(), config.get_port());
 
     info!("启动成功");
 

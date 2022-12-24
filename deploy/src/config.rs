@@ -1,5 +1,5 @@
 use crate::cli::Port;
-use crate::WebConfig;
+use crate::storage_config::StorageConfig;
 use auto_launch::AutoLaunchBuilder;
 use log::{info, warn, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
@@ -7,39 +7,50 @@ use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use std::env;
-use std::fs::OpenOptions;
 use std::path::{Path, PathBuf};
-use crate::storage_config::StorageConfig;
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub port: Port,
-    pub is_auto_launch: bool,
-    pub storage_config: StorageConfig,
+    port: Port,
+    version: String,
+    storage_config: StorageConfig,
 }
 
 impl Config {
     pub fn new() -> Self {
-        let mut port = Default::default();
-        let mut is_auto_launch = true;
-        let storage_config = StorageConfig::new();
+        let mut port: Port = Default::default();
+        let mut storage_config = StorageConfig::new();
 
         if let Some(storage_port) = storage_config.port {
-            port = storage_port;
+            port = Port::new(storage_port);
         }
-        if let Some(storage_is_auto_launch) = storage_config.is_auto_launch {
-            is_auto_launch = storage_is_auto_launch;
+
+        if storage_config.port.is_none() {
+            storage_config.set_port(port);
         }
 
         Self {
             port,
-            is_auto_launch,
+            version: env!("CARGO_PKG_VERSION").into(),
             storage_config,
         }
     }
 
     pub fn get_version(&self) -> String {
-        self.storage_config.get_version()
+        self.version.clone()
+    }
+
+    pub fn get_port(&self) -> u16 {
+        self.port.get_value()
+    }
+
+    pub fn set_version(&mut self, version: &str) {
+        self.version = version.into();
+    }
+
+    pub fn set_is_github_download(&mut self, is_github_download: bool) {
+        self.storage_config
+            .set_is_github_download(is_github_download)
     }
 
     pub fn init_logging() {
@@ -72,20 +83,17 @@ impl Config {
         log4rs::init_config(log_config).unwrap();
     }
 
-    pub fn set_version(&mut self, version: &str) {
-        self.storage_config.version = Some(version.into());
-        self.storage_config.save_config();
-    }
-
     pub fn set_port(&mut self, port: Port) {
         self.port = port;
-        let web_config = WebConfig::new(self.port);
-        let f = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(self.web_bin_dir().join("config.yml"))
-            .expect("Couldn't open config.yml file");
-        serde_yaml::to_writer(f, &web_config).unwrap();
+        self.storage_config.set_port(port);
+
+        // let web_config = WebConfig::new(self.port);
+        // let f = OpenOptions::new()
+        //     .write(true)
+        //     .create(true)
+        //     .open(self.web_bin_dir().join("config.yml"))
+        //     .expect("Couldn't open config.yml file");
+        // serde_yaml::to_writer(f, &web_config).unwrap();
     }
 
     pub fn get_filename() -> String {
@@ -119,14 +127,26 @@ impl Config {
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let base_url = "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com";
+        let is_github_download = self.storage_config.github_download.unwrap_or(true);
+
+        let base_url = if is_github_download {
+            "https://github.com/ZingerLittleBee/server_bee-backend/releases/download"
+        } else {
+            "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com"
+        };
+
+        let version = if is_github_download {
+            format!("v{}", self.get_version())
+        } else {
+            self.get_version()
+        };
 
         Path::new(base_url)
-            .join(self.get_version())
+            .join(version)
             .join(Config::get_filename())
     }
 
-    pub fn set_auto_launch(&self, enable: bool) {
+    pub fn set_auto_launch(&mut self, enable: bool) {
         let app_name = env!("CARGO_PKG_NAME");
         info!(
             "自启执行文件: {}",
@@ -150,6 +170,8 @@ impl Config {
         } else {
             info!("已经取消开机启动");
         }
+
+        self.storage_config.set_auto_launch(enable);
     }
 
     pub fn current_dir() -> PathBuf {
