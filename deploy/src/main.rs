@@ -165,7 +165,7 @@ fn start_process(bin_full_path: &str, port: u16) {
 
     Command::new("powershell")
         .args(["/C", bin_full_path])
-        .args(["-p", port.to_string()])
+        .args(["-p", port.to_string().as_str()])
         .spawn()
         .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
