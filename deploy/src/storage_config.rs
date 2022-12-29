@@ -31,6 +31,10 @@ impl StorageConfig {
         }
     }
 
+    pub fn get_auto_launch(&self) -> bool {
+        self.is_auto_launch.unwrap_or(true)
+    }
+
     pub fn get_is_github_download(&self) -> bool {
         self.github_download.unwrap_or(true)
     }

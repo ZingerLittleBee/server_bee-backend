@@ -11,7 +11,7 @@ pub struct Args {
 
     /// 是否开机自启, 默认自启
     #[clap(short, long)]
-    pub auto_launch: bool,
+    pub auto_launch: Option<bool>,
 
     /// 使用国内镜像下载
     #[clap(short, long, default_value = "false")]

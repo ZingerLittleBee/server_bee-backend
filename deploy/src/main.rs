@@ -95,7 +95,7 @@ async fn main() -> Result<()> {
         info!("文件已存在, 跳过下载");
     }
 
-    config.set_auto_launch(!args.auto_launch);
+    config.set_auto_launch(args.auto_launch.unwrap_or_else(|| config.get_auto_launch()));
 
     start_process(config.web_bin_path().to_str().unwrap(), config.get_port());
 

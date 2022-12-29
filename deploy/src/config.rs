@@ -36,6 +36,10 @@ impl Config {
         }
     }
 
+    pub fn get_auto_launch(&self) -> bool {
+        self.storage_config.get_auto_launch()
+    }
+
     pub fn get_version(&self) -> String {
         self.version.clone()
     }
