@@ -1,5 +1,5 @@
 use crate::cli::Port;
-use crate::WebConfig;
+use crate::storage_config::StorageConfig;
 use auto_launch::AutoLaunchBuilder;
 use log::{info, warn, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
@@ -7,21 +7,54 @@ use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use std::env;
-use std::fs::OpenOptions;
 use std::path::{Path, PathBuf};
 
-#[derive(Clone, Copy, Debug)]
-pub struct Config<'a> {
-    pub port: Port,
-    pub version: &'a str,
+#[derive(Clone, Debug)]
+pub struct Config {
+    port: Port,
+    version: String,
+    storage_config: StorageConfig,
 }
 
-impl<'a> Config<'a> {
+impl Config {
     pub fn new() -> Self {
-        Self {
-            port: Default::default(),
-            version: env!("CARGO_PKG_VERSION"),
+        let mut port: Port = Default::default();
+        let mut storage_config = StorageConfig::new();
+
+        if let Some(storage_port) = storage_config.port {
+            port = Port::new(storage_port);
         }
+
+        if storage_config.port.is_none() {
+            storage_config.set_port(port);
+        }
+
+        Self {
+            port,
+            version: env!("CARGO_PKG_VERSION").into(),
+            storage_config,
+        }
+    }
+
+    pub fn get_auto_launch(&self) -> bool {
+        self.storage_config.get_auto_launch()
+    }
+
+    pub fn get_version(&self) -> String {
+        self.version.clone()
+    }
+
+    pub fn get_port(&self) -> u16 {
+        self.port.get_value()
+    }
+
+    pub fn set_version(&mut self, version: &str) {
+        self.version = version.into();
+    }
+
+    pub fn set_is_github_download(&mut self, is_github_download: bool) {
+        self.storage_config
+            .set_is_github_download(is_github_download)
     }
 
     pub fn init_logging() {
@@ -54,22 +87,21 @@ impl<'a> Config<'a> {
         log4rs::init_config(log_config).unwrap();
     }
 
-    pub fn set_version(mut self, version: &'a str) {
-        self.version = version;
-    }
-
-    pub fn set_port(mut self, port: Port) {
+    pub fn set_port(&mut self, port: Port) {
         self.port = port;
-        let web_config = WebConfig::new(self.port);
-        let f = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(self.web_bin_dir().join("config.yml"))
-            .expect("Couldn't open config.yml file");
-        serde_yaml::to_writer(f, &web_config).unwrap();
+        self.storage_config.set_port(port);
+
+        // let web_config = WebConfig::new(self.port);
+        // let f = OpenOptions::new()
+        //     .write(true)
+        //     .create(true)
+        //     .open(self.web_bin_dir().join("config.yml"))
+        //     .expect("Couldn't open config.yml file");
+        // serde_yaml::to_writer(f, &web_config).unwrap();
     }
 
-    pub fn get_filename(&self) -> String {
+    #[cfg(target_arch = "x86_64")]
+    pub fn get_filename() -> String {
         if cfg!(target_os = "macos") {
             "serverbee-web-x86_64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
@@ -82,9 +114,23 @@ impl<'a> Config<'a> {
         }
     }
 
+    #[cfg(target_arch = "aarch64")]
+    pub fn get_filename() -> String {
+        if cfg!(target_os = "macos") {
+            "serverbee-web-aarch64-apple-darwin.zip".into()
+        } else if cfg!(target_os = "linux") {
+            "serverbee-web-aarch64-unknown-linux-musl.zip".into()
+        } else if cfg!(target_os = "windows") {
+            "serverbee-web-aarch64-pc-windows-gnu.zip".into()
+        } else {
+            warn!("unknown os");
+            "serverbee-web-aarch64-unknown-linux-musl.zip".into()
+        }
+    }
+
     // Ex CWD/0.0.1/
     pub fn web_bin_dir(&self) -> PathBuf {
-        Config::current_dir().join(self.version)
+        Config::current_dir().join(self.get_version())
     }
 
     pub fn web_bin_path(&self) -> PathBuf {
@@ -96,18 +142,30 @@ impl<'a> Config<'a> {
     }
 
     pub fn web_bin_zip_path(&self) -> PathBuf {
-        self.web_bin_dir().join(self.get_filename())
+        self.web_bin_dir().join(Config::get_filename())
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let base_url = "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com";
+        let is_github_download = self.storage_config.get_is_github_download();
+
+        let base_url = if is_github_download {
+            "https://github.com/ZingerLittleBee/server_bee-backend/releases/download"
+        } else {
+            "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com"
+        };
+
+        let version = if is_github_download {
+            format!("v{}", self.get_version())
+        } else {
+            self.get_version()
+        };
 
         Path::new(base_url)
-            .join(self.version)
-            .join(self.get_filename())
+            .join(version)
+            .join(Config::get_filename())
     }
 
-    pub fn set_auto_launch(&self, enable: bool) {
+    pub fn set_auto_launch(&mut self, enable: bool) {
         let app_name = env!("CARGO_PKG_NAME");
         info!(
             "自启执行文件: {}",
@@ -131,6 +189,8 @@ impl<'a> Config<'a> {
         } else {
             info!("已经取消开机启动");
         }
+
+        self.storage_config.set_auto_launch(enable);
     }
 
     pub fn current_dir() -> PathBuf {

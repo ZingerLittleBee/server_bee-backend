@@ -1,9 +1,12 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
+extern crate core;
+
 mod cli;
 mod config;
+mod storage_config;
 
-use crate::cli::{Port, WebConfig};
+use crate::cli::Port;
 use crate::config::Config;
 use anyhow::Result;
 use clap::Parser;
@@ -23,24 +26,28 @@ async fn main() -> Result<()> {
 
     let args = Args::parse();
 
-    let config = Config::new();
+    let mut config = Config::new();
 
-    if args.release.is_some() {
-        config.set_version(args.release.unwrap().as_str());
-    } else {
-        // get latest version
-        let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
-            .await?
-            .json::<serde_json::Value>()
-            .await?;
+    if args.domestic_download {
+        config.set_is_github_download(false);
+    }
 
-        if let Some(version_value) = latest_version.get("versions") {
-            if let Some(version_vec) = version_value.as_array() {
-                if let Some(version) = version_vec.first() {
-                    if let Some(version_str) = version.as_str() {
-                        info!("latest version: {}", version_str);
-                        config.set_version(version_str);
-                    }
+    if args.foreign_download {
+        config.set_is_github_download(true);
+    }
+
+    // get latest version
+    let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
+
+    if let Some(version_value) = latest_version.get("versions") {
+        if let Some(version_vec) = version_value.as_array() {
+            if let Some(version) = version_vec.first() {
+                if let Some(version_str) = version.as_str() {
+                    info!("latest version: {}", version_str);
+                    config.set_version(version_str);
                 }
             }
         }
@@ -50,7 +57,7 @@ async fn main() -> Result<()> {
         config.set_port(Port::new(args.port.unwrap()));
     }
 
-    if !Path::new(&config.web_bin_path()).exists() {
+    if !Path::new(config.web_bin_path().as_path().to_str().unwrap()).exists() {
         let mut response = reqwest::Client::new()
             .get(config.bin_zip_url().to_str().unwrap())
             .send()
@@ -88,9 +95,9 @@ async fn main() -> Result<()> {
         info!("文件已存在, 跳过下载");
     }
 
-    config.set_auto_launch(!args.auto_launch);
+    config.set_auto_launch(args.auto_launch.unwrap_or_else(|| config.get_auto_launch()));
 
-    start_process(config.web_bin_path().to_str().unwrap());
+    start_process(config.web_bin_path().to_str().unwrap(), config.get_port());
 
     info!("启动成功");
 
@@ -149,7 +156,7 @@ fn unzip(file: File, out_dir: PathBuf) {
 }
 
 #[cfg(windows)]
-fn start_process(bin_full_path: &str) {
+fn start_process(bin_full_path: &str, port: u16) {
 
     info!(
         "文件全路径: {}",
@@ -158,12 +165,13 @@ fn start_process(bin_full_path: &str) {
 
     Command::new("powershell")
         .args(["/C", bin_full_path])
+        .args(["-p", port.to_string()])
         .spawn()
         .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
 }
 
 #[cfg(not(windows))]
-fn start_process(bin_full_path: &str) {
+fn start_process(bin_full_path: &str, port: u16) {
 
     info!(
         "文件全路径: {}",
@@ -171,6 +179,8 @@ fn start_process(bin_full_path: &str) {
     );
 
     Command::new(bin_full_path)
+        .arg("-p")
+        .arg(port.to_string())
         .spawn()
         .expect(&*format!("运行 {} 失败, 请尝试手动运行", bin_full_path));
 }

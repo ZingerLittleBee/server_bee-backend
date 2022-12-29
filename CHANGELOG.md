@@ -1,3 +1,12 @@
+## `1.0.2` (2022-12-29)
+
+### Features
+- Add Cli for Web
+- Add config file for deploy
+
+### Bug Fixes
+- Cli params not identify in fact
+
 ## `1.0.1` (2022-12-21)
 
 ### Bug Fixes

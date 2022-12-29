@@ -9,24 +9,22 @@ pub struct Args {
     #[clap(short, long)]
     pub port: Option<u16>,
 
-    /// 版本号, 默认使用最新版本
-    #[clap(short, long)]
-    pub release: Option<String>,
-
     /// 是否开机自启, 默认自启
     #[clap(short, long)]
-    pub auto_launch: bool,
+    pub auto_launch: Option<bool>,
+
+    /// 使用国内镜像下载
+    #[clap(short, long, default_value = "false")]
+    pub domestic_download: bool,
+
+    /// 使用国外镜像下载, 默认是
+    #[clap(short, long, default_value = "false")]
+    pub foreign_download: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct WebConfig {
     server: Port,
-}
-
-impl WebConfig {
-    pub fn new(port: Port) -> Self {
-        WebConfig { server: port }
-    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
@@ -37,6 +35,10 @@ pub struct Port {
 impl Port {
     pub fn new(port: u16) -> Self {
         Port { port }
+    }
+
+    pub fn get_value(&self) -> u16 {
+        self.port
     }
 }
 

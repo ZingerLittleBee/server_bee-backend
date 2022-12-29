@@ -1809,6 +1809,7 @@ dependencies = [
  "anyhow",
  "awc",
  "bytestring",
+ "clap",
  "futures-util",
  "log",
  "log4rs",
