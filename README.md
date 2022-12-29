@@ -16,7 +16,7 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 
 # Overview
 - module `web` provide data from server
-- module `deploy` provide **AutoLaunch**、**AutoUpdate**、**SetPort**、**DownloadWebModule**
+- module `deploy` provide **AutoLaunch**、**AutoUpdate**、**DownloadWebModule**
 
 # Features
 
@@ -54,14 +54,38 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 3. run serverbee-deploy.exe
 
-## Use custom port
+## Configuration
+
+### Use custom port
 ```bash
 ./serverbee-deploy -p 8081
+# for unused deploy module
+./serverbee-web -p 8081
 ```
 
-## Disable auto launch
+### Enable auto launch (default is enable)
 ```bash
-./serverbee-deploy -a
+./serverbee-deploy -a true
+```
+
+### Disable auto launch
+```bash
+./serverbee-deploy -a false
+```
+
+### Domestic download
+```bash
+./serverbee-deploy -d
+```
+
+### Foreign download
+```bash
+./serverbee-deploy -f
+```
+
+### Examples
+```bash
+./serverbee-deploy -p 8081 -a false -d
 ```
 
 # How to compile

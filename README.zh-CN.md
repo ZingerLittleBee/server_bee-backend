@@ -17,7 +17,7 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 
 # 概述
 - `web` 模块提供来自机器的数据
-- `deploy` 模块提供 **开机启动**、**自动更新**、**设置端口**、**下载 Web 模块** 的功能
+- `deploy` 模块提供 **开机启动**、**自动更新**、**下载 Web 模块** 的功能
 
 # 特点
 
@@ -55,14 +55,38 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 3. 启动 serverbee-deploy.exe
 
-## 使用自定义端口
+## 更多配置
+
+### 使用自定义端口
 ```bash
 ./serverbee-deploy -p 8081
+# 对于未使用 deploy 模块的用户，可以使用以下命令
+./serverbee-web -p 8081
 ```
 
-## 禁用开机启动
+### 开机自启 (默认打开)
 ```bash
-./serverbee-deploy -a
+./serverbee-deploy -a true
+```
+
+### 关闭开机自启
+```bash
+./serverbee-deploy -a false
+```
+
+### 使用国内镜像下载
+```bash
+./serverbee-deploy -d
+```
+
+### 使用国外镜像下载 (Github)
+```bash
+./serverbee-deploy -f
+```
+
+### 例子
+```bash
+./serverbee-deploy -p 8081 -a false -d
 ```
 
 # 如何编译
