@@ -1,3 +1,9 @@
+## `1.1.0` (Unpublished)
+
+### Features
+- Interactive install
+- Download progress bar
+
 ## `1.0.2` (2022-12-29)
 
 ### Features

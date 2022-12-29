@@ -19,6 +19,8 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 - `web` 模块提供来自机器的数据
 - `deploy` 模块提供 **开机启动**、**自动更新**、**下载 Web 模块** 的功能
 
+![interactive install](./snapshots/interactive.gif)
+
 # 特点
 
 - CPU 负载
@@ -38,10 +40,14 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 从 [Release页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 获取最新版本下载地址
 
 ```bash
-# 根据系统架构下载对应版本
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/latest/serverbee-deploy-x86_64-apple-darwin.zip
-
+# 注意根据系统架构下载对应版本
+# macOS
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
+
+# Linux
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-unknown-linux-musl.zip
+unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # 默认端口是 9527
 ./serverbee-deploy
@@ -49,13 +55,18 @@ unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 ### Windows
 
-1. 下载最新版本 [release](https://github.com/ZingerLittleBee/server_bee-backend/releases)
+1. 从 [release 页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 下载最新版本 `serverbee-deploy-x86_64-pc-windows-gnu.zip`
 
 2. 解压 serverbee-deploy-x86_64-pc-windows-gnu.zip
 
-3. 启动 serverbee-deploy.exe
+3. 双击启动 serverbee-deploy.exe
 
 ## 更多配置
+
+### 交互式安装
+```bash
+./serverbee-deploy -i
+```
 
 ### 使用自定义端口
 ```bash

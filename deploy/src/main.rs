@@ -28,6 +28,7 @@ async fn main() -> Result<()> {
     let mut config  = Config::new();
 
     if config.get_interactive() || args.interactive {
+        config.set_interactive(true);
         interactive_install(&mut config);
     }
 
@@ -80,6 +81,10 @@ async fn main() -> Result<()> {
 
     if config.get_interactive() {
         config.set_interactive(false);
+
+        println!("安装结束, 按任意键退出...");
+
+        stdin().read_line(&mut String::new()).expect("");
     }
 
     Ok(())
@@ -237,7 +242,7 @@ fn interactive_install(config: &mut Config) {
         });
 
         println!(" ");
-        println!("输入任意键以继续安装, 取消安装请输入 Ctrl+C");
+        println!("按任意键以继续安装, 取消安装请输入 Ctrl+C");
 
         stdin().read_line(&mut String::new()).expect("error: unable to read user input");
         println!("确认完毕, 开始安装");
