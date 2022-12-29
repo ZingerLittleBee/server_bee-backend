@@ -8,7 +8,8 @@ use crate::config::Config;
 pub struct StorageConfig {
     pub port: Option<u16>,
     pub is_auto_launch: Option<bool>,
-    pub github_download: Option<bool>
+    pub github_download: Option<bool>,
+    interactive: Option<bool>
 }
 
 impl StorageConfig {
@@ -20,8 +21,20 @@ impl StorageConfig {
                 port: None,
                 is_auto_launch: None,
                 github_download: None,
+                interactive: None
             }
         }
+    }
+
+    pub fn set_interactive(&mut self, interactive: bool) {
+        if self.interactive.is_none() || self.interactive.unwrap() != interactive {
+            self.interactive = Some(interactive);
+            self.save_config();
+        }
+    }
+
+    pub fn get_interactive(&self) -> Option<bool> {
+        self.interactive
     }
 
     pub fn set_auto_launch(&mut self, is_auto_launch: bool) {
