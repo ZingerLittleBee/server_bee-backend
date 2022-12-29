@@ -1,5 +1,7 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
+extern crate core;
+
 mod cli;
 mod config;
 mod storage_config;
@@ -26,7 +28,13 @@ async fn main() -> Result<()> {
 
     let mut config = Config::new();
 
-    config.set_is_github_download(!args.github_download);
+    if args.domestic_download {
+        config.set_is_github_download(false);
+    }
+
+    if args.foreign_download {
+        config.set_is_github_download(true);
+    }
 
     // get latest version
     let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")

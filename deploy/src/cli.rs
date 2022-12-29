@@ -13,9 +13,13 @@ pub struct Args {
     #[clap(short, long)]
     pub auto_launch: bool,
 
-    /// 从 Github 下载, 默认是, 否则从国内镜像下载
-    #[clap(short, long)]
-    pub github_download: bool,
+    /// 使用国内镜像下载
+    #[clap(short, long, default_value = "false")]
+    pub domestic_download: bool,
+
+    /// 使用国外镜像下载, 默认是
+    #[clap(short, long, default_value = "false")]
+    pub foreign_download: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

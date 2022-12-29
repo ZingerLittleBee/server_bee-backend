@@ -31,6 +31,10 @@ impl StorageConfig {
         }
     }
 
+    pub fn get_is_github_download(&self) -> bool {
+        self.github_download.unwrap_or(true)
+    }
+
     pub fn set_is_github_download(&mut self, is_github_download: bool) {
         if self.github_download.is_none() || self.github_download.unwrap() != is_github_download {
             self.github_download = Some(is_github_download);

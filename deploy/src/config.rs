@@ -96,6 +96,7 @@ impl Config {
         // serde_yaml::to_writer(f, &web_config).unwrap();
     }
 
+    #[cfg(target_arch = "x86_64")]
     pub fn get_filename() -> String {
         if cfg!(target_os = "macos") {
             "serverbee-web-x86_64-apple-darwin.zip".into()
@@ -106,6 +107,20 @@ impl Config {
         } else {
             warn!("unknown os");
             "serverbee-web-x86_64-unknown-linux-musl.zip".into()
+        }
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    pub fn get_filename() -> String {
+        if cfg!(target_os = "macos") {
+            "serverbee-web-aarch64-apple-darwin.zip".into()
+        } else if cfg!(target_os = "linux") {
+            "serverbee-web-aarch64-unknown-linux-musl.zip".into()
+        } else if cfg!(target_os = "windows") {
+            "serverbee-web-aarch64-pc-windows-gnu.zip".into()
+        } else {
+            warn!("unknown os");
+            "serverbee-web-aarch64-unknown-linux-musl.zip".into()
         }
     }
 
@@ -127,7 +142,7 @@ impl Config {
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let is_github_download = self.storage_config.github_download.unwrap_or(true);
+        let is_github_download = self.storage_config.get_is_github_download();
 
         let base_url = if is_github_download {
             "https://github.com/ZingerLittleBee/server_bee-backend/releases/download"
