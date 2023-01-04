@@ -15,7 +15,8 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
 enum Signal {
     More,
-    Less
+    Less,
+    Process,
 }
 
 pub struct MyWebSocket {
@@ -57,6 +58,7 @@ impl MyWebSocket {
                 match act.signal {
                     Signal::More => act.sys.get_full_fusion(),
                     Signal::Less => act.sys.get_less_fusion(),
+                    Signal::Process => act.sys.get_process_fusion(),
                 }
             )
         });
@@ -91,6 +93,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                         // let param = command.next();
                         Some("/more") => self.signal = Signal::More,
                         Some("/less") => self.signal = Signal::Less,
+                        Some("/process") => self.signal = Signal::Process,
                         _ => {},
                     }
                 }

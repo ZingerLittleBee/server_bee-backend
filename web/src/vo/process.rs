@@ -17,7 +17,7 @@ pub struct ProcessVo {
 
     pub pid: u32,
 
-    pub environ: Vec<String>,
+    // pub environ: Vec<String>,
 
     /// current working directory
     pub cwd: String,
@@ -53,7 +53,7 @@ impl Convert<ProcessVo> for Process {
             cmd: self.cmd.clone(),
             exe: self.exe.clone(),
             pid: self.pid,
-            environ: self.environ.clone(),
+            // environ: self.environ.clone(),
             cwd: self.cwd.clone(),
             root: self.root.clone(),
             memory: formator.format_from_kilo_byte(self.memory as f64),
