@@ -1,3 +1,4 @@
+use std::cmp::min;
 use crate::cli::Port;
 use crate::storage_config::StorageConfig;
 use auto_launch::AutoLaunchBuilder;
@@ -7,7 +8,12 @@ use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use std::env;
+use std::fs::File;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use anyhow::Result;
+use indicatif::{ProgressBar, ProgressStyle};
+use futures_util::StreamExt;
 
 #[derive(Clone, Debug)]
 pub struct Config {
@@ -36,6 +42,14 @@ impl Config {
         }
     }
 
+    pub fn get_interactive(&self) -> bool {
+        self.storage_config.get_interactive().unwrap_or(true)
+    }
+
+    pub fn set_interactive(&mut self, interactive: bool) {
+        self.storage_config.set_interactive(interactive);
+    }
+
     pub fn get_auto_launch(&self) -> bool {
         self.storage_config.get_auto_launch()
     }
@@ -48,8 +62,12 @@ impl Config {
         self.port.get_value()
     }
 
-    pub fn set_version(&mut self, version: &str) {
-        self.version = version.into();
+    pub fn get_is_github_download(&self) -> bool {
+        self.storage_config.get_is_github_download()
+    }
+
+    pub fn set_version(&mut self, version: String) {
+        self.version = version;
     }
 
     pub fn set_is_github_download(&mut self, is_github_download: bool) {
@@ -204,5 +222,58 @@ impl Config {
 
     pub fn deploy_log_path() -> PathBuf {
         Config::current_dir().join("deploy.log")
+    }
+
+    pub async fn get_latest_version() -> Result<String> {
+        // get latest version
+        let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
+            .await?
+            .json::<serde_json::Value>()
+            .await?;
+
+        if let Some(version_value) = latest_version.get("versions") {
+            if let Some(version_vec) = version_value.as_array() {
+                if let Some(version) = version_vec.first() {
+                    if let Some(version_str) = version.as_str() {
+                        return Ok(version_str.to_string());
+                    }
+                }
+            }
+        }
+        Ok(env!("CARGO_PKG_VERSION").into())
+    }
+
+    pub async fn download_bin(&self) -> Result<()> {
+        // Reqwest setup
+        let res = reqwest::Client::new()
+            .get(self.bin_zip_url().to_str().unwrap())
+            .send()
+            .await.map_err(|_| format!("Failed to Download from '{}'", self.bin_zip_url().display())).unwrap();
+        let total_size = res
+            .content_length()
+            .ok_or(format!("Failed to get content length from '{}'", self.bin_zip_url().display())).unwrap();
+
+        // Indicatif setup
+        let pb = ProgressBar::new(total_size);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")?
+            .progress_chars("#>-"));
+        pb.set_message(format!("Downloading {}", self.bin_zip_url().display()));
+
+        // download chunks
+        let mut file = File::create(self.web_bin_zip_path()).map_err(|_| format!("Failed to create file '{}'", self.web_bin_zip_path().display())).unwrap();
+        let mut downloaded: u64 = 0;
+        let mut stream = res.bytes_stream();
+
+        while let Some(item) = stream.next().await {
+            let chunk = item.map_err(|_| "Error while downloading file".to_string()).unwrap();
+            file.write_all(&chunk).map_err(|_| "Error while writing to file".to_string()).unwrap();
+            let new = min(downloaded + (chunk.len() as u64), total_size);
+            downloaded = new;
+            pb.set_position(new);
+        }
+
+        pb.finish_with_message(format!("Downloaded {} to {}", self.bin_zip_url().display(), self.web_bin_zip_path().display()));
+        Ok(())
     }
 }

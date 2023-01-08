@@ -20,6 +20,10 @@ pub struct Args {
     /// 使用国外镜像下载, 默认是
     #[clap(short, long, default_value = "false")]
     pub foreign_download: bool,
+
+    /// 交互式安装
+    #[clap(short, long, default_value = "false")]
+    pub interactive: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

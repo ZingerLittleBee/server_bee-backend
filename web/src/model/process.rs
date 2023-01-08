@@ -14,7 +14,8 @@ pub struct Process {
 
     pub pid: u32,
 
-    pub environ: Vec<String>,
+    // data so big
+    // pub environ: Vec<String>,
 
     /// current working directory
     pub cwd: String,
@@ -49,7 +50,7 @@ impl From<&SysProcess> for Process {
             cmd: pro.cmd().to_vec(),
             exe: pro.exe().to_str().unwrap_or_default().to_string(),
             pid: pro.pid().as_u32(),
-            environ: pro.environ().to_vec(),
+            // environ: pro.environ().to_vec(),
             cwd: pro.cwd().to_str().unwrap_or_default().to_string(),
             root: pro.root().to_str().unwrap_or_default().to_string(),
             memory: pro.memory(),

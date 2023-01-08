@@ -17,6 +17,7 @@ use crate::model::{
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
+use crate::vo::process::ProcessVo;
 
 pub struct SystemInfo {
     sys: System,
@@ -124,9 +125,11 @@ impl SystemInfo {
         vec![days, hours, minutes]
     }
 
+    /// load average percentage
     pub fn get_load_avg(&mut self) -> Vec<f64> {
         let load_avg = self.sys.load_average();
-        vec![load_avg.one, load_avg.five, load_avg.fifteen]
+        let core_num = self.sys.cpus().len() as f64;
+        vec![load_avg.one / core_num, load_avg.five / core_num, load_avg.fifteen / core_num]
     }
 
     #[cfg(target_os = "linux")]
@@ -181,6 +184,7 @@ impl SystemInfo {
 
     pub fn get_overview(&mut self) -> Overview {
         Overview {
+            load_avg: self.get_load_avg(),
             cpu_usage: self.get_cpu_usage(),
             memory_usage: self.get_mem_usage(),
             network_io: self.get_network_io(),
@@ -257,8 +261,6 @@ impl SystemInfo {
     pub fn get_realtime_status(&mut self) -> RealtimeStatus {
         RealtimeStatus {
             cpu: self.get_cpu_stat(),
-            load_avg: self.get_load_avg(),
-            process: self.get_process(),
             network: self.get_network_detail(),
             disk: self.get_disk_detail(),
             uptime: self.get_uptime(),
@@ -277,5 +279,12 @@ impl SystemInfo {
     pub fn get_less_fusion(&mut self) -> Fusion {
         self.sys.refresh_all();
         Fusion::new_less(self.get_overview().convert())
+    }
+
+    pub fn get_process_fusion(&mut self) -> Fusion {
+        let processes: Vec<ProcessVo> = self.get_process().iter().map(|x| x.convert()).collect();
+        self.sys.refresh_all();
+        Fusion::new_process(self.get_overview().convert(),
+                            Some(processes))
     }
 }

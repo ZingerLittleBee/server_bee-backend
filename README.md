@@ -18,6 +18,8 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 - module `web` provide data from server
 - module `deploy` provide **AutoLaunch**、**AutoUpdate**、**DownloadWebModule**
 
+![interactive install](./snapshots/interactive.gif)
+
 # Features
 
 - CPU load
@@ -38,23 +40,32 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 From [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releases) get the latest version download address
 
 ```bash
-# download the corresponding version according to the system architecture
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/latest/serverbee-deploy-x86_64-apple-darwin.zip
-
+# tips: download the corresponding version according to the system architecture
+# macOS
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
+
+# Linux
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-unknown-linux-musl.zip
+unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # default port is 9527
 ./serverbee-deploy
 ```
 
 ### Windows
-1. Download the latest version from [release](https://github.com/ZingerLittleBee/server_bee-backend/releases)
+1. Download the latest version `serverbee-deploy-x86_64-pc-windows-gnu.zip` from [release](https://github.com/ZingerLittleBee/server_bee-backend/releases)
 
 2. unzip serverbee-deploy-x86_64-pc-windows-gnu.zip
 
-3. run serverbee-deploy.exe
+3. double-click to run serverbee-deploy.exe
 
-## Configuration
+## More settings
+
+### Interactive install
+```bash
+./serverbee-deploy -i
+```
 
 ### Use custom port
 ```bash

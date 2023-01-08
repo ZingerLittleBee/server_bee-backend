@@ -1,7 +1,5 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
-extern crate core;
-
 mod cli;
 mod config;
 mod storage_config;
@@ -11,22 +9,30 @@ use crate::config::Config;
 use anyhow::Result;
 use clap::Parser;
 use cli::Args;
-use std::borrow::BorrowMut;
 use std::fs::File;
 use std::process::Command;
 use std::{fs, io};
+use std::io::stdin;
 use std::path::{Path, PathBuf};
-use log::{info, warn};
-use tokio::io::AsyncWriteExt;
+use inquire::{Select, Text};
+use inquire::validator::{ErrorMessage, Validation};
+use log::info;
+use port_selector::is_free;
+
 
 #[tokio::main]
 async fn main() -> Result<()> {
 
-    Config::init_logging();
-
     let args = Args::parse();
 
-    let mut config = Config::new();
+    let mut config  = Config::new();
+
+    if config.get_interactive() || args.interactive {
+        config.set_interactive(true);
+        interactive_install(&mut config);
+    }
+
+    Config::init_logging();
 
     if args.domestic_download {
         config.set_is_github_download(false);
@@ -36,38 +42,15 @@ async fn main() -> Result<()> {
         config.set_is_github_download(true);
     }
 
-    // get latest version
-    let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
-        .await?
-        .json::<serde_json::Value>()
-        .await?;
-
-    if let Some(version_value) = latest_version.get("versions") {
-        if let Some(version_vec) = version_value.as_array() {
-            if let Some(version) = version_vec.first() {
-                if let Some(version_str) = version.as_str() {
-                    info!("latest version: {}", version_str);
-                    config.set_version(version_str);
-                }
-            }
-        }
-    }
-
     if args.port.is_some() {
         config.set_port(Port::new(args.port.unwrap()));
     }
 
-    if !Path::new(config.web_bin_path().as_path().to_str().unwrap()).exists() {
-        let mut response = reqwest::Client::new()
-            .get(config.bin_zip_url().to_str().unwrap())
-            .send()
-            .await?;
-        info!("正在下载 {}", config.bin_zip_url().display());
+    let latest_version = Config::get_latest_version().await?;
+    info!("最新版本: {}", latest_version);
+    config.set_version(latest_version);
 
-        if response.status().as_u16() >= 400 {
-            warn!("文件下载失败 {}", response.status());
-            return Ok(());
-        }
+    if !Path::new(config.web_bin_path().as_path().to_str().unwrap()).exists() {
 
         let web_file_path = config.web_bin_zip_path();
 
@@ -77,13 +60,8 @@ async fn main() -> Result<()> {
             }
         }
 
-        info!("文件存放路径: {}", web_file_path.display());
+        config.download_bin().await?;
 
-        let mut file = tokio::fs::File::create(&web_file_path).await?;
-
-        while let Some(mut item) = response.chunk().await? {
-            file.write_all_buf(item.borrow_mut()).await?;
-        }
         info!("文件 {} 下载成功, 正在解压", web_file_path.display());
 
         let tokio_file = tokio::fs::File::open(web_file_path).await?;
@@ -100,6 +78,14 @@ async fn main() -> Result<()> {
     start_process(config.web_bin_path().to_str().unwrap(), config.get_port());
 
     info!("启动成功");
+
+    if config.get_interactive() {
+        config.set_interactive(false);
+
+        println!("安装结束, 按任意键退出...");
+
+        stdin().read_line(&mut String::new()).expect("");
+    }
 
     Ok(())
 }
@@ -125,12 +111,11 @@ fn unzip(file: File, out_dir: PathBuf) {
         }
 
         if (*file.name()).ends_with('/') {
-            info!("File {} extracted to \"{}\"", i, outpath.display());
+            info!("文件提取到: \"{}\"", outpath.display());
             fs::create_dir_all(&outpath).unwrap();
         } else {
             info!(
-                "File {} extracted to \"{}\" ({} bytes)",
-                i,
+                "文件提取到: \"{}\" ({} bytes)",
                 outpath.display(),
                 file.size()
             );
@@ -183,4 +168,83 @@ fn start_process(bin_full_path: &str, port: u16) {
         .arg(port.to_string())
         .spawn()
         .expect(&*format!("运行 {} 失败, 请尝试手动运行", bin_full_path));
+}
+
+fn interactive_install(config: &mut Config) {
+        let port_ans = Text::new("请输入端口号? (默认使用 9527)")
+            .with_validator(|s: &str| {
+                let port;
+                if let Ok(p) = s.parse::<u16>() {
+                    port = p;
+                } else if s.is_empty() { port = 9527 } else {
+                    return Ok(Validation::Invalid(ErrorMessage::from("端口号输入有误")));
+                }
+                if !is_free(port) {
+                    return Ok(Validation::Invalid(ErrorMessage::from(format!("端口: {} 已被占用, 请更换其他端口", port))));
+                }
+                Ok(Validation::Valid)
+            }).prompt();
+
+        match port_ans {
+            Ok(port) => config.set_port(Port::new(port.parse::<u16>().unwrap_or(9527))),
+            Err(_) =>
+                panic!("出现错误，请重试"),
+        }
+
+        let mirror_repository_options = vec![
+            "国外镜像(Github)",
+            "国内镜像",
+        ];
+
+        let mirror_repository_ans = Select::new("请选择镜像仓库", mirror_repository_options.clone()).with_help_message("↑↓ 移动, 回车确定✅ , 输入以筛选").prompt();
+
+        match mirror_repository_ans {
+            Ok(choice) => {
+                if choice == mirror_repository_options[0] { config.set_is_github_download(true) } else {
+                    config.set_is_github_download(false)
+                }
+            },
+            Err(_) =>
+                panic!("出现错误，请重试"),
+        }
+
+        let auto_launch_options = vec![
+            "是",
+            "否",
+        ];
+
+        let auto_launch_ans = Select::new("是否开机自启", auto_launch_options.clone()).with_help_message("↑↓ 移动, 回车确定 ✅, 输入以筛选")
+            .prompt();
+
+        match auto_launch_ans {
+            Ok(choice) => {
+                if choice == auto_launch_options[0] { config.set_auto_launch(true) } else {
+                    config.set_auto_launch(false)
+                }
+            },
+            Err(_) => panic!("出现错误，请重试"),
+        }
+
+        println!("==============================");
+        println!("请确认如下设置");
+        println!(" ");
+
+        println!("端口号: {}", config.get_port());
+        println!("镜像仓库: {}", if config.get_is_github_download() {
+            mirror_repository_options[0]
+        } else {
+            mirror_repository_options[1]
+        });
+        println!("开机自启: {}", if config.get_auto_launch() {
+            auto_launch_options[0]
+        } else {
+            auto_launch_options[1]
+        });
+
+        println!(" ");
+        println!("按任意键以继续安装, 取消安装请输入 Ctrl+C");
+
+        stdin().read_line(&mut String::new()).expect("error: unable to read user input");
+        println!("确认完毕, 开始安装");
+        println!("==============================");
 }

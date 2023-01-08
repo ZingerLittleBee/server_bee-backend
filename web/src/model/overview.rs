@@ -9,6 +9,7 @@ use super::memory::MemoryUsage;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Overview {
+    pub load_avg: Vec<f64>,
     pub cpu_usage: f32,
     pub memory_usage: MemoryUsage,
     pub disk_usage: Usage,
