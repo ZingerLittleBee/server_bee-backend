@@ -1,8 +1,6 @@
 Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
 
-<center>
-    <h1>server_bee-backend</h1>
-</center>
+<h1 align="center">server_bee-backend</h1>
 
 <div align="center">
 
