@@ -61,13 +61,13 @@ jobs:
         with:
           command: build
           args: --release --all-features
-      - name: 'Zip artifact'
-        run: zip -j serverbee-${{ matrix.package }}-x86_64-apple-darwin ./target/release/serverbee-${{ matrix.package }}
+      - name: Zip artifact
+        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/release/serverbee-${{ matrix.package }}
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: serverbee-${{ matrix.package }}-x86_64-apple-darwin
-          path: serverbee-${{ matrix.package }}-x86_64-apple-darwin.zip
+          name: serverbee-${{ matrix.package }}-${{ matrix.target }}
+          path: serverbee-${{ matrix.package }}-${{ matrix.target }}.zip
   release:
     name: Release
     runs-on: ubuntu-latest
