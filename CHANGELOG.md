@@ -1,4 +1,9 @@
-## `1.1.0` (Unpublished)
+## `1.1.1` (2022-01-11)
+
+### Features
+- support more target triple
+
+## `1.1.0` (2022-01-09)
 
 ### Features
 - Interactive install
