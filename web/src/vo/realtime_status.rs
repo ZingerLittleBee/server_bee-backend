@@ -1,5 +1,4 @@
 use crate::model::realtime_status::RealtimeStatus;
-use crate::vo::cpu::CpuUsageVo;
 use crate::vo::disk::DiskDetailVo;
 use crate::vo::formator::Convert;
 use crate::vo::network::NetworkDetailVo;
@@ -7,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct RealtimeStatusVo {
-    pub cpu: Vec<CpuUsageVo>,
+    pub cpu: Vec<f32>,
     pub network: Vec<NetworkDetailVo>,
     pub disk: Vec<DiskDetailVo>,
     pub uptime: Vec<u64>,
@@ -29,8 +28,11 @@ impl Convert<RealtimeStatusVo> for RealtimeStatus {
             .collect::<Vec<DiskDetailVo>>();
         disk.sort_by_key(|disk| disk.device_name.to_lowercase());
 
+        let mut cpu_usage = self.cpu.clone();
+        cpu_usage.sort_by_key(|c| c.name.to_lowercase().replace("cpu", "").trim().parse::<u8>().unwrap_or_default());
+
         RealtimeStatusVo {
-            cpu: self.cpu.iter().map(|cpu| cpu.convert()).collect(),
+            cpu: cpu_usage.iter().map(|cpu| cpu.cpu_usage).collect(),
             network,
             disk,
             uptime: self.uptime.clone(),
