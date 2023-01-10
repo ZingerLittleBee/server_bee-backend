@@ -77,7 +77,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --release
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
