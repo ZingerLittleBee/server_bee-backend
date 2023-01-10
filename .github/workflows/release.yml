@@ -7,8 +7,6 @@ on:
     push:
         tags:
             - v[0-9]+.*
-        branches:
-            - ci/1.1.1/cross-compile
 
 jobs:
 #  build:
@@ -68,7 +66,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
-    name: build ${{ matrix.settings.target }}
+    name: build serverbee-${{ matrix.package }}-${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@master
@@ -87,8 +85,8 @@ jobs:
           directory: ./target/release
           path: serverbee-${{ matrix.package }}${{ matrix.settings.suffix }}
           filename: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
-      - name: Display structure of downloaded files
-        run: ls -R
+#      - name: Display structure of Upload files
+#        run: ls -R
 #      - name: Zip artifact
 #        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/release/serverbee-${{ matrix.package }}
       - name: Upload artifact
@@ -103,11 +101,10 @@ jobs:
       - build
     steps:
       - uses: actions/download-artifact@v3
-      - name: Display structure of downloaded files
-        run: ls -R
+#      - name: Display structure of downloaded files
+#        run: ls -R
       - uses: ncipollo/release-action@v1
         with:
           artifacts: 'serverbee-*/*.zip'
-          tag: v1.1.1
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
