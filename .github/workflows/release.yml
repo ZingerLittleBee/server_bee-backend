@@ -65,7 +65,8 @@ jobs:
         uses: thedoctor0/zip-release@main
         with:
           type: 'zip'
-          path: ./target/release/serverbee-${{ matrix.package }}
+          directory: ./target/release
+          path: serverbee-${{ matrix.package }}
           filename: serverbee-${{ matrix.package }}-${{ matrix.target }}.zip
       - name: Display structure of downloaded files
         run: ls -R
