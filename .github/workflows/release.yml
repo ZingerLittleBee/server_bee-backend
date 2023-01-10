@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: serverbee-${{ matrix.package }}-${{ matrix.target }}
-          path: serverbee-${{ matrix.package }}-${{ matrix.target }}.zip
+          path: ./target/release/serverbee-${{ matrix.package }}-${{ matrix.target }}.zip
   release:
     name: Release
     runs-on: ubuntu-latest
