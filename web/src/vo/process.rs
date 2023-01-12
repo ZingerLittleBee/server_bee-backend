@@ -62,7 +62,7 @@ impl Convert<ProcessVo> for Process {
             status: self.status.clone(),
             start_time: self.start_time,
             run_time: self.run_time,
-            cpu: self.cpu_usage,
+            cpu: format!("{:.1}", self.cpu_usage).parse::<f32>().unwrap_or_default(),
             disk: self.disk_usage.convert(),
             user_id: self.user_id.clone(),
             group_id: self.group_id.clone(),
