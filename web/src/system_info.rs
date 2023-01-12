@@ -227,6 +227,10 @@ impl SystemInfo {
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
+    pub fn get_process_by_id(&mut self, pid: String) -> Option<Process> {
+        self.sys.process(pid.parse().unwrap()).map(|x| x.into())
+    }
+
     pub fn get_os_overview(&mut self) -> OsOverview {
         OsOverview {
             name: self.sys.name().unwrap_or_else(|| "<unknown>".to_owned()),
@@ -281,10 +285,15 @@ impl SystemInfo {
         Fusion::new_less(self.get_overview().convert())
     }
 
-    pub fn get_process_fusion(&mut self) -> Fusion {
-        let processes: Vec<ProcessVo> = self.get_process().iter().map(|x| x.convert()).collect();
+    pub fn get_process_fusion(&mut self, pid: Option<String>) -> Fusion {
         self.sys.refresh_all();
+        let processes: Vec<ProcessVo> = self.get_process().iter().map(|x| x.convert()).collect();
+        let p = if let Some(pid) = pid {
+            self.get_process_by_id(pid)
+        } else {
+            None
+        };
         Fusion::new_process(self.get_overview().convert(),
-                            Some(processes))
+                            Some(processes), p.map(|x| x.convert()))
     }
 }

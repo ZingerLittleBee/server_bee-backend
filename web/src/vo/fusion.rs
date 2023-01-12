@@ -16,6 +16,9 @@ pub struct Fusion {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub process: Option<Vec<ProcessVo>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub current_process: Option<ProcessVo>,
 }
 
 impl From<Fusion> for ByteString {
@@ -31,6 +34,7 @@ impl Fusion {
             os: None,
             realtime: None,
             process: None,
+            current_process: None,
         }
     }
 
@@ -44,18 +48,21 @@ impl Fusion {
             os,
             realtime,
             process: None,
+            current_process: None,
         }
     }
 
     pub fn new_process(
         overview: OverviewVo,
         process: Option<Vec<ProcessVo>>,
+        current_process: Option<ProcessVo>,
     ) -> Self {
         Fusion {
             overview,
             os: None,
             realtime: None,
             process,
+            current_process,
         }
     }
 }

@@ -22,7 +22,8 @@ enum Signal {
 pub struct MyWebSocket {
     hb: Instant,
     sys: SystemInfo,
-    signal: Signal
+    signal: Signal,
+    pid: Option<String>
 }
 
 impl MyWebSocket {
@@ -30,7 +31,8 @@ impl MyWebSocket {
         Self {
             hb: Instant::now(),
             sys: SystemInfo::new(),
-            signal: Signal::Less
+            signal: Signal::Less,
+            pid: None
         }
     }
 
@@ -58,7 +60,7 @@ impl MyWebSocket {
                 match act.signal {
                     Signal::More => act.sys.get_full_fusion(),
                     Signal::Less => act.sys.get_less_fusion(),
-                    Signal::Process => act.sys.get_process_fusion(),
+                    Signal::Process => act.sys.get_process_fusion(act.pid.clone()),
                 }
             )
         });
@@ -90,10 +92,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                     let mut command = msg.splitn(2, ' ');
 
                     match command.next() {
-                        // let param = command.next();
                         Some("/more") => self.signal = Signal::More,
                         Some("/less") => self.signal = Signal::Less,
-                        Some("/process") => self.signal = Signal::Process,
+                        Some("/process") => {
+                            let param = command.next();
+                            println!("param: {:?}", param);
+                            self.signal = Signal::Process;
+                            self.pid = param.map(|s| s.to_string());
+                        },
                         _ => {},
                     }
                 }
