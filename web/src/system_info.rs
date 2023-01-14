@@ -1,5 +1,6 @@
 #[cfg(target_os = "linux")]
 use std::collections::HashMap;
+use std::str::FromStr;
 #[cfg(not(target_os = "windows"))]
 use systemstat::{Platform, System as Systemstat};
 
@@ -16,8 +17,9 @@ use crate::model::{
 };
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
-use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, UserExt};
-use crate::vo::process::ProcessVo;
+use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
+use crate::model::simple_process::SimpleProcess;
+use crate::vo::simple_process::SimpleProcessVo;
 
 pub struct SystemInfo {
     sys: System,
@@ -223,7 +225,7 @@ impl SystemInfo {
         NetworkDetail::new_list(self.sys.networks())
     }
 
-    pub fn get_process(&mut self) -> Vec<Process> {
+    pub fn get_process(&mut self) -> Vec<SimpleProcess> {
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
@@ -287,13 +289,23 @@ impl SystemInfo {
 
     pub fn get_process_fusion(&mut self, pid: Option<String>) -> Fusion {
         self.sys.refresh_all();
-        let processes: Vec<ProcessVo> = self.get_process().iter().map(|x| x.convert()).collect();
-        let p = if let Some(pid) = pid {
+        let processes: Vec<SimpleProcessVo> = self.get_process().iter().map(|x| x.convert()).collect();
+        let mut p = if let Some(pid) = pid {
             self.get_process_by_id(pid)
         } else {
             None
         };
+        let current_process = p.as_mut().map(|x| {
+            let mut process_vo =  x.convert();
+            // user_id to username
+            process_vo.user =if let Some(user_id)  = &x.user_id {
+                if let Ok(uid) = Uid::from_str(user_id) {
+                    self.sys.get_user_by_id(&uid).map(|x| x.name().to_string())
+                } else { None }
+            } else { None };
+            process_vo
+        });
         Fusion::new_process(self.get_overview().convert(),
-                            Some(processes), p.map(|x| x.convert()))
+                            Some(processes), current_process)
     }
 }

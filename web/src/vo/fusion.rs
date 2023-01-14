@@ -3,6 +3,7 @@ use crate::vo::realtime_status::RealtimeStatusVo;
 use bytestring::ByteString;
 use serde::{Deserialize, Serialize};
 use crate::vo::process::ProcessVo;
+use crate::vo::simple_process::SimpleProcessVo;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Fusion {
@@ -15,7 +16,7 @@ pub struct Fusion {
     pub realtime: Option<RealtimeStatusVo>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub process: Option<Vec<ProcessVo>>,
+    pub process: Option<Vec<SimpleProcessVo>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub current_process: Option<ProcessVo>,
@@ -54,7 +55,7 @@ impl Fusion {
 
     pub fn new_process(
         overview: OverviewVo,
-        process: Option<Vec<ProcessVo>>,
+        process: Option<Vec<SimpleProcessVo>>,
         current_process: Option<ProcessVo>,
     ) -> Self {
         Fusion {

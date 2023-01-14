@@ -15,9 +15,9 @@ pub struct ProcessVo {
     /// executable path
     pub exe: String,
 
-    pub pid: u32,
+    pub pid: String,
 
-    // pub environ: Vec<String>,
+    pub environ: Vec<String>,
 
     /// current working directory
     pub cwd: String,
@@ -28,21 +28,21 @@ pub struct ProcessVo {
 
     pub vir_mem: FormatData,
 
-    pub parent: Option<u32>,
+    pub parent: Option<String>,
 
     pub status: String,
 
-    pub start_time: u64,
+    pub start_time: String,
 
-    pub run_time: u64,
+    pub run_time: String,
 
-    pub cpu: f32,
+    pub cpu: String,
 
     pub disk: DiskIOVo,
 
-    pub user_id: Option<String>,
+    pub user: Option<String>,
 
-    pub group_id: Option<String>,
+    // pub group_id: Option<String>,
 }
 
 impl Convert<ProcessVo> for Process {
@@ -52,20 +52,20 @@ impl Convert<ProcessVo> for Process {
             name: self.name.clone(),
             cmd: self.cmd.clone(),
             exe: self.exe.clone(),
-            pid: self.pid,
-            // environ: self.environ.clone(),
+            pid: self.pid.to_string(),
+            environ: self.environ.clone(),
             cwd: self.cwd.clone(),
             root: self.root.clone(),
             memory: formator.format_from_byte(self.memory as u64),
             vir_mem: formator.format_from_byte(self.virtual_memory as u64),
-            parent: self.parent,
+            parent: self.parent.map(|p| p.to_string()),
             status: self.status.clone(),
-            start_time: self.start_time,
-            run_time: self.run_time,
-            cpu: format!("{:.1}", self.cpu_usage).parse::<f32>().unwrap_or_default(),
+            start_time: self.start_time.to_string(),
+            run_time: self.run_time.to_string(),
+            cpu: format!("{:.1}", self.cpu_usage),
             disk: self.disk_usage.convert(),
-            user_id: self.user_id.clone(),
-            group_id: self.group_id.clone(),
+            user: None,
+            // group_id: self.group_id.clone(),
         }
     }
 }

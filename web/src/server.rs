@@ -96,7 +96,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                         Some("/less") => self.signal = Signal::Less,
                         Some("/process") => {
                             let param = command.next();
-                            println!("param: {:?}", param);
                             self.signal = Signal::Process;
                             self.pid = param.map(|s| s.to_string());
                         },

@@ -7,3 +7,4 @@ pub mod process;
 pub mod realtime_status;
 pub mod usage;
 pub mod user;
+pub mod simple_process;

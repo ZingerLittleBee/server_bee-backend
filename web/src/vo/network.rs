@@ -29,18 +29,7 @@ impl Convert<NetworkIOVo> for NetworkIO {
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct NetworkDetailVo {
     pub name: String,
-    pub rx: FormatData,
-    pub ttl_rx: FormatData,
-    pub tx: FormatData,
-    pub ttl_tx: FormatData,
-    pub pkt_rx: FormatData,
-    pub ttl_pkt_rx: FormatData,
-    pub pkt_tx: FormatData,
-    pub ttl_pkt_tx: FormatData,
-    pub err_rx: FormatData,
-    pub ttl_err_rx: FormatData,
-    pub err_tx: FormatData,
-    pub ttl_err_tx: FormatData,
+    pub packet: Vec<FormatData>,
 }
 
 impl Convert<NetworkDetailVo> for NetworkDetail {
@@ -48,18 +37,20 @@ impl Convert<NetworkDetailVo> for NetworkDetail {
         let formator = Formator::new();
         NetworkDetailVo {
             name: self.name.clone(),
-            rx: formator.format_from_byte(self.received),
-            ttl_rx: formator.format_from_byte(self.total_received),
-            tx: formator.format_from_byte(self.transmitted),
-            ttl_tx: formator.format_from_byte(self.total_transmitted),
-            pkt_rx: formator.format_from_byte(self.packets_received),
-            ttl_pkt_rx: formator.format_from_byte(self.total_packets_received),
-            pkt_tx: formator.format_from_byte(self.packets_transmitted),
-            ttl_pkt_tx: formator.format_from_byte(self.total_packets_transmitted),
-            err_rx: formator.format_from_byte(self.errors_on_received),
-            ttl_err_rx: formator.format_from_byte(self.total_errors_on_received),
-            err_tx: formator.format_from_byte(self.errors_on_transmitted),
-            ttl_err_tx: formator.format_from_byte(self.total_errors_on_transmitted),
+            packet: vec![
+                formator.format_from_byte(self.received),
+                formator.format_from_byte(self.total_received),
+                formator.format_from_byte(self.transmitted),
+                formator.format_from_byte(self.total_transmitted),
+                formator.format_from_byte(self.packets_received),
+                formator.format_from_byte(self.total_packets_received),
+                formator.format_from_byte(self.packets_transmitted),
+                formator.format_from_byte(self.total_packets_transmitted),
+                formator.format_from_byte(self.errors_on_received),
+                formator.format_from_byte(self.total_errors_on_received),
+                formator.format_from_byte(self.errors_on_transmitted),
+                formator.format_from_byte(self.total_errors_on_transmitted),
+            ],
         }
     }
 }
