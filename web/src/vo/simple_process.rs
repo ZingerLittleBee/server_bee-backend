@@ -8,7 +8,7 @@ pub struct SimpleProcessVo {
 
     pub pid: String,
 
-    pub cpu_usage: String,
+    pub cpu: String,
 
     pub memory: FormatData,
 }
@@ -19,7 +19,7 @@ impl Convert<SimpleProcessVo> for SimpleProcess {
         SimpleProcessVo {
             name: self.name.clone(),
             pid: self.pid.to_string(),
-            cpu_usage: format!("{:.2}", self.cpu_usage),
+            cpu: format!("{:.2}", self.cpu_usage),
             memory: formator.format_from_byte(self.memory),
         }
     }

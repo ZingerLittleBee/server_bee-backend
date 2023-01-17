@@ -130,7 +130,12 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
 
                     match command.next() {
                         Some("/more") => self.signal = Signal::More,
-                        Some("/less") => self.signal = Signal::Less,
+                        Some("/less") => {
+                            self.signal = Signal::Less;
+                            // handle process
+                            self.pid = None;
+                            self.sort = None;
+                        },
                         Some("/process") => {
                             let param = command.next();
                             self.signal = Signal::Process;

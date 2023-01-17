@@ -290,14 +290,14 @@ impl SystemInfo {
     pub fn get_process_fusion(&mut self, pid: Option<String>, sort: Option<Sort>) -> Fusion {
         self.sys.refresh_all();
         let mut processes: Vec<SimpleProcess> = self.get_process();
+        // Sort
+        if let Some(sort) = sort {
+            SystemInfo::sort_process(&mut processes, sort);
+        }
 
         let mut p = if let Some(pid) = pid {
             self.get_process_by_id(pid)
         } else {
-            // Sort
-            if let Some(sort) = sort {
-                SystemInfo::sort_process(&mut processes, sort);
-            }
             None
         };
 
