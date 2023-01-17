@@ -20,7 +20,7 @@ impl Convert<SimpleProcessVo> for SimpleProcess {
             name: self.name.clone(),
             pid: self.pid.to_string(),
             cpu_usage: format!("{:.2}", self.cpu_usage),
-            memory: formator.format_from_byte(self.memory as u64),
+            memory: formator.format_from_byte(self.memory),
         }
     }
 }

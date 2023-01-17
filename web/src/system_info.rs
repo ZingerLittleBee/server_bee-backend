@@ -19,7 +19,7 @@ use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
 use crate::model::simple_process::SimpleProcess;
-use crate::vo::simple_process::SimpleProcessVo;
+use crate::server::{Sort, SortBy, SortOrder};
 
 pub struct SystemInfo {
     sys: System,
@@ -287,18 +287,26 @@ impl SystemInfo {
         Fusion::new_less(self.get_overview().convert())
     }
 
-    pub fn get_process_fusion(&mut self, pid: Option<String>) -> Fusion {
+    pub fn get_process_fusion(&mut self, pid: Option<String>, sort: Option<Sort>) -> Fusion {
         self.sys.refresh_all();
-        let processes: Vec<SimpleProcessVo> = self.get_process().iter().map(|x| x.convert()).collect();
+        let mut processes: Vec<SimpleProcess> = self.get_process();
+
         let mut p = if let Some(pid) = pid {
             self.get_process_by_id(pid)
         } else {
+            // Sort
+            if let Some(sort) = sort {
+                SystemInfo::sort_process(&mut processes, sort);
+            }
             None
         };
+
+        let processes_vo = processes.iter().map(|x| x.convert()).collect();
+
         let current_process = p.as_mut().map(|x| {
             let mut process_vo =  x.convert();
             // user_id to username
-            process_vo.user =if let Some(user_id)  = &x.user_id {
+            process_vo.user = if let Some(user_id)  = &x.user_id {
                 if let Ok(uid) = Uid::from_str(user_id) {
                     self.sys.get_user_by_id(&uid).map(|x| x.name().to_string())
                 } else { None }
@@ -306,6 +314,53 @@ impl SystemInfo {
             process_vo
         });
         Fusion::new_process(self.get_overview().convert(),
-                            Some(processes), current_process)
+                            Some(processes_vo), current_process)
+    }
+
+    fn sort_process(processes: &mut [SimpleProcess], sort: Sort) {
+        match sort.by {
+            SortBy::Pid => {
+
+                match sort.order {
+                    SortOrder::Up => {
+                        processes.sort_by(|a, b| a.pid.partial_cmp(&b.pid).unwrap());
+                    },
+                    SortOrder::Down => {
+                        processes.sort_by(|a, b| b.pid.partial_cmp(&a.pid).unwrap());
+                    },
+                }
+
+            },
+            SortBy::Name => {
+                match sort.order {
+                    SortOrder::Up => {
+                        processes.sort_by(|a, b| a.name.partial_cmp(&b.name).unwrap());
+                    },
+                    SortOrder::Down => {
+                        processes.sort_by(|a, b| b.name.partial_cmp(&a.name).unwrap());
+                    },
+                }
+            },
+            SortBy::Cpu => {
+                match sort.order {
+                    SortOrder::Up => {
+                        processes.sort_by(|a, b| a.cpu_usage.partial_cmp(&b.cpu_usage).unwrap());
+                    },
+                    SortOrder::Down => {
+                        processes.sort_by(|a, b| b.cpu_usage.partial_cmp(&a.cpu_usage).unwrap());
+                    },
+                }
+            },
+            SortBy::Memory => {
+                match sort.order {
+                    SortOrder::Up => {
+                        processes.sort_by(|a, b| a.memory.partial_cmp(&b.memory).unwrap());
+                    },
+                    SortOrder::Down => {
+                        processes.sort_by(|a, b| b.memory.partial_cmp(&a.memory).unwrap());
+                    },
+                }
+            },
+        }
     }
 }

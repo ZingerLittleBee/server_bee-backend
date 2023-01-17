@@ -19,11 +19,47 @@ enum Signal {
     Process,
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum SortOrder {
+    Up,
+    Down,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum SortBy {
+    Pid,
+    Name,
+    Cpu,
+    Memory,
+}
+
+impl SortBy {
+    fn from(s: &str) -> SortBy {
+        match s {
+            "pid" => SortBy::Pid,
+            "name" => SortBy::Name,
+            "cpu" => SortBy::Cpu,
+            "mem" => SortBy::Memory,
+            _ => {
+                warn!("Unknown sort by: {}", s);
+                SortBy::Pid
+            }
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Sort {
+    pub order: SortOrder,
+    pub by: SortBy
+}
+
 pub struct MyWebSocket {
     hb: Instant,
     sys: SystemInfo,
     signal: Signal,
-    pid: Option<String>
+    pid: Option<String>,
+    sort: Option<Sort>
 }
 
 impl MyWebSocket {
@@ -32,7 +68,8 @@ impl MyWebSocket {
             hb: Instant::now(),
             sys: SystemInfo::new(),
             signal: Signal::Less,
-            pid: None
+            pid: None,
+            sort: None
         }
     }
 
@@ -60,7 +97,7 @@ impl MyWebSocket {
                 match act.signal {
                     Signal::More => act.sys.get_full_fusion(),
                     Signal::Less => act.sys.get_less_fusion(),
-                    Signal::Process => act.sys.get_process_fusion(act.pid.clone()),
+                    Signal::Process => act.sys.get_process_fusion(act.pid.clone(), act.sort),
                 }
             )
         });
@@ -98,6 +135,23 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                             let param = command.next();
                             self.signal = Signal::Process;
                             self.pid = param.map(|s| s.to_string());
+                        },
+                        Some("/close_detail") => {
+                            self.pid = None;
+                        },
+                        Some("/up") => {
+                            let param = command.next();
+                            let sort = param.map(|sort_by| Sort {
+                                    order: SortOrder::Up,
+                                    by: SortBy::from(sort_by.to_lowercase().as_str())});
+                            self.sort = sort;
+                        },
+                        Some("/down") => {
+                            let param = command.next();
+                            let sort = param.map(|sort_by| Sort {
+                                order: SortOrder::Down,
+                                by: SortBy::from(sort_by.to_lowercase().as_str())});
+                            self.sort = sort;
                         },
                         _ => {},
                     }

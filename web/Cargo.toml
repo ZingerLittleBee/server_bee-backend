@@ -24,7 +24,10 @@ futures-util = { version = "0.3.17", default-features = false, features = ["std"
 tokio = { version = "1.13.1", features = ["full"] }
 tokio-stream = "0.1.8"
 
-sysinfo = "0.27.5"
+# new release to fix https://github.com/GuillaumeGomez/sysinfo/issues/918
+#sysinfo = "0.27.6"
+sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo", branch = "master" }
+
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
