@@ -20,6 +20,7 @@ use crate::vo::fusion::Fusion;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
 use crate::model::simple_process::SimpleProcess;
 use crate::server::{Sort, SortBy, SortOrder};
+use crate::vo::simple_process::SimpleProcessVo;
 
 pub struct SystemInfo {
     sys: System,
@@ -301,10 +302,15 @@ impl SystemInfo {
             None
         };
 
-        let processes_vo = processes.iter().map(|x| x.convert()).collect();
+        let processes_vo: Vec<SimpleProcessVo> = processes.iter().map(|x| x.convert()).collect();
 
         let current_process = p.as_mut().map(|x| {
             let mut process_vo =  x.convert();
+
+            let mut children: Vec<u32> = processes.iter().filter(|y| y.parent_id.is_some() && y.parent_id.unwrap() == x.pid).map(|x| x.pid).collect();
+            children.sort();
+            process_vo.children = Some(children.iter().map(|c| c.to_string()).collect());
+
             // user_id to username
             process_vo.user = if let Some(user_id)  = &x.user_id {
                 if let Ok(uid) = Uid::from_str(user_id) {

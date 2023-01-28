@@ -3,7 +3,7 @@
 use cli::Args;
 use crate::config::Config;
 
-use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 use clap::Parser;
 use log::info;

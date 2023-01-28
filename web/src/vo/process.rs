@@ -42,6 +42,8 @@ pub struct ProcessVo {
 
     pub user: Option<String>,
 
+    pub children: Option<Vec<String>>
+
     // pub group_id: Option<String>,
 }
 
@@ -66,6 +68,7 @@ impl Convert<ProcessVo> for Process {
             disk: self.disk_usage.convert(),
             user: None,
             // group_id: self.group_id.clone(),
+            children: None,
         }
     }
 }
