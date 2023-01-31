@@ -1,3 +1,11 @@
+## `1.1.2` (2022-01-31)
+
+### Features
+- process list
+- detail process
+- kill process
+- add children for current process
+
 ## `1.1.1` (2022-01-11)
 
 ### Features

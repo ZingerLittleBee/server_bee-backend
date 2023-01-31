@@ -14,8 +14,7 @@ pub struct Process {
 
     pub pid: u32,
 
-    // data so big
-    // pub environ: Vec<String>,
+    pub environ: Vec<String>,
 
     /// current working directory
     pub cwd: String,
@@ -40,7 +39,7 @@ pub struct Process {
 
     pub user_id: Option<String>,
 
-    pub group_id: Option<String>,
+    // pub group_id: Option<String>,
 }
 
 impl From<&SysProcess> for Process {
@@ -50,7 +49,7 @@ impl From<&SysProcess> for Process {
             cmd: pro.cmd().to_vec(),
             exe: pro.exe().to_str().unwrap_or_default().to_string(),
             pid: pro.pid().as_u32(),
-            // environ: pro.environ().to_vec(),
+            environ: pro.environ().to_vec(),
             cwd: pro.cwd().to_str().unwrap_or_default().to_string(),
             root: pro.root().to_str().unwrap_or_default().to_string(),
             memory: pro.memory(),
@@ -62,7 +61,7 @@ impl From<&SysProcess> for Process {
             cpu_usage: pro.cpu_usage(),
             disk_usage: DiskIO::from(pro.disk_usage()),
             user_id: pro.user_id().map(|u| u.to_string()),
-            group_id: pro.group_id().map(|g| g.to_string()),
+            // group_id: pro.group_id().map(|g| g.to_string()),
         }
     }
 }

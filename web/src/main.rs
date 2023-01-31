@@ -3,10 +3,11 @@
 use cli::Args;
 use crate::config::Config;
 
-use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 use clap::Parser;
 use log::info;
+use crate::http_handler::{index, kill_process, version};
 
 mod cli;
 mod config;
@@ -14,17 +15,9 @@ mod model;
 mod server;
 mod system_info;
 mod vo;
+mod http_handler;
 
 use self::server::MyWebSocket;
-
-/// To check service state
-async fn index() -> impl Responder {
-    HttpResponse::Ok()
-}
-
-async fn version() -> impl Responder {
-    env!("CARGO_PKG_VERSION")
-}
 
 /// WebSocket handshake and start `MyWebSocket` actor.
 async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
@@ -47,6 +40,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(web::resource("/").to(index))
             .service(web::resource("/version").to(version))
+            .service(kill_process)
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
             // enable logger
