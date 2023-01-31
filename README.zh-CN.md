@@ -29,6 +29,10 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 - 磁盘I/O统计信息
 - 网络接口
 - 网络流量统计
+- 进程列表
+- 进程详细信息
+- 杀死进程
+- 进程所属子进程
 
 # 如何使用
 

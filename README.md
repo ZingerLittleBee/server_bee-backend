@@ -28,6 +28,10 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 - disk I/O statistics
 - network interfaces
 - network traffic statistics
+- process list
+- detail process
+- kill process
+- sub process
 
 # How to use
 
