@@ -1,0 +1,49 @@
+name: Docker Images CI
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Set up QEMU 💿
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx 🔩
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub 📶
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push server 📲
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          # platforms: linux/amd64,linux/arm64
+          # can not compile linux/arm64 in Github Action
+          #
+          # Manually compile
+          # 1. Build mirror images of different platforms
+          # - `docker build -t zingerbee/amd64-serverbee-web -f docker/Dockerfile .` in amd64 CPU
+          # - `docker build -t zingerbee/arm64-serverbee-web -f docker/Dockerfile .` in arm64 CPU
+          # 2. Push mirror images to DockerHub
+          # `docker login`
+          # - `docker push zingerbee/amd64-serverbee-web`
+          # - `docker push zingerbee/arm64-serverbee-web`
+          # 3. Create manifest
+          # `docker manifest create zingerbee/serverbee-web zingerbee/amd64-serverbee-web zingerbee/arm64-serverbee-web`
+          # 4. Set manifest
+          # - `docker manifest annotate zingerbee/serverbee-web zingerbee/amd64-serverbee-web --os linux --arch amd64`
+          # - `docker manifest annotate zingerbee/serverbee-web zingerbee/arm64-serverbee-web --os linux --arch arm64`
+          # (Optional) Inspect manifest
+          # `docker manifest inspect zingerbee/serverbee-web`
+          # 5. Push manifest
+          # `docker manifest push zingerbee/serverbee-web`
+          file: ./docker/Dockerfile
+          push: true
+          # `zingerbee/arm64-serverbee-web:latest` need manually compile and publish
+          tags: zingerbee/amd64-serverbee-web:latest
