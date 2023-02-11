@@ -78,7 +78,7 @@ jobs:
           - host: ubuntu-latest
             name: -ubuntu22
             target: aarch64-unknown-linux-musl
-    name: build serverbee-${{ matrix.package }}-${{ matrix.settings.target }}
+    name: build serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@master
