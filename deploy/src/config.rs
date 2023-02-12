@@ -1,20 +1,20 @@
-use std::cmp::min;
 use crate::cli::Port;
+use crate::constant::BASE_URL;
 use crate::storage_config::StorageConfig;
+use anyhow::Result;
 use auto_launch::AutoLaunchBuilder;
+use futures_util::StreamExt;
+use indicatif::{ProgressBar, ProgressStyle};
 use log::{info, warn, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
+use std::cmp::min;
 use std::env;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use anyhow::Result;
-use indicatif::{ProgressBar, ProgressStyle};
-use futures_util::StreamExt;
-use crate::constant::BASE_URL;
 
 #[derive(Clone, Debug)]
 pub struct Config {
@@ -119,11 +119,13 @@ impl Config {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn get_filename() -> String {
+    pub fn get_filename(&self) -> String {
         if cfg!(target_os = "macos") {
             "serverbee-web-x86_64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            self.get_is_ubuntu22().then(|| "serverbee-web-ubuntu22-x86_64-unknown-linux-musl.zip".into()).unwrap_or_else(||"serverbee-web-x86_64-unknown-linux-musl.zip".into())
+            self.get_is_ubuntu22()
+                .then(|| "serverbee-web-ubuntu22-x86_64-unknown-linux-musl.zip".into())
+                .unwrap_or_else(|| "serverbee-web-x86_64-unknown-linux-musl.zip".into())
         } else if cfg!(target_os = "windows") {
             "serverbee-web-x86_64-pc-windows-gnu.zip".into()
         } else {
@@ -137,7 +139,9 @@ impl Config {
         if cfg!(target_os = "macos") {
             "serverbee-web-aarch64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            self.get_is_ubuntu22().then(|| "serverbee-web-ubuntu22-aarch64-unknown-linux-musl.zip".into()).unwrap_or_else(||"serverbee-web-aarch64-unknown-linux-musl.zip".into())
+            self.get_is_ubuntu22()
+                .then(|| "serverbee-web-ubuntu22-aarch64-unknown-linux-musl.zip".into())
+                .unwrap_or_else(|| "serverbee-web-aarch64-unknown-linux-musl.zip".into())
         } else if cfg!(target_os = "windows") {
             "serverbee-web-aarch64-pc-windows-gnu.zip".into()
         } else {
@@ -166,9 +170,7 @@ impl Config {
     pub fn bin_zip_url(&self) -> PathBuf {
         let version = format!("v{}", self.get_version());
 
-        Path::new(BASE_URL)
-            .join(version)
-            .join(self.get_filename())
+        Path::new(BASE_URL).join(version).join(self.get_filename())
     }
 
     pub fn set_auto_launch(&mut self, enable: bool) {
@@ -214,10 +216,12 @@ impl Config {
 
     pub async fn get_latest_version() -> Result<String> {
         // get latest version
-        let latest_version = reqwest::get("https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend")
-            .await?
-            .json::<serde_json::Value>()
-            .await?;
+        let latest_version = reqwest::get(
+            "https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend",
+        )
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
 
         if let Some(version_value) = latest_version.get("versions") {
             if let Some(version_vec) = version_value.as_array() {
@@ -236,10 +240,16 @@ impl Config {
         let res = reqwest::Client::new()
             .get(self.bin_zip_url().to_str().unwrap())
             .send()
-            .await.map_err(|_| format!("Failed to Download from '{}'", self.bin_zip_url().display())).unwrap();
+            .await
+            .map_err(|_| format!("Failed to Download from '{}'", self.bin_zip_url().display()))
+            .unwrap();
         let total_size = res
             .content_length()
-            .ok_or(format!("Failed to get content length from '{}'", self.bin_zip_url().display())).unwrap();
+            .ok_or(format!(
+                "Failed to get content length from '{}'",
+                self.bin_zip_url().display()
+            ))
+            .unwrap();
 
         // Indicatif setup
         let pb = ProgressBar::new(total_size);
@@ -249,19 +259,34 @@ impl Config {
         pb.set_message(format!("Downloading {}", self.bin_zip_url().display()));
 
         // download chunks
-        let mut file = File::create(self.web_bin_zip_path()).map_err(|_| format!("Failed to create file '{}'", self.web_bin_zip_path().display())).unwrap();
+        let mut file = File::create(self.web_bin_zip_path())
+            .map_err(|_| {
+                format!(
+                    "Failed to create file '{}'",
+                    self.web_bin_zip_path().display()
+                )
+            })
+            .unwrap();
         let mut downloaded: u64 = 0;
         let mut stream = res.bytes_stream();
 
         while let Some(item) = stream.next().await {
-            let chunk = item.map_err(|_| "Error while downloading file".to_string()).unwrap();
-            file.write_all(&chunk).map_err(|_| "Error while writing to file".to_string()).unwrap();
+            let chunk = item
+                .map_err(|_| "Error while downloading file".to_string())
+                .unwrap();
+            file.write_all(&chunk)
+                .map_err(|_| "Error while writing to file".to_string())
+                .unwrap();
             let new = min(downloaded + (chunk.len() as u64), total_size);
             downloaded = new;
             pb.set_position(new);
         }
 
-        pb.finish_with_message(format!("Downloaded {} to {}", self.bin_zip_url().display(), self.web_bin_zip_path().display()));
+        pb.finish_with_message(format!(
+            "Downloaded {} to {}",
+            self.bin_zip_url().display(),
+            self.web_bin_zip_path().display()
+        ));
         Ok(())
     }
 }
