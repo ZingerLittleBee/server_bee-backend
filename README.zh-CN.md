@@ -4,8 +4,9 @@ Language : [🇺🇸 English](./README.md) | 🇨🇳 简体中文
 
 <div align="center">
 
-iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的后端 
+iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的后端
 
+<a href="https://www.producthunt.com/posts/serverbee?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-serverbee" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=378908&theme=light" alt="ServerBee - Monitor&#0032;and&#0032;manage&#0032;all&#0032;your&#0032;desktop&#0032;systems | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ZingerLittleBee/server_bee-backend?style=for-the-badge)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ZingerLittleBee/server_bee-backend/release.yml?style=for-the-badge)
@@ -39,16 +40,16 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 ## 安装
 ### Linux、MacOS
 
-从 [Release页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 获取最新版本下载地址
+从 [Release 页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 获取最新版本下载地址
 
 ```bash
 # 注意根据系统架构下载对应版本
 # macOS
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-apple-darwin.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.3/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 # Linux
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-unknown-linux-musl.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.3/serverbee-deploy-x86_64-unknown-linux-musl.zip
 unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # 默认端口是 9527
@@ -87,22 +88,17 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -a false
 ```
 
-### 使用国内镜像下载
+### 为 Ubuntu 22 下载 (OpenSSL 3.0)
 ```bash
-./serverbee-deploy -d
-```
-
-### 使用国外镜像下载 (Github)
-```bash
-./serverbee-deploy -f
+./serverbee-deploy -u true
 ```
 
 ### 例子
 ```bash
-./serverbee-deploy -p 8081 -a false -d
+./serverbee-deploy -p 8081 -a false -u true
 ```
 
-# 如何编译
+# 从源码编译
 ```bash
 cargo build --release
 ```
@@ -114,4 +110,7 @@ cargo build --release
 
 # 发行说明
 
-SEE [CHANGELOG](CHANGELOG.md)
+[CHANGELOG](CHANGELOG.md)
+
+# 了解更多
+请访问 https://serverbee.app/
