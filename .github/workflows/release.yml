@@ -108,7 +108,7 @@ jobs:
           secretaccesskey: ${{ secrets.S3_SECRET_ACCESS_KEY }}
           bucket: serverbee
           file: ./target/release/serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
-          destination: /cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
+          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
