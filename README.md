@@ -6,6 +6,8 @@ Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
 
 Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714)
 
+<a href="https://www.producthunt.com/posts/serverbee?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-serverbee" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=378908&theme=light" alt="ServerBee - Monitor&#0032;and&#0032;manage&#0032;all&#0032;your&#0032;desktop&#0032;systems | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ZingerLittleBee/server_bee-backend?style=for-the-badge)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ZingerLittleBee/server_bee-backend/release.yml?style=for-the-badge)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ZingerLittleBee/server_bee-backend?style=for-the-badge)
@@ -44,11 +46,11 @@ From [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releas
 ```bash
 # tips: download the corresponding version according to the system architecture
 # macOS
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-apple-darwin.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.3/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 # Linux
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.0/serverbee-deploy-x86_64-unknown-linux-musl.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.3/serverbee-deploy-x86_64-unknown-linux-musl.zip
 unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # default port is 9527
@@ -56,7 +58,7 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ```
 
 ### Windows
-1. Download the latest version `serverbee-deploy-x86_64-pc-windows-gnu.zip` from [release](https://github.com/ZingerLittleBee/server_bee-backend/releases)
+1. Download the latest version `serverbee-deploy-x86_64-pc-windows-gnu.zip` from [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releases)
 
 2. unzip serverbee-deploy-x86_64-pc-windows-gnu.zip
 
@@ -86,22 +88,17 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -a false
 ```
 
-### Domestic download
+### Download for Ubuntu 22 (OpenSSL 3.0)
 ```bash
-./serverbee-deploy -d
-```
-
-### Foreign download
-```bash
-./serverbee-deploy -f
+./serverbee-deploy -u true
 ```
 
 ### Examples
 ```bash
-./serverbee-deploy -p 8081 -a false -d
+./serverbee-deploy -p 8081 -a false -u true
 ```
 
-# How to compile
+# Compile from source
 ```bash
 cargo build --release
 ```
@@ -112,3 +109,6 @@ and then you can find the binary file in `target/release`
 
 # Release Notes
 SEE [CHANGELOG](CHANGELOG.md)
+
+# Read More
+Please visit https://serverbee.app/

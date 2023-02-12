@@ -1,8 +1,9 @@
-## `1.1.3` (2022-02-11)
+## `1.1.3` (2022-02-12)
 
 ### Features
 - Docker support
 - Old Ubuntu (< 22) support
+- Replace cos with cf R2
 
 ## `1.1.2` (2022-01-31)
 
