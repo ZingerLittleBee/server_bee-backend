@@ -14,6 +14,7 @@ use std::path::{Path, PathBuf};
 use anyhow::Result;
 use indicatif::{ProgressBar, ProgressStyle};
 use futures_util::StreamExt;
+use crate::constant::BASE_URL;
 
 #[derive(Clone, Debug)]
 pub struct Config {
@@ -50,6 +51,14 @@ impl Config {
         self.storage_config.set_interactive(interactive);
     }
 
+    pub fn get_is_ubuntu22(&self) -> bool {
+        self.storage_config.get_is_ubuntu22().unwrap_or(false)
+    }
+
+    pub fn set_is_ubuntu22(&mut self, is_ubuntu22: bool) {
+        self.storage_config.set_is_ubuntu22(is_ubuntu22);
+    }
+
     pub fn get_auto_launch(&self) -> bool {
         self.storage_config.get_auto_launch()
     }
@@ -62,17 +71,8 @@ impl Config {
         self.port.get_value()
     }
 
-    pub fn get_is_github_download(&self) -> bool {
-        self.storage_config.get_is_github_download()
-    }
-
     pub fn set_version(&mut self, version: String) {
         self.version = version;
-    }
-
-    pub fn set_is_github_download(&mut self, is_github_download: bool) {
-        self.storage_config
-            .set_is_github_download(is_github_download)
     }
 
     pub fn init_logging() {
@@ -123,7 +123,7 @@ impl Config {
         if cfg!(target_os = "macos") {
             "serverbee-web-x86_64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            "serverbee-web-x86_64-unknown-linux-musl.zip".into()
+            self.get_is_ubuntu22().then(|| "serverbee-web-ubuntu22-x86_64-unknown-linux-musl.zip".into()).unwrap_or_else(||"serverbee-web-x86_64-unknown-linux-musl.zip".into())
         } else if cfg!(target_os = "windows") {
             "serverbee-web-x86_64-pc-windows-gnu.zip".into()
         } else {
@@ -133,11 +133,11 @@ impl Config {
     }
 
     #[cfg(target_arch = "aarch64")]
-    pub fn get_filename() -> String {
+    pub fn get_filename(&self) -> String {
         if cfg!(target_os = "macos") {
             "serverbee-web-aarch64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            "serverbee-web-aarch64-unknown-linux-musl.zip".into()
+            self.get_is_ubuntu22().then(|| "serverbee-web-ubuntu22-aarch64-unknown-linux-musl.zip".into()).unwrap_or_else(||"serverbee-web-aarch64-unknown-linux-musl.zip".into())
         } else if cfg!(target_os = "windows") {
             "serverbee-web-aarch64-pc-windows-gnu.zip".into()
         } else {
@@ -160,27 +160,15 @@ impl Config {
     }
 
     pub fn web_bin_zip_path(&self) -> PathBuf {
-        self.web_bin_dir().join(Config::get_filename())
+        self.web_bin_dir().join(self.get_filename())
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let is_github_download = self.storage_config.get_is_github_download();
+        let version = format!("v{}", self.get_version());
 
-        let base_url = if is_github_download {
-            "https://github.com/ZingerLittleBee/server_bee-backend/releases/download"
-        } else {
-            "https://serverbee-1253263310.cos.ap-shanghai.myqcloud.com"
-        };
-
-        let version = if is_github_download {
-            format!("v{}", self.get_version())
-        } else {
-            self.get_version()
-        };
-
-        Path::new(base_url)
+        Path::new(BASE_URL)
             .join(version)
-            .join(Config::get_filename())
+            .join(self.get_filename())
     }
 
     pub fn set_auto_launch(&mut self, enable: bool) {

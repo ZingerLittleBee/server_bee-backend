@@ -8,7 +8,7 @@ use crate::config::Config;
 pub struct StorageConfig {
     pub port: Option<u16>,
     pub is_auto_launch: Option<bool>,
-    pub github_download: Option<bool>,
+    is_ubuntu22: Option<bool>,
     interactive: Option<bool>
 }
 
@@ -20,9 +20,20 @@ impl StorageConfig {
             Self {
                 port: None,
                 is_auto_launch: None,
-                github_download: None,
+                is_ubuntu22: None,
                 interactive: None
             }
+        }
+    }
+    
+    pub fn get_is_ubuntu22(&self) -> Option<bool> {
+        self.is_ubuntu22
+    }
+    
+    pub fn set_is_ubuntu22(&mut self, is_ubuntu22: bool) {
+        if self.is_ubuntu22.is_none() || self.is_ubuntu22.unwrap() != is_ubuntu22 {
+            self.is_ubuntu22 = Some(is_ubuntu22);
+            self.save_config();
         }
     }
 
@@ -46,17 +57,6 @@ impl StorageConfig {
 
     pub fn get_auto_launch(&self) -> bool {
         self.is_auto_launch.unwrap_or(true)
-    }
-
-    pub fn get_is_github_download(&self) -> bool {
-        self.github_download.unwrap_or(true)
-    }
-
-    pub fn set_is_github_download(&mut self, is_github_download: bool) {
-        if self.github_download.is_none() || self.github_download.unwrap() != is_github_download {
-            self.github_download = Some(is_github_download);
-            self.save_config();
-        }
     }
 
     pub fn set_port(&mut self, port: Port) {
