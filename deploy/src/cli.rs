@@ -13,10 +13,6 @@ pub struct Args {
     #[clap(short, long)]
     pub auto_launch: Option<bool>,
 
-    /// 是否为 Ubuntu 22, 默认 false
-    #[clap(short = 'u', long)]
-    pub is_ubuntu22: Option<bool>,
-
     /// 交互式安装
     #[clap(short, long, default_value = "false")]
     pub interactive: bool,
