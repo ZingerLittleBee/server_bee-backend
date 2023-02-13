@@ -82,6 +82,8 @@ jobs:
           use-cross: true
           command: build
           args: --release --target ${{ matrix.settings.target }}
+      - name: Display structure of Upload files
+        run: ls -R
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
