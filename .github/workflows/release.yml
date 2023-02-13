@@ -7,8 +7,6 @@ on:
     push:
         tags:
             - v[0-9]+.*
-        branches:
-          - dev/1.1.4
 
 jobs:
 #  build:
@@ -47,27 +45,27 @@ jobs:
       matrix:
         package: [ web, deploy ]
         settings:
-#          - host: macos-latest
-#            target: x86_64-apple-darwin
-#          - host: macos-latest
-#            target: aarch64-apple-darwin
-#          - host: windows-latest
-#            suffix: .exe
-#            target: x86_64-pc-windows-gnu
-#          - host: windows-latest
-#            suffix: .exe
-#            target: x86_64-pc-windows-msvc
-#          - host: windows-latest
-#            suffix: .exe
-#            target: aarch64-pc-windows-msvc
+          - host: macos-latest
+            target: x86_64-apple-darwin
+          - host: macos-latest
+            target: aarch64-apple-darwin
+          - host: windows-latest
+            suffix: .exe
+            target: x86_64-pc-windows-gnu
+          - host: windows-latest
+            suffix: .exe
+            target: x86_64-pc-windows-msvc
+          - host: windows-latest
+            suffix: .exe
+            target: aarch64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-#          - host: ubuntu-latest
-#            target: aarch64-unknown-linux-gnu
-#          - host: ubuntu-latest
-#            target: aarch64-unknown-linux-musl
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-musl
     name: build serverbee-${{ matrix.package }}-${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -91,35 +89,33 @@ jobs:
           filename: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
 #      - name: Display structure of Upload files
 #        run: ls -R
-#      - name: Zip artifact
-#        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/release/serverbee-${{ matrix.package }}
-#      - name: Upload to R2
-#        uses: randomairborne/r2-release@main
-#        with:
-#          endpoint: ${{ secrets.S3_ENDPOINT }}
-#          accesskeyid: ${{ secrets.S3_ACCESS_KEY_ID }}
-#          secretaccesskey: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-#          bucket: serverbee
-#          file: ./target/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
-#          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
-      - name: Display structure of Upload files
-        run: ls -R
+      - name: Zip artifact
+        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/release/serverbee-${{ matrix.package }}
+      - name: Upload to R2
+        uses: randomairborne/r2-release@main
+        with:
+          endpoint: ${{ secrets.S3_ENDPOINT }}
+          accesskeyid: ${{ secrets.S3_ACCESS_KEY_ID }}
+          secretaccesskey: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          bucket: serverbee
+          file: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
+          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}${{ matrix.settings.suffix }}
           path: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
-#  release:
-#    name: Release
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build
-#    steps:
-#      - uses: actions/download-artifact@v3
-##      - name: Display structure of downloaded files
-##        run: ls -R
-#      - uses: ncipollo/release-action@v1
-#        with:
-#          artifacts: 'serverbee-*/*.zip'
-#          prerelease: true
-#          token: ${{ secrets.GITHUB_TOKEN }}
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/download-artifact@v3
+#      - name: Display structure of downloaded files
+#        run: ls -R
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'serverbee-*/*.zip'
+          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}
