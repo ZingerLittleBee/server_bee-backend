@@ -81,14 +81,14 @@ jobs:
         with:
           use-cross: true
           command: build
-          args: --release --target ${{ matrix.settings.target }}
+          args: --release --bin serverbee-${{ matrix.package }} --target ${{ matrix.settings.target }}
       - name: Display structure of Upload files
         run: ls -R
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
           type: 'zip'
-          directory: ./target/release
+          directory: ./target/${{ matrix.settings.target }}/release
           path: serverbee-${{ matrix.package }}${{ matrix.settings.suffix }}
           filename: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
 #      - name: Display structure of Upload files
