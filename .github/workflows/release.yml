@@ -90,7 +90,7 @@ jobs:
 #      - name: Display structure of Upload files
 #        run: ls -R
       - name: Zip artifact
-        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/release/serverbee-${{ matrix.package }}
+        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}
       - name: Upload to R2
         uses: randomairborne/r2-release@main
         with:
