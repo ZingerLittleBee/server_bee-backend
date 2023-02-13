@@ -82,8 +82,6 @@ jobs:
           use-cross: true
           command: build
           args: --release --bin serverbee-${{ matrix.package }} --target ${{ matrix.settings.target }}
-      - name: Display structure of Upload files
-        run: ls -R
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
@@ -104,11 +102,13 @@ jobs:
 #          bucket: serverbee
 #          file: ./target/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
 #          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
+      - name: Display structure of Upload files
+        run: ls -R
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}${{ matrix.settings.suffix }}
-          path: ./target/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
+          path: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
 #  release:
 #    name: Release
 #    runs-on: ubuntu-latest
