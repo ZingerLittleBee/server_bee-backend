@@ -54,7 +54,7 @@ jobs:
           - host: windows-latest
             suffix: .exe
             target: x86_64-pc-windows-gnu
-            args: --features native-tls
+            args: --features native-tls --force-non-host
           - host: windows-latest
             suffix: .exe
             target: x86_64-pc-windows-msvc
@@ -98,8 +98,6 @@ jobs:
           filename: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
 #      - name: Display structure of Upload files
 #        run: ls -R
-      - name: Zip artifact
-        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.settings.target }} ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}
       - name: Upload to R2
         uses: randomairborne/r2-release@main
         with:
@@ -121,8 +119,6 @@ jobs:
       - build
     steps:
       - uses: actions/download-artifact@v3
-#      - name: Display structure of downloaded files
-#        run: ls -R
       - uses: ncipollo/release-action@v1
         with:
           artifacts: 'serverbee-*/*.zip'
