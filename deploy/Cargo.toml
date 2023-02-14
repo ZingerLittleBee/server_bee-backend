@@ -5,6 +5,8 @@ edition = "2021"
 
 [features]
 subsystem = []
+native-tls=["reqwest/default-tls"]
+rustls-tls=["reqwest/rustls-tls"]
 
 [dependencies]
 log = "0.4"
@@ -29,9 +31,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9.4"
 
+reqwest = { version = "0.11", features = ["json", "stream"], default-features = false }
+
 [target.'cfg(not(windows))'.dependencies]
 daemonize = "0.4.1"
-reqwest = { version = "0.11", features = ["json", "stream", "rustls-tls"], default-features = false }
-
-[target.'cfg(windows)'.dependencies]
-reqwest = { version = "0.11", features = ["json", "stream"] }

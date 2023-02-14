@@ -47,25 +47,34 @@ jobs:
         settings:
           - host: macos-latest
             target: x86_64-apple-darwin
+            args: --features native-tls
           - host: macos-latest
             target: aarch64-apple-darwin
+            args: --features native-tls
           - host: windows-latest
             suffix: .exe
             target: x86_64-pc-windows-gnu
+            args: --features native-tls
           - host: windows-latest
             suffix: .exe
             target: x86_64-pc-windows-msvc
+            args: --features native-tls
           - host: windows-latest
             suffix: .exe
             target: aarch64-pc-windows-msvc
+            args: --features native-tls
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
+            args: --features rustls-tls
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
+            args: --features rustls-tls
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
+            args: --features rustls-tls
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
+            args: --features rustls-tls
     name: build serverbee-${{ matrix.package }}-${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -79,7 +88,7 @@ jobs:
         with:
           use-cross: true
           command: build
-          args: --release --bin serverbee-${{ matrix.package }} --target ${{ matrix.settings.target }}
+          args: --release --bin serverbee-${{ matrix.package }} --target ${{ matrix.settings.target }} ${{ matrix.settings.args }}
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
@@ -90,7 +99,7 @@ jobs:
 #      - name: Display structure of Upload files
 #        run: ls -R
       - name: Zip artifact
-        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}
+        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.settings.target }} ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}
       - name: Upload to R2
         uses: randomairborne/r2-release@main
         with:
