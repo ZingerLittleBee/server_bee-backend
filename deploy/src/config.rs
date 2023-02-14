@@ -51,14 +51,6 @@ impl Config {
         self.storage_config.set_interactive(interactive);
     }
 
-    pub fn get_is_ubuntu22(&self) -> bool {
-        self.storage_config.get_is_ubuntu22().unwrap_or(false)
-    }
-
-    pub fn set_is_ubuntu22(&mut self, is_ubuntu22: bool) {
-        self.storage_config.set_is_ubuntu22(is_ubuntu22);
-    }
-
     pub fn get_auto_launch(&self) -> bool {
         self.storage_config.get_auto_launch()
     }
@@ -123,9 +115,7 @@ impl Config {
         if cfg!(target_os = "macos") {
             "serverbee-web-x86_64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            self.get_is_ubuntu22()
-                .then(|| "serverbee-web-ubuntu22-x86_64-unknown-linux-musl.zip".into())
-                .unwrap_or_else(|| "serverbee-web-x86_64-unknown-linux-musl.zip".into())
+            "serverbee-web-x86_64-unknown-linux-musl.zip".into()
         } else if cfg!(target_os = "windows") {
             "serverbee-web-x86_64-pc-windows-gnu.zip".into()
         } else {
@@ -139,9 +129,7 @@ impl Config {
         if cfg!(target_os = "macos") {
             "serverbee-web-aarch64-apple-darwin.zip".into()
         } else if cfg!(target_os = "linux") {
-            self.get_is_ubuntu22()
-                .then(|| "serverbee-web-ubuntu22-aarch64-unknown-linux-musl.zip".into())
-                .unwrap_or_else(|| "serverbee-web-aarch64-unknown-linux-musl.zip".into())
+            "serverbee-web-aarch64-unknown-linux-musl.zip".into()
         } else if cfg!(target_os = "windows") {
             "serverbee-web-aarch64-pc-windows-gnu.zip".into()
         } else {

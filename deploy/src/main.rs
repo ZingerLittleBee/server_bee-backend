@@ -37,10 +37,6 @@ async fn main() -> Result<()> {
         config.set_port(Port::new(args.port.unwrap()));
     }
 
-    if args.is_ubuntu22.is_some() {
-        config.set_is_ubuntu22(args.is_ubuntu22.unwrap());
-    }
-
     let latest_version = Config::get_latest_version().await?;
     info!("最新版本: {}", latest_version);
     config.set_version(latest_version);
@@ -182,26 +178,6 @@ fn interactive_install(config: &mut Config) {
         Err(_) => panic!("出现错误，请重试"),
     }
 
-    let is_ubuntu22_options = vec!["否", "是"];
-
-    let is_ubuntu22_ans = Select::new(
-        "是否为 Ubuntu 22 (OpenSSL 3.0)",
-        is_ubuntu22_options.clone(),
-    )
-    .with_help_message("↑↓ 移动, 回车确定 ✅, 输入以筛选")
-    .prompt();
-
-    match is_ubuntu22_ans {
-        Ok(choice) => {
-            if choice == is_ubuntu22_options[0] {
-                config.set_is_ubuntu22(false)
-            } else {
-                config.set_is_ubuntu22(true)
-            }
-        }
-        Err(_) => panic!("出现错误，请重试"),
-    }
-
     let auto_launch_options = vec!["是", "否"];
 
     let auto_launch_ans = Select::new("是否开机自启", auto_launch_options.clone())
@@ -230,10 +206,6 @@ fn interactive_install(config: &mut Config) {
         } else {
             auto_launch_options[1]
         }
-    );
-    println!(
-        "是否为 Ubuntu 22 (OpenSSL 3.0): {}",
-        config.get_is_ubuntu22()
     );
 
     println!(" ");

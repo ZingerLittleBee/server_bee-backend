@@ -8,7 +8,6 @@ use crate::config::Config;
 pub struct StorageConfig {
     pub port: Option<u16>,
     pub is_auto_launch: Option<bool>,
-    is_ubuntu22: Option<bool>,
     interactive: Option<bool>
 }
 
@@ -20,20 +19,8 @@ impl StorageConfig {
             Self {
                 port: None,
                 is_auto_launch: None,
-                is_ubuntu22: None,
                 interactive: None
             }
-        }
-    }
-    
-    pub fn get_is_ubuntu22(&self) -> Option<bool> {
-        self.is_ubuntu22
-    }
-    
-    pub fn set_is_ubuntu22(&mut self, is_ubuntu22: bool) {
-        if self.is_ubuntu22.is_none() || self.is_ubuntu22.unwrap() != is_ubuntu22 {
-            self.is_ubuntu22 = Some(is_ubuntu22);
-            self.save_config();
         }
     }
 

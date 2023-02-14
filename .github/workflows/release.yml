@@ -49,71 +49,62 @@ jobs:
             target: x86_64-apple-darwin
           - host: macos-latest
             target: aarch64-apple-darwin
-          - host: windows-latest
+          - host: ubuntu-latest
             suffix: .exe
             target: x86_64-pc-windows-gnu
           - host: windows-latest
             suffix: .exe
             target: x86_64-pc-windows-msvc
+            args: --no-default-features --features native-tls
           - host: windows-latest
             suffix: .exe
             target: aarch64-pc-windows-msvc
-          - host: ubuntu-20.04
-            target: x86_64-unknown-linux-musl
-          - host: ubuntu-20.04
-            target: x86_64-unknown-linux-gnu
-          - host: ubuntu-20.04
-            target: aarch64-unknown-linux-gnu
-          - host: ubuntu-20.04
-            target: aarch64-unknown-linux-musl
+            args: --no-default-features --features native-tls
           - host: ubuntu-latest
-            name: -ubuntu22
             target: x86_64-unknown-linux-musl
           - host: ubuntu-latest
-            name: -ubuntu22
             target: x86_64-unknown-linux-gnu
           - host: ubuntu-latest
-            name: -ubuntu22
             target: aarch64-unknown-linux-gnu
           - host: ubuntu-latest
-            name: -ubuntu22
             target: aarch64-unknown-linux-musl
-    name: build serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}
+    name: build serverbee-${{ matrix.package }}-${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          override: true
           target: ${{ matrix.settings.target }}
       - uses: actions-rs/cargo@v1
         with:
+          use-cross: true
           command: build
-          args: --release
+          args: --release --bin serverbee-${{ matrix.package }} --target ${{ matrix.settings.target }} ${{ matrix.settings.args }}
       - name: Archive Release
         uses: thedoctor0/zip-release@main
         with:
           type: 'zip'
-          directory: ./target/release
+          directory: ./target/${{ matrix.settings.target }}/release
           path: serverbee-${{ matrix.package }}${{ matrix.settings.suffix }}
-          filename: serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
+          filename: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
 #      - name: Display structure of Upload files
 #        run: ls -R
-#      - name: Zip artifact
-#        run: zip -j serverbee-${{ matrix.package }}-${{ matrix.target }} ./target/release/serverbee-${{ matrix.package }}
-      - uses: randomairborne/r2-release@main
+      - name: Upload to R2
+        uses: randomairborne/r2-release@main
         with:
           endpoint: ${{ secrets.S3_ENDPOINT }}
           accesskeyid: ${{ secrets.S3_ACCESS_KEY_ID }}
           secretaccesskey: ${{ secrets.S3_SECRET_ACCESS_KEY }}
           bucket: serverbee
-          file: ./target/release/serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
-          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
+          file: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
+          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}${{ matrix.settings.suffix }}
-          path: ./target/release/serverbee-${{ matrix.package }}${{ matrix.settings.name }}-${{ matrix.settings.target }}.zip
+          name: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}${{ matrix.settings.suffix }}
+          path: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -121,8 +112,6 @@ jobs:
       - build
     steps:
       - uses: actions/download-artifact@v3
-#      - name: Display structure of downloaded files
-#        run: ls -R
       - uses: ncipollo/release-action@v1
         with:
           artifacts: 'serverbee-*/*.zip'
