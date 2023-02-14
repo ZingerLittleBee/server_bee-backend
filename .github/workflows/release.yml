@@ -51,10 +51,10 @@ jobs:
           - host: macos-latest
             target: aarch64-apple-darwin
             args: --features native-tls
-          - host: windows-latest
+          - host: ubuntu-latest
             suffix: .exe
             target: x86_64-pc-windows-gnu
-            args: --features native-tls --force-non-host
+            args: --features rustls-tls
           - host: windows-latest
             suffix: .exe
             target: x86_64-pc-windows-msvc
