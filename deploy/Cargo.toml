@@ -4,6 +4,7 @@ version = "1.1.4"
 edition = "2021"
 
 [features]
+default = ["rustls-tls"]
 subsystem = []
 native-tls=["reqwest/default-tls"]
 rustls-tls=["reqwest/rustls-tls"]
