@@ -1,3 +1,11 @@
+## `1.2.0` ()
+
+### Features
+- Token auth
+
+### Bug Fixes
+- Replace system-native TLS with rustls
+
 ## `1.1.4` (2022-02-13)
 
 ### Bug Fixes
