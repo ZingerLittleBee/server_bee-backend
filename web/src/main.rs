@@ -8,8 +8,9 @@ use actix_web_actors::ws;
 use clap::Parser;
 use log::info;
 use sled::Db;
-use crate::handler::http_handler::{index, kill_process, version};
+use crate::handler::http_handler::{index, kill_process, rest_token, version};
 use crate::handler::db_handler::db_test;
+use crate::token::communication_token::CommunicationToken;
 
 mod cli;
 mod config;
@@ -23,7 +24,7 @@ mod token;
 use self::server::MyWebSocket;
 
 /// WebSocket handshake and start `MyWebSocket` actor.
-async fn echo_ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+async fn echo_ws(_token: CommunicationToken, req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     ws::start(MyWebSocket::new(), &req, stream)
 }
 
@@ -53,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/version").to(version))
             .service(web::resource("/db").to(db_test))
             .service(kill_process)
+            .service(rest_token)
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
             // enable logger

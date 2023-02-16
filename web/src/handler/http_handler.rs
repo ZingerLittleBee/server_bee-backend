@@ -3,9 +3,11 @@ use actix_web::body::BoxBody;
 use actix_web::http::header::ContentType;
 use sysinfo::{Pid, ProcessExt, System, SystemExt};
 use serde::{Deserialize, Serialize};
+use sled::Db;
+use crate::token::communication_token::CommunicationToken;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
-struct HttpResult {
+pub struct HttpResult {
     success: bool,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -56,7 +58,7 @@ pub async fn version() -> impl Responder {
 }
 
 #[post("/kill")]
-pub async fn kill_process(info: web::Json<KilledInfo>) -> impl Responder {
+pub async fn kill_process(_token: CommunicationToken, info: web::Json<KilledInfo>) -> impl Responder {
     let pid: Pid = info.pid.parse().unwrap();
     let mut sys = System::new();
     let refresh_res = sys.refresh_process(pid);
@@ -68,4 +70,15 @@ pub async fn kill_process(info: web::Json<KilledInfo>) -> impl Responder {
     } else {
         HttpResult::new_msg(false, "进程不存在".into())
     }
+}
+
+#[derive(Deserialize, Serialize, Default, Debug)]
+pub struct TokenInfo {
+    token: String
+}
+
+#[post("/rest")]
+pub async fn rest_token(_token: CommunicationToken, db: web::Data<Db>, info: web::Json<TokenInfo>) -> impl Responder {
+    db.insert(CommunicationToken::token_key(), info.token.as_bytes()).unwrap();
+    HttpResult::new(true)
 }
