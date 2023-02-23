@@ -46,11 +46,11 @@ From [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releas
 ```bash
 # tips: download the corresponding version according to the system architecture
 # macOS
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.3/serverbee-deploy-x86_64-apple-darwin.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.5/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 # Linux
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.3/serverbee-deploy-x86_64-unknown-linux-musl.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.5/serverbee-deploy-x86_64-unknown-linux-musl.zip
 unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # default port is 9527

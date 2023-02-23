@@ -1,3 +1,8 @@
+## `1.1.5` (2022-02-23)
+
+### Bug Fixes
+- Fix panic when query sector size
+
 ## `1.1.4` (2022-02-13)
 
 ### Bug Fixes
