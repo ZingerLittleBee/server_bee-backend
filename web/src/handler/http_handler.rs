@@ -77,8 +77,24 @@ pub struct TokenInfo {
     token: String
 }
 
-#[post("/rest")]
+#[post("/token/rest")]
 pub async fn rest_token(_token: CommunicationToken, db: web::Data<Db>, info: web::Json<TokenInfo>) -> impl Responder {
     db.insert(CommunicationToken::token_key(), info.token.as_bytes()).unwrap();
+    HttpResult::new(true)
+}
+
+/// private api localhost only
+// /token/view
+pub async fn view_token(db: web::Data<Db>) -> impl Responder {
+    if let Some(value) = db.get(CommunicationToken::token_key()).unwrap() {
+        std::str::from_utf8(&value).unwrap_or_default().to_owned()
+    } else {
+        "".into()
+    }
+}
+
+// /token/clear
+pub async fn clear_token(db: web::Data<Db>) -> impl Responder {
+    db.remove(CommunicationToken::token_key()).unwrap();
     HttpResult::new(true)
 }
