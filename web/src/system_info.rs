@@ -142,15 +142,32 @@ impl SystemInfo {
             io::Read,
         };
         let mut map = HashMap::new();
-        let block_paths = read_dir("/sys/block").unwrap();
-        for path in block_paths {
-            let path = path.unwrap().path();
-            let mut file = File::open(path.join("queue/hw_sector_size")).unwrap();
+
+        let block_paths;
+
+        let read_block = read_dir("/sys/block");
+
+        if read_block.is_ok() {
+            block_paths = read_block.unwrap();
+        } else {
+            return map;
+        }
+
+        for block_path in block_paths {
+            let path = block_path.unwrap().path();
+            let mut file = if let Ok(file) = File::open(path.join("queue/hw_sector_size")) {
+                file
+            } else {
+                continue;
+            };
             let mut sector_size = String::new();
-            file.read_to_string(&mut sector_size).unwrap();
+            match file.read_to_string(&mut sector_size) {
+                Ok(_) => {},
+                Err(_) => continue
+            }
             map.insert(
                 path.file_name().unwrap().to_str().unwrap().to_string(),
-                sector_size.trim().parse::<u16>().unwrap(),
+                sector_size.trim().parse::<u16>().unwrap_or(512),
             );
         }
         map

@@ -1,10 +1,12 @@
-## `1.2.0` ()
+## `1.2.0` (2022-03-17)
 
 ### Features
 - Token auth
 
+## `1.1.5` (2022-02-23)
+
 ### Bug Fixes
-- Replace system-native TLS with rustls
+- Fix panic when query sector size
 
 ## `1.1.4` (2022-02-13)
 
