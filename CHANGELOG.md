@@ -2,6 +2,7 @@
 
 ### Features
 - Token auth
+- localhost token api
 
 ## `1.1.5` (2022-02-23)
 
