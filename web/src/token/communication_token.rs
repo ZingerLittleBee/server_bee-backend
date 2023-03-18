@@ -45,6 +45,12 @@ impl FromRequest for CommunicationToken {
                 futures_util::future::ready(Err(actix_web::error::ErrorUnauthorized("Token is invalid")))
             }
         } else {
+
+            // If the token is not set, allow all requests
+            if !db.contains_key(CommunicationToken::token_key()).unwrap() {
+                return futures_util::future::ready(Ok(CommunicationToken("".to_owned())));
+            }
+
             warn!("Token is missing, request from: {}", req.connection_info().realip_remote_addr().unwrap_or("unknown"));
             futures_util::future::ready(Err(actix_web::error::ErrorUnauthorized("Token is missing")))
         }

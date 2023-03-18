@@ -2055,7 +2055,7 @@ dependencies = [
 
 [[package]]
 name = "serverbee-deploy"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "anyhow",
  "auto-launch",
@@ -2078,7 +2078,7 @@ dependencies = [
 
 [[package]]
 name = "serverbee-web"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "actix",
  "actix-codec",
@@ -2209,8 +2209,9 @@ dependencies = [
 
 [[package]]
 name = "sysinfo"
-version = "0.27.6"
-source = "git+https://github.com/GuillaumeGomez/sysinfo?branch=master#61ba87fb7256e5e4462abbbcb3d5d8ae7d0c52fc"
+version = "0.28.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f69e0d827cce279e61c2f3399eb789271a8f136d8245edef70f06e3c9601a670"
 dependencies = [
  "cfg-if",
  "core-foundation-sys",

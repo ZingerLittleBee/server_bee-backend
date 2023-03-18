@@ -1,3 +1,9 @@
+## `1.2.1` (2022-03-18)
+
+### Bug Fixes
+- Get the latest version from GitHub to exclude pre-release
+- Adaptation of an app version that is adapted unrequited verification
+
 ## `1.2.0` (2022-03-17)
 
 ### Features

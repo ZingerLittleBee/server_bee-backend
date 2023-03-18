@@ -88,11 +88,6 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -a false
 ```
 
-### Download for Ubuntu 22 (OpenSSL 3.0)
-```bash
-./serverbee-deploy -u true
-```
-
 ### Examples
 ```bash
 ./serverbee-deploy -p 8081 -a false -u true

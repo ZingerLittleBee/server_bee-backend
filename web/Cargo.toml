@@ -1,6 +1,6 @@
 [package]
 name = "serverbee-web"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 
 [features]
@@ -26,7 +26,8 @@ tokio-stream = "0.1.8"
 
 # new release to fix https://github.com/GuillaumeGomez/sysinfo/issues/918
 #sysinfo = "0.27.6"
-sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo", branch = "master" }
+#sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo", branch = "master" }
+sysinfo = "0.28.3"
 
 
 serde = { version = "1.0", features = ["derive"] }
