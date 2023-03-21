@@ -1,3 +1,8 @@
+## `1.2.2` (2022-03-19)
+### Features
+- Add `systemd` tips to start deploy on startup for the linux
+
+
 ## `1.2.1` (2022-03-18)
 
 ### Bug Fixes
