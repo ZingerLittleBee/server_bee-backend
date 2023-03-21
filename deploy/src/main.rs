@@ -67,15 +67,31 @@ async fn main() -> Result<()> {
 
     start_process(config.web_bin_path().to_str().unwrap(), config.get_port());
 
-    info!("启动成功");
-
     if config.get_interactive() {
         config.set_interactive(false);
 
-        println!("安装结束, 按任意键退出...");
+        // println!("安装结束, 按任意键退出...");
 
-        stdin().read_line(&mut String::new()).expect("");
+        // stdin().read_line(&mut String::new()).expect("");
     }
+
+    #[cfg(target_os = "linux")]
+    if config.get_auto_launch() {
+        use std::env::current_exe;
+        println!("安装完成之后，请执行如下命令，以便开机自启动");
+
+        println!("############################################");
+
+        match current_exe() {
+            Ok(p) => println!("{}", daemon_content(p.display().to_string())),
+            Err(_) => println!("{}", daemon_content("serverbee-deploy的全路径".into())),
+        }
+
+        println!("systemctl enable serverbee-deploy.service");
+
+        println!("############################################");
+    }
+    println!("安装结束, 按任意键退出...");
 
     Ok(())
 }
@@ -139,6 +155,8 @@ fn start_process(bin_full_path: &str, port: u16) {
         .args(["-p", port.to_string().as_str()])
         .spawn()
         .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
+
+    info!("serverbee-web 启动成功");
 }
 
 #[cfg(not(windows))]
@@ -150,6 +168,8 @@ fn start_process(bin_full_path: &str, port: u16) {
         .arg(port.to_string())
         .spawn()
         .unwrap_or_else(|_| panic!("运行 {} 失败, 请尝试手动运行", bin_full_path));
+
+    info!("serverbee-web 启动成功");
 }
 
 fn interactive_install(config: &mut Config) {
@@ -216,4 +236,27 @@ fn interactive_install(config: &mut Config) {
         .expect("error: unable to read user input");
     println!("确认完毕, 开始安装");
     println!("==============================");
+}
+
+#[cfg(target_os = "linux")]
+fn daemon_content(path: String) -> String {
+    format!(
+        r#"
+cat > /etc/systemd/system/serverbee-deploy.service <<EOF
+[Unit]
+Description=ServerBee Deploy
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart={}
+RemainAfterExit=yes
+Environment="RUST_LOG=info"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+"#,
+        path
+    )
 }

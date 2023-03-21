@@ -10,12 +10,12 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
+use reqwest::header;
 use std::cmp::min;
 use std::env;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use reqwest::header;
 
 #[derive(Clone, Debug)]
 pub struct Config {
@@ -246,15 +246,6 @@ impl Config {
     }
 
     pub async fn get_latest_version() -> Result<String> {
-
-        // if let Ok(version) = Config::get_latest_version_from_github().await {
-        //     if !version.is_empty() {
-        //         return Ok(version);
-        //     }
-        // } else {
-        //     warn!("从 github 获取最新版本失败, 尝试从 jsdelivr 获取");
-        // }
-
         match Config::get_latest_version_from_github().await {
             Ok(version) => {
                 if !version.is_empty() {
