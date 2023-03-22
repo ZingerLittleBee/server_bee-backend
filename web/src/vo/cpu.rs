@@ -20,7 +20,7 @@ impl Convert<CpuUsageVo> for CpuUsage {
     fn convert(&self) -> CpuUsageVo {
         CpuUsageVo {
             name: self.name.clone(),
-            usage: self.cpu_usage.clone(),
+            usage: self.cpu_usage,
         }
     }
 }

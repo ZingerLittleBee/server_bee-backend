@@ -1,3 +1,20 @@
+## `1.2.2` (2022-03-19)
+### Features
+- Add `systemd` tips to start deploy on startup for the linux
+
+
+## `1.2.1` (2022-03-18)
+
+### Bug Fixes
+- Get the latest version from GitHub to exclude pre-release
+- Adaptation of an app version that is adapted unrequited verification
+
+## `1.2.0` (2022-03-17)
+
+### Features
+- Token auth
+- localhost token api
+
 ## `1.1.5` (2022-02-23)
 
 ### Bug Fixes

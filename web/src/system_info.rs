@@ -198,7 +198,7 @@ impl SystemInfo {
         }
         disk_usage.total_read = total_read;
         disk_usage.total_write = total_write;
-        self.last_disk_io = disk_usage.clone();
+        self.last_disk_io = disk_usage;
         disk_usage
     }
 

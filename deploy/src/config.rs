@@ -10,6 +10,7 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
+use reqwest::header;
 use std::cmp::min;
 use std::env;
 use std::fs::File;
@@ -202,8 +203,29 @@ impl Config {
         Config::current_dir().join("deploy.log")
     }
 
-    pub async fn get_latest_version() -> Result<String> {
-        // get latest version
+    async fn get_latest_version_from_github() -> Result<String> {
+        let client = reqwest::Client::new();
+        let response = client
+            .get("https://api.github.com/repos/ZingerLittleBee/server_bee-backend/releases/latest")
+            // .header(header::AUTHORIZATION, format!("token {}", token))
+            .header(header::USER_AGENT, "reqwest")
+            .send()
+            .await?
+            .error_for_status()?;
+
+        let text = response.text().await?;
+
+        let latest_version: serde_json::Value = serde_json::from_str(&text)?;
+
+        if let Some(version_value) = latest_version.get("tag_name") {
+            if let Some(version_str) = version_value.as_str() {
+                return Ok(version_str.to_string().replace('v', ""));
+            }
+        }
+        Ok("".into())
+    }
+
+    async fn get_latest_version_from_jsdelivr() -> Result<String> {
         let latest_version = reqwest::get(
             "https://data.jsdelivr.com/v1/package/gh/ZingerLittleBee/server_bee-backend",
         )
@@ -220,6 +242,29 @@ impl Config {
                 }
             }
         }
+        Ok("".into())
+    }
+
+    pub async fn get_latest_version() -> Result<String> {
+        match Config::get_latest_version_from_github().await {
+            Ok(version) => {
+                if !version.is_empty() {
+                    return Ok(version);
+                }
+            }
+            Err(e) => {
+                warn!("从 github 获取最新版本失败: {}, 尝试从 jsdelivr 获取", e);
+            }
+        }
+
+        if let Ok(version) = Config::get_latest_version_from_jsdelivr().await {
+            if !version.is_empty() {
+                return Ok(version);
+            }
+        } else {
+            warn!("从 jsdelivr 获取最新版本失败, 将使用 cargo.toml 中的版本");
+        }
+
         Ok(env!("CARGO_PKG_VERSION").into())
     }
 
