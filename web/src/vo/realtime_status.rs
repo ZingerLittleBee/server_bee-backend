@@ -3,6 +3,7 @@ use crate::vo::disk::DiskDetailVo;
 use crate::vo::formator::Convert;
 use crate::vo::network::NetworkDetailVo;
 use serde::{Deserialize, Serialize};
+use crate::vo::component::ComponentTemperatureVo;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct RealtimeStatusVo {
@@ -10,6 +11,7 @@ pub struct RealtimeStatusVo {
     pub network: Vec<NetworkDetailVo>,
     pub disk: Vec<DiskDetailVo>,
     pub uptime: Vec<u64>,
+    pub temp: Vec<ComponentTemperatureVo>
 }
 
 impl Convert<RealtimeStatusVo> for RealtimeStatus {
@@ -36,6 +38,7 @@ impl Convert<RealtimeStatusVo> for RealtimeStatus {
             network,
             disk,
             uptime: self.uptime.clone(),
+            temp: self.temp.iter().map(|temp| temp.convert()).collect(),
         }
     }
 }

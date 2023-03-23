@@ -2,6 +2,7 @@ use crate::model::cpu::CpuUsage;
 use crate::model::disk::DiskDetail;
 use crate::model::network::NetworkDetail;
 use serde::{Deserialize, Serialize};
+use crate::model::component::ComponentTemperature;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct RealtimeStatus {
@@ -9,4 +10,5 @@ pub struct RealtimeStatus {
     pub network: Vec<NetworkDetail>,
     pub disk: Vec<DiskDetail>,
     pub uptime: Vec<u64>,
+    pub temp: Vec<ComponentTemperature>
 }

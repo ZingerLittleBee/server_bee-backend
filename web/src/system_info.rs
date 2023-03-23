@@ -18,6 +18,7 @@ use crate::model::{
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
+use crate::model::component::ComponentTemperature;
 use crate::model::simple_process::SimpleProcess;
 use crate::server::{Sort, SortBy, SortOrder};
 use crate::vo::simple_process::SimpleProcessVo;
@@ -251,6 +252,10 @@ impl SystemInfo {
         self.sys.process(pid.parse().unwrap()).map(|x| x.into())
     }
 
+    pub fn get_temperature(&mut self) -> Vec<ComponentTemperature>  {
+        self.sys.components().iter().map(|x| x.into()).collect()
+    }
+
     pub fn get_os_overview(&mut self) -> OsOverview {
         OsOverview {
             name: self.sys.name().unwrap_or_else(|| "<unknown>".to_owned()),
@@ -288,6 +293,7 @@ impl SystemInfo {
             network: self.get_network_detail(),
             disk: self.get_disk_detail(),
             uptime: self.get_uptime(),
+            temp: self.get_temperature(),
         }
     }
 
