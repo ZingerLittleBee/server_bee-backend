@@ -33,12 +33,15 @@ impl Convert<RealtimeStatusVo> for RealtimeStatus {
         let mut cpu_usage = self.cpu.clone();
         cpu_usage.sort_by_key(|c| c.name.to_lowercase().replace("cpu", "").trim().parse::<u8>().unwrap_or_default());
 
+        let mut temp: Vec<ComponentTemperatureVo> = self.merge_temperature_data().iter().map(|temp| temp.convert()).collect();
+        temp.sort_by_key(|temp| temp.label.to_lowercase());
+
         RealtimeStatusVo {
             cpu: cpu_usage.iter().map(|cpu| cpu.cpu_usage).collect(),
             network,
             disk,
             uptime: self.uptime.clone(),
-            temp: self.temp.iter().map(|temp| temp.convert()).collect(),
+            temp,
         }
     }
 }
