@@ -1,7 +1,10 @@
+## `1.2.3` (2022-03-26)
+### Features
+- Add `temperature`
+
 ## `1.2.2` (2022-03-19)
 ### Features
 - Add `systemd` tips to start deploy on startup for the linux
-
 
 ## `1.2.1` (2022-03-18)
 
