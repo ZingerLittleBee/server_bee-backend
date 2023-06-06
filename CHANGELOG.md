@@ -1,3 +1,7 @@
+## `1.2.5` (2022-06-07)
+### Features
+- Local Api
+
 ## `1.2.4` (2022-06-06)
 ### Deps
 - Update dependencies

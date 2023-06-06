@@ -8,7 +8,7 @@ use actix_web_actors::ws;
 use clap::Parser;
 use log::info;
 use sled::Db;
-use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, version, view_token};
+use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
 use crate::handler::db_handler::db_test;
 use crate::token::communication_token::CommunicationToken;
 
@@ -58,11 +58,12 @@ async fn main() -> std::io::Result<()> {
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
             .service(
-                web::scope("/token")
+                web::scope("/local")
                     // private api localhost only
                     .guard(guard::Host("localhost"))
-                    .service(web::resource("/view").to(view_token))
-                    .service(web::resource("/clear").to(clear_token))
+                    .service(web::resource("/token/view").to(view_token))
+                    .service(web::resource("/token/clear").to(clear_token))
+                    .service(web::resource("/token/rest").to(rest_token_local))
             )
             // enable logger
             .wrap(middleware::Logger::default())

@@ -1,6 +1,7 @@
 use actix_web::{HttpResponse, Responder, post, web, HttpRequest};
 use actix_web::body::BoxBody;
 use actix_web::http::header::ContentType;
+use log::warn;
 use sysinfo::{Pid, ProcessExt, System, SystemExt};
 use serde::{Deserialize, Serialize};
 use sled::Db;
@@ -84,8 +85,9 @@ pub async fn rest_token(_token: CommunicationToken, db: web::Data<Db>, info: web
 }
 
 /// private api localhost only
-// /token/view
+// /local/token/view
 pub async fn view_token(db: web::Data<Db>) -> impl Responder {
+    warn!("Local Event: view_token");
     if let Some(value) = db.get(CommunicationToken::token_key()).unwrap() {
         std::str::from_utf8(&value).unwrap_or_default().to_owned()
     } else {
@@ -93,8 +95,15 @@ pub async fn view_token(db: web::Data<Db>) -> impl Responder {
     }
 }
 
-// /token/clear
+// /local/token/clear
 pub async fn clear_token(db: web::Data<Db>) -> impl Responder {
+    warn!("Local Event: clear_token");
     db.remove(CommunicationToken::token_key()).unwrap();
+    HttpResult::new(true)
+}
+
+pub async fn rest_token_local(db: web::Data<Db> , info: web::Json<TokenInfo>) -> impl Responder {
+    warn!("Local Event: rest_token");
+    db.insert(CommunicationToken::token_key(), info.token.as_bytes()).unwrap();
     HttpResult::new(true)
 }
