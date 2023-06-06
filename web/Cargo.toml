@@ -21,7 +21,7 @@ log = "0.4"
 log4rs = "1.2.0"
 
 futures-util = { version = "0.3.17", default-features = false, features = ["std", "sink"] }
-tokio = { version = "1.13.1", features = ["full"] }
+tokio = { version = "1.24.2", features = ["full"] }
 tokio-stream = "0.1.8"
 
 sysinfo = "0.29.0"
