@@ -10,3 +10,4 @@ pub mod cpu;
 pub mod user;
 pub mod process;
 pub mod simple_process;
+pub mod component;

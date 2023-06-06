@@ -99,6 +99,11 @@ impl Formator {
         let unit = "EiB";
         FormatData::new_with_precision(value / 1024.0, unit, self.precision)
     }
+
+    pub fn format_from_celsius(&self, value: f32) -> FormatData {
+        let unit = "°C";
+        FormatData::new_with_precision(value as f64, unit, self.precision)
+    }
 }
 
 pub trait Convert<V> {
