@@ -103,7 +103,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}${{ matrix.settings.suffix }}
+          name: serverbee-release
           path: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
   upload-to-r2:
     name: Upload Release to R2
@@ -113,6 +113,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
+          name: serverbee-release
           path: release
       - name: Display structure of Upload files
         run: ls -R
