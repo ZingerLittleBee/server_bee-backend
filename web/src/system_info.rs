@@ -17,8 +17,8 @@ use crate::model::{
 };
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
-use sysinfo::{CpuExt, DiskExt, DiskType, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
 use crate::model::component::ComponentTemperature;
+use sysinfo::{CpuExt, DiskExt, DiskKind, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
 use crate::model::simple_process::SimpleProcess;
 use crate::server::{Sort, SortBy, SortOrder};
 use crate::vo::simple_process::SimpleProcessVo;
@@ -92,9 +92,9 @@ impl SystemInfo {
     pub fn get_disk_usage(&mut self) -> Usage {
         let mut disk_usage: Usage = Default::default();
         for disk in self.sys.disks() {
-            match disk.type_() {
-                DiskType::HDD => {}
-                DiskType::SSD => {}
+            match disk.kind() {
+                DiskKind::HDD => {}
+                DiskKind::SSD => {}
                 _ => continue,
             }
             disk_usage.free += disk.available_space();
