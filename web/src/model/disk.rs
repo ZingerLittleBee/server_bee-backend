@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::{Disk, DiskExt, DiskType, DiskUsage};
+use sysinfo::{Disk, DiskExt, DiskKind, DiskUsage};
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
 pub struct DiskIO {
@@ -39,10 +39,10 @@ pub struct DiskDetail {
 impl From<&Disk> for DiskDetail {
     fn from(disk: &Disk) -> Self {
         DiskDetail {
-            disk_type: match disk.type_() {
-                DiskType::HDD => "HDD".to_string(),
-                DiskType::SSD => "SSD".to_string(),
-                DiskType::Unknown(_) => "Unknown".to_string(),
+            disk_type: match disk.kind() {
+                DiskKind::HDD => "HDD".to_string(),
+                DiskKind::SSD => "SSD".to_string(),
+                DiskKind::Unknown(_) => "Unknown".to_string(),
             },
             device_name: disk.name().to_str().unwrap_or_default().to_string(),
             file_system: String::from_utf8(disk.file_system().to_vec()).unwrap_or_default(),
