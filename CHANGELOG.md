@@ -1,3 +1,7 @@
+## `1.2.4` (2022-06-06)
+### Deps
+- Update dependencies
+
 ## `1.2.3` (2022-03-26)
 ### Features
 - Add `temperature`
