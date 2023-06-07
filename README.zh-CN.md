@@ -93,6 +93,24 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -p 8081 -a false -u true
 ```
 
+# 身份验证
+以下接口只能从 `localhost` 访问
+## View Token
+```bash
+curl http://localhost:9527/local/token/view
+```
+
+## 重设 Token
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"token": "youNewToken"}' http://127.0.0.1:9527/local/token/rest
+```
+
+## 清空 Token
+```bash
+curl http://localhost:9527/local/token/clear
+```
+
+
 # 从源码编译
 ```bash
 cargo build --release

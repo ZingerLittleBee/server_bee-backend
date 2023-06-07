@@ -93,6 +93,23 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -p 8081 -a false -u true
 ```
 
+# Auth
+The following interfaces can only be accessed from `localhost`
+## View Token
+```bash
+curl http://localhost:9527/local/token/view
+```
+
+## Rest Token
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"token": "youNewToken"}' http://127.0.0.1:9527/local/token/rest
+```
+
+## Clear Token
+```bash
+curl http://localhost:9527/local/token/clear
+```
+
 # Compile from source
 ```bash
 cargo build --release
