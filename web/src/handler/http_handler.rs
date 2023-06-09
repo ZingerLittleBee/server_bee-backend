@@ -102,6 +102,7 @@ pub async fn clear_token(db: web::Data<Db>) -> impl Responder {
     HttpResult::new(true)
 }
 
+// /local/token/rest
 pub async fn rest_token_local(db: web::Data<Db> , info: web::Json<TokenInfo>) -> impl Responder {
     warn!("Local Event: rest_token");
     db.insert(CommunicationToken::token_key(), info.token.as_bytes()).unwrap();

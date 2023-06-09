@@ -123,4 +123,8 @@ and then you can find the binary file in `target/release`
 SEE [CHANGELOG](CHANGELOG.md)
 
 # Read More
-Please visit https://serverbee.app/
+[Office Website](https://serverbee.app/)
+
+[Document](https://docs.serverbee.app/)
+
+[App Store](https://apps.apple.com/us/app/serverbee/id6443553714)

@@ -126,4 +126,9 @@ cargo build --release
 [CHANGELOG](CHANGELOG.md)
 
 # 了解更多
-请访问 https://serverbee.app/
+# Read More
+[官网](https://serverbee.app/)
+
+[文档](https://docs.serverbee.app/)
+
+[App Store](https://apps.apple.com/us/app/serverbee/id6443553714)
