@@ -38,18 +38,38 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 # 如何使用
 
 ## 安装
+### Docker
+> 详细教程请访问文档链接 👉 [Docker](https://docs.serverbee.app/usage/docker)
+
+```bash
+docker run -d \
+  -v /proc:/proc \
+  --privileged=true \
+  --restart unless-stopped \
+  --network=host \
+  --name=serverbee-web \
+  zingerbee/serverbee-web -p 9527
+```
+
 ### Linux、MacOS
+> 👇 详细教程请访问如下文档链接
+  > - [Linux](https://docs.serverbee.app/usage/linux)
+  > - [macOS](https://docs.serverbee.app/usage/macos)
 
 从 [Release 页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 获取最新版本下载地址
 
 ```bash
+# (可选)
+mkdir serverbee
+cd serverbee
+
 # 注意根据系统架构下载对应版本
 # macOS
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.2.1/serverbee-deploy-x86_64-apple-darwin.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.2.6/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 # Linux
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.2.1/serverbee-deploy-x86_64-unknown-linux-musl.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.2.6/serverbee-deploy-x86_64-unknown-linux-musl.zip
 unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # 默认端口是 9527
@@ -57,6 +77,7 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ```
 
 ### Windows
+> 详细教程请访问文档链接 👉 [Windows](https://docs.serverbee.app/usage/windows)
 
 1. 从 [release 页面](https://github.com/ZingerLittleBee/server_bee-backend/releases) 下载最新版本 `serverbee-deploy-x86_64-pc-windows-gnu.zip`
 

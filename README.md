@@ -38,19 +38,38 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 # How to use
 
 ## Installation
+### Docker
+> The installation tutorial is located in the documentation 👉 [Docker](https://docs.serverbee.app/en/usage/docker)
 
-### Linux、MacOS
+```bash
+docker run -d \
+  -v /proc:/proc \
+  --privileged=true \
+  --restart unless-stopped \
+  --network=host \
+  --name=serverbee-web \
+  zingerbee/serverbee-web -p 9527
+```
+
+### Linux、macOS
+> 👇 The installation tutorial is located in the documentation
+  > - [Linux](https://docs.serverbee.app/en/usage/linux)
+  > - [macOS](https://docs.serverbee.app/en/usage/macos)
 
 From [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releases) get the latest version download address
 
 ```bash
+# (optional)
+mkdir serverbee
+cd serverbee
+
 # tips: download the corresponding version according to the system architecture
 # macOS
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.5/serverbee-deploy-x86_64-apple-darwin.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.2.6/serverbee-deploy-x86_64-apple-darwin.zip
 unzip serverbee-deploy-x86_64-apple-darwin.zip
 
 # Linux
-wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.1.5/serverbee-deploy-x86_64-unknown-linux-musl.zip
+wget https://github.com/ZingerLittleBee/server_bee-backend/releases/download/v1.2.6/serverbee-deploy-x86_64-unknown-linux-musl.zip
 unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 
 # default port is 9527
@@ -58,6 +77,9 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ```
 
 ### Windows
+> The installation tutorial is located in the documentation 👉 [Windows](https://docs.serverbee.app/en/usage/windows)
+
+
 1. Download the latest version `serverbee-deploy-x86_64-pc-windows-gnu.zip` from [Release Page](https://github.com/ZingerLittleBee/server_bee-backend/releases)
 
 2. unzip serverbee-deploy-x86_64-pc-windows-gnu.zip
@@ -125,6 +147,6 @@ SEE [CHANGELOG](CHANGELOG.md)
 # Read More
 [Office Website](https://serverbee.app/)
 
-[Document](https://docs.serverbee.app/)
+[Document](https://docs.serverbee.app/en/)
 
 [App Store](https://apps.apple.com/us/app/serverbee/id6443553714)
