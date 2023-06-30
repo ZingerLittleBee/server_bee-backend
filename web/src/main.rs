@@ -20,6 +20,7 @@ mod system_info;
 mod vo;
 mod handler;
 mod token;
+mod report;
 
 use self::server::MyWebSocket;
 
