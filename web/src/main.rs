@@ -10,6 +10,7 @@ use log::info;
 use sled::Db;
 use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
 use crate::handler::db_handler::db_test;
+use crate::report::Reporter;
 use crate::token::communication_token::CommunicationToken;
 
 mod cli;
@@ -46,6 +47,8 @@ async fn main() -> std::io::Result<()> {
     info!("starting HTTP server at http://localhost:{}", port);
 
     let db = init_sled_db().await;
+
+    Reporter::start().await;
 
     HttpServer::new(move || {
         App::new()
