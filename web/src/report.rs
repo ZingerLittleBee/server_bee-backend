@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use async_trait::async_trait;
 use ezsockets::ClientConfig;
-use log::info;
+use log::{debug, info};
 use serde_json::json;
 use tokio::sync::RwLock;
 use tokio::time::Duration;
@@ -14,8 +14,13 @@ enum ReportMode {
     Interval,
 }
 
+#[derive(Debug)]
+enum Call {
+    Start
+}
+
 struct Client {
-    sys: SystemInfo,
+    sys: Arc<RwLock<SystemInfo>>,
     mode: Arc<RwLock<ReportMode>>,
     cancel_token: CancellationToken,
     handle: ezsockets::Client<Self>,
@@ -26,7 +31,7 @@ impl Client {
     pub fn new(handle: ezsockets::Client<Self>, interval: Option<Duration>) -> Self {
         Self {
             handle,
-            sys: SystemInfo::new(),
+            sys: Arc::new(RwLock::new(SystemInfo::new())),
             mode: Arc::new(RwLock::new(ReportMode::Interval)),
             cancel_token: CancellationToken::new(),
             interval: Arc::new(RwLock::new(interval.unwrap_or(Duration::from_secs(60)))),
@@ -37,6 +42,7 @@ impl Client {
         let mode = self.mode.clone();
         let cancel_token = self.cancel_token.clone();
         let handle = self.handle.clone();
+        let sys = self.sys.clone();
         tokio::spawn(async move {
             loop {
                 let sleep_duration = if *mode.read().await == ReportMode::Realtime {
@@ -44,14 +50,14 @@ impl Client {
                 } else {
                     *interval.read().await
                 };
-                println!("sleep_duration: {:?}", sleep_duration);
                 tokio::select! {
                 _ = cancel_token.cancelled() => {
-                    info!("cancelled");
+                    debug!("task sleep_duration: {sleep_duration:?} cancelled");
                     break;
                 }
                 _ = tokio::time::sleep(sleep_duration) => {
-                    info!("sending message");
+                    let fusion = sys.write().await.get_full_fusion();
+                    info!("sending message: {fusion:?}");
                     handle.text(json!({"event": "test","data":"1231241222"}).to_string());
                 }
             }
@@ -74,7 +80,7 @@ impl Client {
 
 #[async_trait]
 impl ezsockets::ClientExt for Client {
-    type Call = ();
+    type Call = Call;
 
     async fn on_text(&mut self, text: String) -> Result<(), ezsockets::Error> {
         info!("received message: {text}");
@@ -87,9 +93,9 @@ impl ezsockets::ClientExt for Client {
     }
 
     async fn on_call(&mut self, call: Self::Call) -> Result<(), ezsockets::Error> {
-        let () = call;
-        println!("on_call");
-        self.start();
+        match call {
+            Call::Start => self.start(),
+        }
         Ok(())
     }
 }
@@ -103,6 +109,6 @@ impl Reporter {
         tokio::spawn(async move {
             future.await.unwrap();
         });
-        handle.call(());
+        handle.call(Call::Start);
     }
 }
