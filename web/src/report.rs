@@ -1,12 +1,13 @@
-use std::sync::Arc;
+use crate::system_info::SystemInfo;
+use crate::vo::fusion::Fusion;
 use async_trait::async_trait;
 use ezsockets::ClientConfig;
 use log::{debug, info};
-use serde_json::json;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::Duration;
 use tokio_util::sync::CancellationToken;
-use crate::system_info::SystemInfo;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum ReportMode {
@@ -16,7 +17,13 @@ enum ReportMode {
 
 #[derive(Debug)]
 enum Call {
-    Start
+    Start,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct EventModel {
+    event: String,
+    data: Fusion,
 }
 
 struct Client {
@@ -51,16 +58,22 @@ impl Client {
                     *interval.read().await
                 };
                 tokio::select! {
-                _ = cancel_token.cancelled() => {
-                    debug!("task sleep_duration: {sleep_duration:?} cancelled");
-                    break;
+                    _ = cancel_token.cancelled() => {
+                        debug!("task sleep_duration: {sleep_duration:?} cancelled");
+                        break;
+                    }
+                    _ = tokio::time::sleep(sleep_duration) => {
+                        let fusion = sys.write().await.get_fusion_with_full_process();
+                        debug!("sending message: {fusion:?}");
+                        let event = EventModel {
+                            event: "report".into(),
+                            data: fusion,
+                        };
+                        let json_str = serde_json::to_string(&event).unwrap();
+                        info!("json_str: {json_str}");
+                        handle.text(json_str);
+                    }
                 }
-                _ = tokio::time::sleep(sleep_duration) => {
-                    let fusion = sys.write().await.get_full_fusion();
-                    info!("sending message: {fusion:?}");
-                    handle.text(json!({"event": "test","data":"1231241222"}).to_string());
-                }
-            }
             }
         });
     }
@@ -73,8 +86,9 @@ impl Client {
         *self.interval.write().await = interval;
     }
 
-    async fn cancel(&mut self) {
+    fn cancel(&mut self) {
         self.cancel_token.cancel();
+        self.cancel_token = CancellationToken::new();
     }
 }
 
@@ -84,6 +98,11 @@ impl ezsockets::ClientExt for Client {
 
     async fn on_text(&mut self, text: String) -> Result<(), ezsockets::Error> {
         info!("received message: {text}");
+        match text.as_str() {
+            "realtime" => self.set_mode(ReportMode::Realtime).await,
+            "interval" => self.set_mode(ReportMode::Interval).await,
+            _ => {}
+        };
         Ok(())
     }
 
@@ -98,17 +117,26 @@ impl ezsockets::ClientExt for Client {
         }
         Ok(())
     }
+
+    async fn on_connect(&mut self) -> Result<(), ezsockets::Error> {
+        self.start();
+        Ok(())
+    }
+
+    async fn on_close(&mut self) -> Result<(), ezsockets::Error> {
+        self.cancel();
+        Ok(())
+    }
 }
 
 pub struct Reporter;
 
 impl Reporter {
     pub async fn start() {
-        let config = ClientConfig::new("ws://127.0.0.1:9876");
-        let (handle, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
+        let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
+        let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
         tokio::spawn(async move {
             future.await.unwrap();
         });
-        handle.call(Call::Start);
     }
 }

@@ -21,6 +21,7 @@ use crate::model::component::ComponentTemperature;
 use sysinfo::{CpuExt, DiskExt, DiskKind, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
 use crate::model::simple_process::SimpleProcess;
 use crate::server::{Sort, SortBy, SortOrder};
+use crate::vo::process::ProcessVo;
 use crate::vo::simple_process::SimpleProcessVo;
 
 pub struct SystemInfo {
@@ -248,6 +249,10 @@ impl SystemInfo {
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
+    pub fn get_full_process(&mut self) -> Vec<Process> {
+        self.sys.processes().iter().map(|x| x.1.into()).collect()
+    }
+
     pub fn get_process_by_id(&mut self, pid: String) -> Option<Process> {
         self.sys.process(pid.parse().unwrap()).map(|x| x.into())
     }
@@ -309,6 +314,19 @@ impl SystemInfo {
     pub fn get_less_fusion(&mut self) -> Fusion {
         self.sys.refresh_all();
         Fusion::new_less(self.get_overview().convert())
+    }
+
+    pub fn get_fusion_with_full_process(&mut self) -> Fusion {
+        self.sys.refresh_all();
+
+        let processes_vo: Vec<ProcessVo> = self.get_full_process().iter().map(|x| x.convert()).collect();
+
+        Fusion::new_full_process(
+            self.get_overview().convert(),
+            Option::from(self.get_os_overview().convert()),
+            Option::from(self.get_realtime_status().convert()),
+            Option::from(processes_vo),
+        )
     }
 
     pub fn get_process_fusion(&mut self, pid: Option<String>, sort: Option<Sort>) -> Fusion {
