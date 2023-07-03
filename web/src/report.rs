@@ -8,6 +8,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::Duration;
 use tokio_util::sync::CancellationToken;
+use crate::vo::formator::Convert;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum ReportMode {
@@ -97,7 +98,7 @@ impl ezsockets::ClientExt for Client {
     type Call = Call;
 
     async fn on_text(&mut self, text: String) -> Result<(), ezsockets::Error> {
-        info!("received message: {text}");
+        debug!("received text message: {text}");
         match text.as_str() {
             "realtime" => self.set_mode(ReportMode::Realtime).await,
             "interval" => self.set_mode(ReportMode::Interval).await,
@@ -107,7 +108,7 @@ impl ezsockets::ClientExt for Client {
     }
 
     async fn on_binary(&mut self, bytes: Vec<u8>) -> Result<(), ezsockets::Error> {
-        info!("received bytes: {bytes:?}");
+        debug!("received bytes: {bytes:?}");
         Ok(())
     }
 
@@ -119,11 +120,13 @@ impl ezsockets::ClientExt for Client {
     }
 
     async fn on_connect(&mut self) -> Result<(), ezsockets::Error> {
+        info!("report server connected successfully");
         self.start();
         Ok(())
     }
 
     async fn on_close(&mut self) -> Result<(), ezsockets::Error> {
+        info!("report server closed");
         self.cancel();
         Ok(())
     }
@@ -133,6 +136,17 @@ pub struct Reporter;
 
 impl Reporter {
     pub async fn start() {
+        let mut sys = SystemInfo::new();
+
+        let device_info = sys.get_device_info().convert();
+
+        info!("device_info: {device_info:?}");
+
+        // let mut client = awc::Client::default();
+        // let response = client.post("http://httpbin.org/post")
+        //     .send_json(&request)
+        //     .await.unwrap();
+
         let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
         let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
         tokio::spawn(async move {

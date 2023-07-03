@@ -60,7 +60,7 @@ impl Config {
             .appender(Appender::builder().build("logfile", Box::new(logfile)))
             .build(Root::builder().appender("stdout")
                 .appender("logfile")
-                .build(LevelFilter::Info))
+                .build(LevelFilter::Debug))
             .unwrap();
 
         log4rs::init_config(log_config).unwrap();

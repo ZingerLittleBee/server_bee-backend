@@ -9,3 +9,4 @@ pub mod usage;
 pub mod user;
 pub mod simple_process;
 pub mod component;
+pub mod device_info;

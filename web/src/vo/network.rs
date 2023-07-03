@@ -1,4 +1,4 @@
-use crate::model::network::{NetworkDetail, NetworkIO};
+use crate::model::network::{NetworkDetail, NetworkIO, NetworkInfo};
 use crate::vo::formator::{Convert, FormatData, Formator};
 use serde::{Deserialize, Serialize};
 
@@ -51,6 +51,28 @@ impl Convert<NetworkDetailVo> for NetworkDetail {
                 formator.format_from_byte(self.errors_on_transmitted),
                 formator.format_from_byte(self.total_errors_on_transmitted),
             ],
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Default, Debug)]
+pub struct NetworkInfoVo {
+    name: String,
+    // ip: String,
+    mac: String,
+    rx: FormatData,
+    tx: FormatData,
+}
+
+impl Convert<NetworkInfoVo> for NetworkInfo {
+    fn convert(&self) -> NetworkInfoVo {
+        let formator = Formator::new();
+        NetworkInfoVo {
+            name: self.name.clone(),
+            // ip: self.ip.clone(),
+            mac: self.mac.clone(),
+            rx: formator.format_from_byte(self.rx.clone()),
+            tx: formator.format_from_byte(self.tx.clone()),
         }
     }
 }

@@ -5,12 +5,13 @@ use std::str::FromStr;
 use systemstat::{Platform, System as Systemstat};
 
 use crate::model::disk::{DiskDetail, DiskIO};
-use crate::model::network::{NetworkDetail, NetworkIO};
+use crate::model::network::{NetworkDetail, NetworkInfo, NetworkIO};
 use crate::model::overview::{OsOverview, Overview};
 use crate::model::process::Process;
 use crate::model::realtime_status::RealtimeStatus;
 use crate::model::usage::Usage;
 use crate::model::user::User;
+use crate::model::device_info::DeviceInfo;
 use crate::model::{
     cpu::{CpuInfo, CpuUsage},
     memory::MemoryUsage,
@@ -245,6 +246,10 @@ impl SystemInfo {
         NetworkDetail::new_list(self.sys.networks())
     }
 
+    pub fn get_network_info(&mut self) -> Vec<NetworkInfo> {
+        NetworkInfo::from_networks(self.sys.networks())
+    }
+
     pub fn get_process(&mut self) -> Vec<SimpleProcess> {
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
@@ -409,5 +414,14 @@ impl SystemInfo {
                 }
             },
         }
+    }
+
+    pub fn get_device_info(&mut self) -> DeviceInfo {
+        let os_overview = self.get_os_overview();
+        let network_info = self.get_network_info();
+        let disk_detail = self.get_disk_detail();
+        let memory_info = self.get_mem_usage();
+        let version = env!("CARGO_PKG_VERSION").to_string();
+        DeviceInfo::new(os_overview, memory_info, network_info, disk_detail, version)
     }
 }
