@@ -12,3 +12,4 @@ pub mod process;
 pub mod simple_process;
 pub mod component;
 pub mod device_info;
+pub mod result;

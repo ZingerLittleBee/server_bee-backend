@@ -1,7 +1,6 @@
 use crate::system_info::SystemInfo;
 use crate::vo::fusion::Fusion;
 use async_trait::async_trait;
-use ezsockets::ClientConfig;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -9,6 +8,7 @@ use tokio::sync::RwLock;
 use tokio::time::Duration;
 use tokio_util::sync::CancellationToken;
 use crate::vo::formator::Convert;
+use crate::vo::result::HttpResult;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum ReportMode {
@@ -142,15 +142,32 @@ impl Reporter {
 
         info!("device_info: {device_info:?}");
 
-        // let mut client = awc::Client::default();
-        // let response = client.post("http://httpbin.org/post")
-        //     .send_json(&request)
-        //     .await.unwrap();
+        let client = awc::Client::default();
+        let mut response = match client.post("http://127.0.0.1:3001/client/register")
+            .send_json(&device_info)
+            .await {
+            Ok(res) => res,
+            Err(err) => {
+                eprintln!("Error while sending request: {:?}", err);
+                return; // Or handle error accordingly.
+            }
+        };
 
-        let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
-        let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
-        tokio::spawn(async move {
-            future.await.unwrap();
-        });
+        let response_body = match response.json::<HttpResult>().await {
+            Ok(res) => res,
+            Err(err) => {
+                eprintln!("Error while parsing JSON: {:?}", err);
+                return; // Or handle error accordingly.
+            }
+        };
+
+        info!("response: {response_body:?}");
+
+
+        // let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
+        // let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
+        // tokio::spawn(async move {
+        //     future.await.unwrap();
+        // });
     }
 }
