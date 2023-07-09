@@ -1,5 +1,6 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
+use std::sync::Arc;
 use cli::Args;
 use crate::config::Config;
 
@@ -10,7 +11,6 @@ use log::info;
 use sled::Db;
 use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
 use crate::handler::db_handler::db_test;
-use crate::report::Reporter;
 use crate::token::communication_token::CommunicationToken;
 
 mod cli;

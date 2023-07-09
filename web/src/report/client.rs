@@ -7,8 +7,6 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::Duration;
 use tokio_util::sync::CancellationToken;
-use crate::vo::formator::Convert;
-use crate::vo::result::HttpResult;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum ReportMode {
@@ -33,16 +31,18 @@ struct Client {
     cancel_token: CancellationToken,
     handle: ezsockets::Client<Self>,
     interval: Arc<RwLock<Duration>>,
+    token: String
 }
 
 impl Client {
-    pub fn new(handle: ezsockets::Client<Self>, interval: Option<Duration>) -> Self {
+    pub fn new(handle: ezsockets::Client<Self>, interval: Option<Duration>, token: String) -> Self {
         Self {
             handle,
             sys: Arc::new(RwLock::new(SystemInfo::new())),
             mode: Arc::new(RwLock::new(ReportMode::Interval)),
             cancel_token: CancellationToken::new(),
             interval: Arc::new(RwLock::new(interval.unwrap_or(Duration::from_secs(60)))),
+            token
         }
     }
     pub fn start(&mut self) {
@@ -129,45 +129,5 @@ impl ezsockets::ClientExt for Client {
         info!("report server closed");
         self.cancel();
         Ok(())
-    }
-}
-
-pub struct Reporter;
-
-impl Reporter {
-    pub async fn start() {
-        let mut sys = SystemInfo::new();
-
-        let device_info = sys.get_device_info().convert();
-
-        info!("device_info: {device_info:?}");
-
-        let client = awc::Client::default();
-        let mut response = match client.post("http://127.0.0.1:3001/client/register")
-            .send_json(&device_info)
-            .await {
-            Ok(res) => res,
-            Err(err) => {
-                eprintln!("Error while sending request: {:?}", err);
-                return; // Or handle error accordingly.
-            }
-        };
-
-        let response_body = match response.json::<HttpResult>().await {
-            Ok(res) => res,
-            Err(err) => {
-                eprintln!("Error while parsing JSON: {:?}", err);
-                return; // Or handle error accordingly.
-            }
-        };
-
-        info!("response: {response_body:?}");
-
-
-        // let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
-        // let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
-        // tokio::spawn(async move {
-        //     future.await.unwrap();
-        // });
     }
 }
