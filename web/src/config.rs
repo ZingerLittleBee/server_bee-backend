@@ -15,6 +15,7 @@ const LOG_PATH: &str = "log_path";
 const PORT: &str = "port";
 const TOKEN: &str = "token";
 const SERVER_HOST: &str = "server_host";
+const DEFAULT_PORT: u16 = 9527;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
 struct WebConfig {
@@ -59,15 +60,18 @@ impl Config {
         let port = args.port.unwrap_or_else(|| {
             db.get(PORT)
                 .unwrap()
-                .map(|v| String::from_utf8(v.to_vec()).unwrap())
-                .unwrap_or_default()
-                .parse::<u16>()
-                .unwrap()
+                .map(|v| {
+                    String::from_utf8(v.to_vec())
+                        .map(|s| s.parse::<u16>().unwrap())
+                        .unwrap()
+                })
+                .unwrap_or(DEFAULT_PORT)
         });
         let token: Option<String>;
 
         if args.token.is_none() {
-            token = db.get(TOKEN)
+            token = db
+                .get(TOKEN)
                 .unwrap()
                 .map(|v| String::from_utf8(v.to_vec()).unwrap());
         } else {
@@ -76,7 +80,8 @@ impl Config {
 
         let server_host: Option<String>;
         if args.server_host.is_none() {
-            server_host = db.get(SERVER_HOST)
+            server_host = db
+                .get(SERVER_HOST)
                 .unwrap()
                 .map(|v| String::from_utf8(v.to_vec()).unwrap());
         } else {
@@ -89,10 +94,7 @@ impl Config {
             web_config: WebConfig {
                 server: Port { port },
             },
-            client_config: ClientConfig {
-                token,
-                server_host,
-            },
+            client_config: ClientConfig { token, server_host },
         };
         config.init_logging();
         config

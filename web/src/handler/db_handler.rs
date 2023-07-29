@@ -1,13 +1,15 @@
-use actix_web::{HttpResponse, web};
-use sled::Db;
-use crate::token::communication_token::CommunicationToken;
+use crate::config::Config;
+use actix_web::{web, HttpResponse};
+use std::sync::{Arc, RwLock};
 
-pub async fn db_test(_token: CommunicationToken, sled_db: web::Data<Db>) -> HttpResponse {
-    sled_db.insert(b"key", b"value").unwrap();
+pub async fn db_test(config: web::Data<Arc<RwLock<Config>>>) -> HttpResponse {
+    let host = config.read().unwrap().server_host();
+    HttpResponse::Ok().body(format!("value = {:?}", host))
+}
 
-    if let Some(value) = sled_db.get(b"key").unwrap() {
-        HttpResponse::Ok().body(format!("value = {:?}", std::str::from_utf8(&value).unwrap()))
-    } else {
-        HttpResponse::NotFound().finish()
-    }
+pub async fn config_test(
+    config: web::Data<Arc<RwLock<Config>>>,
+) -> HttpResponse {
+    config.write().unwrap().set_server_host("https://localhost:3001").unwrap();
+    HttpResponse::Ok().body(format!("ok"))
 }

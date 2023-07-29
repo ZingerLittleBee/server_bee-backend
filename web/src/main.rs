@@ -1,15 +1,19 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
+use std::clone;
+use std::sync::{Arc, RwLock};
 use cli::Args;
 use crate::config::Config;
 
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, guard};
+use actix_web::web::{route, service, to};
 use actix_web_actors::ws;
 use clap::Parser;
 use log::info;
 use sled::Db;
 use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
-use crate::handler::db_handler::db_test;
+use crate::handler::db_handler::{config_test, db_test};
+use crate::report::reporter::Reporter;
 use crate::token::communication_token::CommunicationToken;
 
 mod cli;
@@ -46,15 +50,19 @@ async fn main() -> std::io::Result<()> {
 
     info!("starting HTTP server at http://localhost:{}", port);
 
-    // Reporter::start().await;
+    let config = Arc::new(RwLock::new(config));
+
+    Reporter::start().await;
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db.clone()))
+            .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
             .service(web::resource("/").to(index))
             .service(web::resource("/version").to(version))
             .service(web::resource("/db").to(db_test))
+            .service(web::resource("/config").to(config_test))
             .service(kill_process)
             .service(rest_token)
             // websocket route
