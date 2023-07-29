@@ -2,7 +2,7 @@ use crate::system_info::SystemInfo;
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::result::RegisterResult;
-use log::{debug, error, info};
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -26,6 +26,10 @@ impl Report {
         let timestamp = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
         let secs = timestamp.as_secs();
         secs
+    }
+
+    pub fn set_token(&mut self, token: String) {
+        self.token = token;
     }
 }
 

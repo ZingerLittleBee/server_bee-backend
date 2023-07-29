@@ -10,7 +10,6 @@ use log::info;
 use sled::Db;
 use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
 use crate::handler::db_handler::db_test;
-use crate::report::reporter::Reporter;
 use crate::token::communication_token::CommunicationToken;
 
 mod cli;
@@ -30,7 +29,7 @@ async fn echo_ws(_token: CommunicationToken, req: HttpRequest, stream: web::Payl
     ws::start(MyWebSocket::new(), &req, stream)
 }
 
-async fn init_sled_db() -> Db {
+fn init_sled_db() -> Db {
     sled::open("db").unwrap()
 }
 
@@ -39,16 +38,15 @@ async fn main() -> std::io::Result<()> {
 
     let args = Args::parse();
 
-    Config::init_logging(args.log_path);
+    let db = init_sled_db();
 
-    let port =
-        args.port.unwrap_or_else(Config::get_server_port);
+    let config = Config::new(db.clone(), args);
+
+    let port = config.server_port();
 
     info!("starting HTTP server at http://localhost:{}", port);
 
-    let db = init_sled_db().await;
-
-    Reporter::start().await;
+    // Reporter::start().await;
 
     HttpServer::new(move || {
         App::new()
