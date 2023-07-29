@@ -1,16 +1,14 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
-use std::clone;
 use std::sync::{Arc, RwLock};
 use cli::Args;
-use crate::config::Config;
 
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, guard};
-use actix_web::web::{route, service, to};
 use actix_web_actors::ws;
 use clap::Parser;
 use log::info;
 use sled::Db;
+use crate::config::config::Config;
 use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
 use crate::handler::db_handler::{config_test, db_test};
 use crate::report::reporter::Reporter;
@@ -52,7 +50,7 @@ async fn main() -> std::io::Result<()> {
 
     let config = Arc::new(RwLock::new(config));
 
-    Reporter::start().await;
+    Reporter::new(Arc::clone(&config)).await;
 
     HttpServer::new(move || {
         App::new()

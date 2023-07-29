@@ -10,12 +10,7 @@ use sled::Db;
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
-
-const LOG_PATH: &str = "log_path";
-const PORT: &str = "port";
-const TOKEN: &str = "token";
-const SERVER_HOST: &str = "server_host";
-const DEFAULT_PORT: u16 = 9527;
+use crate::config::constant::{APP_TOKEN, CLIENT_TOKEN, DEFAULT_PORT, LOG_PATH, PORT, SERVER_HOST};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
 struct WebConfig {
@@ -36,6 +31,11 @@ struct ClientConfig {
     server_host: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+struct AppConfig {
+    token: Option<String>,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
 struct Port {
     port: u16,
@@ -47,6 +47,7 @@ pub struct Config {
     log_path: PathBuf,
     web_config: WebConfig,
     client_config: ClientConfig,
+    app_config: AppConfig,
 }
 
 impl Config {
@@ -67,15 +68,25 @@ impl Config {
                 })
                 .unwrap_or(DEFAULT_PORT)
         });
-        let token: Option<String>;
 
-        if args.token.is_none() {
-            token = db
-                .get(TOKEN)
+        let app_token: Option<String>;
+        if args.app_token.is_none() {
+            app_token = db
+                .get(APP_TOKEN)
                 .unwrap()
                 .map(|v| String::from_utf8(v.to_vec()).unwrap());
         } else {
-            token = args.token;
+            app_token = args.app_token;
+        }
+
+        let client_token: Option<String>;
+        if args.client_token.is_none() {
+            client_token = db
+                .get(CLIENT_TOKEN)
+                .unwrap()
+                .map(|v| String::from_utf8(v.to_vec()).unwrap());
+        } else {
+            client_token = args.client_token;
         }
 
         let server_host: Option<String>;
@@ -94,9 +105,11 @@ impl Config {
             web_config: WebConfig {
                 server: Port { port },
             },
-            client_config: ClientConfig { token, server_host },
+            client_config: ClientConfig { token: client_token, server_host },
+            app_config: AppConfig { token: app_token },
         };
         config.init_logging();
+        config.persistence();
         config
     }
 
@@ -108,7 +121,11 @@ impl Config {
         self.web_config.server.port
     }
 
-    pub fn token(&self) -> Option<String> {
+    pub fn app_token(&self) -> Option<String> {
+        self.app_config.token.clone()
+    }
+
+    pub fn client_token(&self) -> Option<String> {
         self.client_config.token.clone()
     }
 
@@ -180,9 +197,15 @@ impl Config {
         Config::current_dir().join("web.log")
     }
 
+    pub fn set_app_token(&mut self, token: &str) -> Result<()> {
+        self.app_config.token = Some(token.to_string());
+        self.db.insert(APP_TOKEN, token.as_bytes())?;
+        Ok(())
+    }
+
     pub fn set_client_token(&mut self, token: &str) -> Result<()> {
         self.client_config.token = Some(token.to_string());
-        self.db.insert(TOKEN, token.as_bytes())?;
+        self.db.insert(CLIENT_TOKEN, token.as_bytes())?;
         Ok(())
     }
 
@@ -190,5 +213,20 @@ impl Config {
         self.client_config.server_host = Some(server_host.to_string());
         self.db.insert(SERVER_HOST, server_host.as_bytes())?;
         Ok(())
+    }
+
+    fn persistence(&self) {
+        self.db.insert(PORT, self.web_config.server.port.to_string().as_bytes()).unwrap();
+        self.db.insert(LOG_PATH, self.log_path.to_str().unwrap().as_bytes()).unwrap();
+        if let Some(token) = &self.app_config.token {
+            self.db.insert(APP_TOKEN, token.as_bytes()).unwrap();
+        }
+        if let Some(token) = &self.client_config.token {
+            self.db.insert(CLIENT_TOKEN, token.as_bytes()).unwrap();
+        }
+        if let Some(server_host) = &self.client_config.server_host {
+            self.db.insert(SERVER_HOST, server_host.as_bytes()).unwrap();
+        }
+
     }
 }

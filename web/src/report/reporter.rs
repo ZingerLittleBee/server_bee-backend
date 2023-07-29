@@ -1,10 +1,12 @@
+use std::sync::{Arc, RwLock};
 use crate::system_info::SystemInfo;
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::result::RegisterResult;
-use log::{error, info};
+use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
+use crate::config::config::Config;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Report {
@@ -33,43 +35,36 @@ impl Report {
     }
 }
 
-pub struct Reporter;
+pub struct Reporter {
+    config: Arc<RwLock<Config>>
+}
 
 impl Reporter {
-    pub async fn start() {
+    pub async fn new(config: Arc<RwLock<Config>>) -> Self {
+        let reporter = Reporter {
+            config
+        };
+        reporter.start().await;
+        reporter
+    }
+
+    pub async fn start(&self) {
         // let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
         // let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
         // tokio::spawn(async move {
         //     future.await.unwrap();
         // });
-        let token = Reporter::get_token().await;
-        info!("token: {}", token)
-    }
-
-    async fn get_token() -> String {
-        let db = sled::open("auth").unwrap();
-        let token = db.get("token").unwrap();
-        match token {
-            Some(t) => {
-                let token = String::from_utf8(t.to_vec()).unwrap();
-                match Reporter::check_token(token.clone()).await {
-                    Ok(_) => token,
-                    Err(_) => {
-                        let token = Reporter::register().await;
-                        db.insert("token", token.as_str()).unwrap();
-                        token
-                    }
-                }
-            },
-            None => {
-                let token = Reporter::register().await;
-                db.insert("token", token.as_str()).unwrap();
-                token
-            }
+        let token = self.config.read().unwrap().client_token();
+        let server_host = self.config.read().unwrap().server_host();
+        if token.is_none() || server_host.is_none() {
+            warn!("Token or server host is empty, will not start report thread!");
+            return;
         }
+        info!("token: {:?}", token)
     }
 
-    async fn check_token(token: String) -> Result<(), actix_web::Error> {
+    async fn check_token(&self, token: String) -> Result<(), actix_web::Error> {
+        let server_host = self.config.read().unwrap().server_host();
         let client = awc::Client::default();
         match client
             .get("http://localhost:3000/client/verify")

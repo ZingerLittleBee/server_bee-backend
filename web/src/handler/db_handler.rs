@@ -1,6 +1,6 @@
-use crate::config::Config;
 use actix_web::{web, HttpResponse};
 use std::sync::{Arc, RwLock};
+use crate::config::config::Config;
 
 pub async fn db_test(config: web::Data<Arc<RwLock<Config>>>) -> HttpResponse {
     let host = config.read().unwrap().server_host();
