@@ -10,6 +10,6 @@ pub async fn db_test(config: web::Data<Arc<RwLock<Config>>>) -> HttpResponse {
 pub async fn config_test(
     config: web::Data<Arc<RwLock<Config>>>,
 ) -> HttpResponse {
-    config.write().unwrap().set_server_host("https://localhost:3001").unwrap();
+    config.write().unwrap().set_server_host("https://localhost:3002").unwrap();
     HttpResponse::Ok().body(format!("ok"))
 }

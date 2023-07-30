@@ -1,12 +1,15 @@
-use std::sync::{Arc, RwLock};
+use crate::config::config::Config;
+use crate::report::client::Client;
+use crate::report::constant::{CHECK_TOKEN_ENDPOINT, REGISTER_ENDPOINT};
 use crate::system_info::SystemInfo;
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::result::RegisterResult;
+use ezsockets::ClientConfig;
 use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
+use std::sync::{Arc, RwLock};
 use std::time::{SystemTime, UNIX_EPOCH};
-use crate::config::config::Config;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Report {
@@ -36,49 +39,85 @@ impl Report {
 }
 
 pub struct Reporter {
-    config: Arc<RwLock<Config>>
+    config: Arc<RwLock<Config>>,
 }
 
 impl Reporter {
     pub async fn new(config: Arc<RwLock<Config>>) -> Self {
-        let reporter = Reporter {
-            config
-        };
+        let reporter = Reporter { config };
         reporter.start().await;
         reporter
     }
 
     pub async fn start(&self) {
-        // let config = ClientConfig::new("ws://127.0.0.1:9876").bearer("test_token");
-        // let (_, future) = ezsockets::connect(|handle| Client::new(handle, None), config).await;
-        // tokio::spawn(async move {
-        //     future.await.unwrap();
-        // });
         let token = self.config.read().unwrap().client_token();
         let server_host = self.config.read().unwrap().server_host();
         if token.is_none() || server_host.is_none() {
             warn!("Token or server host is empty, will not start report thread!");
             return;
         }
-        info!("token: {:?}", token)
+        match self.check_token().await {
+            Ok(_) => {
+                info!("Token is valid, will start report thread!");
+                self.register().await;
+                self.connect().await;
+            }
+            Err(err) => {
+                error!("Token is invalid, will not start report thread!");
+                error!("Error: {:?}", err);
+            }
+        }
     }
 
-    async fn check_token(&self, token: String) -> Result<(), actix_web::Error> {
+    async fn connect(&self) {
+        let (_, future) =
+            ezsockets::connect(|handle| Client::new(handle, None), self.ws_config()).await;
+        tokio::spawn(async move {
+            future.await.unwrap();
+        });
+    }
+
+    fn ws_config(&self) -> ClientConfig {
+        let config = ClientConfig::new(self.ws_url().as_str()).bearer(self.get_token());
+        config
+    }
+
+    fn ws_url(&self) -> String {
         let server_host = self.config.read().unwrap().server_host();
+        format!("ws://{}:9876", server_host.unwrap())
+    }
+
+    fn http_url(&self) -> String {
+        let server_host = self.config.read().unwrap().server_host();
+        format!("http://{}", server_host.unwrap())
+    }
+
+    fn check_token_url(&self) -> String {
+        format!("{}{}", self.http_url(), CHECK_TOKEN_ENDPOINT)
+    }
+
+    fn get_token(&self) -> String {
+        let token = self.config.read().unwrap().client_token();
+        token.unwrap()
+    }
+
+    async fn check_token(&self) -> Result<(), actix_web::Error> {
         let client = awc::Client::default();
         match client
-            .get("http://localhost:3000/client/verify")
-            .bearer_auth(token)
+            .get(self.check_token_url())
+            .bearer_auth(self.get_token())
             .send()
             .await
         {
             Ok(res) => match res.status() {
                 status if status.is_success() => Ok(()),
-                status if status.is_client_error() => Err(actix_web::error::ErrorUnauthorized("Unauthorized!")),
+                status if status.is_client_error() => {
+                    Err(actix_web::error::ErrorUnauthorized("Unauthorized!"))
+                }
                 _ => {
                     error!("Unexpected status code: {:?}", res.status().as_u16());
                     Err(actix_web::error::ErrorUnauthorized("Unauthorized!"))
-                },
+                }
             },
             Err(err) => {
                 error!("Error request while checking token: {:?}", err);
@@ -87,16 +126,18 @@ impl Reporter {
         }
     }
 
-    async fn register() -> String {
+    fn register_url(&self) -> String {
+        format!("{}{}", self.http_url(), REGISTER_ENDPOINT)
+    }
+
+    async fn register(&self) -> String {
         let mut sys = SystemInfo::new();
 
         let device_info = sys.get_device_info().convert();
 
-        // debug!("register device info: {device_info:?}");
-
         let client = awc::Client::default();
         match client
-            .post("http://127.0.0.1:3000/client/register")
+            .post(self.register_url())
             .send_json(&device_info)
             .await
         {

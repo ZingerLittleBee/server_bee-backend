@@ -15,7 +15,7 @@ enum ReportMode {
 }
 
 #[derive(Debug)]
-enum Call {
+pub enum Call {
     Start,
 }
 
@@ -25,24 +25,22 @@ struct EventModel {
     data: Fusion,
 }
 
-struct Client {
+pub struct Client {
     sys: Arc<RwLock<SystemInfo>>,
     mode: Arc<RwLock<ReportMode>>,
     cancel_token: CancellationToken,
     handle: ezsockets::Client<Self>,
     interval: Arc<RwLock<Duration>>,
-    token: String
 }
 
 impl Client {
-    pub fn new(handle: ezsockets::Client<Self>, interval: Option<Duration>, token: String) -> Self {
+    pub fn new(handle: ezsockets::Client<Self>, interval: Option<Duration>) -> Self {
         Self {
             handle,
             sys: Arc::new(RwLock::new(SystemInfo::new())),
             mode: Arc::new(RwLock::new(ReportMode::Interval)),
             cancel_token: CancellationToken::new(),
             interval: Arc::new(RwLock::new(interval.unwrap_or(Duration::from_secs(60)))),
-            token
         }
     }
     pub fn start(&mut self) {
