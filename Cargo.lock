@@ -2142,6 +2142,7 @@ dependencies = [
  "futures-util",
  "log",
  "log4rs",
+ "reqwest",
  "serde",
  "serde_json",
  "serde_yaml 0.9.16",

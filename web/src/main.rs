@@ -1,33 +1,40 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
-use std::sync::{Arc, RwLock};
 use cli::Args;
+use std::sync::{Arc, RwLock};
 
-use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, guard};
+use crate::config::config::Config;
+use crate::handler::db_handler::{config_test, db_test};
+use crate::handler::http_handler::{
+    clear_token, index, kill_process, rest_token, rest_token_local, version, view_token,
+};
+
+use crate::report::reporter::Reporter;
+use crate::token::communication_token::CommunicationToken;
+use actix_web::{guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 use clap::Parser;
 use log::info;
 use sled::Db;
-use crate::config::config::Config;
-use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
-use crate::handler::db_handler::{config_test, db_test};
-use crate::report::reporter::Reporter;
-use crate::token::communication_token::CommunicationToken;
 
 mod cli;
 mod config;
+mod handler;
 mod model;
+mod report;
 mod server;
 mod system_info;
-mod vo;
-mod handler;
 mod token;
-mod report;
+mod vo;
 
 use self::server::MyWebSocket;
 
 /// WebSocket handshake and start `MyWebSocket` actor.
-async fn echo_ws(_token: CommunicationToken, req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+async fn echo_ws(
+    _token: CommunicationToken,
+    req: HttpRequest,
+    stream: web::Payload,
+) -> Result<HttpResponse, Error> {
     ws::start(MyWebSocket::new(), &req, stream)
 }
 
@@ -37,7 +44,6 @@ fn init_sled_db() -> Db {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
     let args = Args::parse();
 
     let db = init_sled_db();
@@ -71,7 +77,7 @@ async fn main() -> std::io::Result<()> {
                     .guard(guard::Host("localhost"))
                     .service(web::resource("/token/view").to(view_token))
                     .service(web::resource("/token/clear").to(clear_token))
-                    .service(web::resource("/token/rest").to(rest_token_local))
+                    .service(web::resource("/token/rest").to(rest_token_local)),
             )
             // enable logger
             .wrap(middleware::Logger::default())
