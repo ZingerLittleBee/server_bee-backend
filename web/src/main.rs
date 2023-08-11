@@ -9,6 +9,7 @@ use crate::handler::http_handler::{
     clear_token, index, kill_process, rest_token, rest_token_local, version, view_token,
 };
 
+use crate::handler::client_handler::{set_client_token, view_client_token};
 use crate::report::reporter::Reporter;
 use crate::token::communication_token::CommunicationToken;
 use actix_web::{guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
@@ -50,6 +51,8 @@ async fn main() -> std::io::Result<()> {
 
     let config = Config::new(db.clone(), args);
 
+    let host = config.server_host().unwrap_or_else(|| String::from(""));
+
     let port = config.server_port();
 
     info!("starting HTTP server at http://localhost:{}", port);
@@ -78,6 +81,13 @@ async fn main() -> std::io::Result<()> {
                     .service(web::resource("/token/view").to(view_token))
                     .service(web::resource("/token/clear").to(clear_token))
                     .service(web::resource("/token/rest").to(rest_token_local)),
+            )
+            .service(
+                web::scope("/client")
+                    // private api localhost only
+                    .guard(guard::Any(guard::Host("localhost")).or(guard::Host(host.as_str())))
+                    .service(web::resource("/token/view").to(view_client_token))
+                    .service(web::resource("/token/rest").to(set_client_token)),
             )
             // enable logger
             .wrap(middleware::Logger::default())

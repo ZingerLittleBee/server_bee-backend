@@ -59,18 +59,19 @@ impl Reporter {
             warn!("Token or server host is empty, will not start report thread!");
             return;
         }
-        match self.check_token().await {
-            Ok(_) => {
-                info!("Token is valid, will start report thread!");
-                self.register().await;
-                self.connect().await;
-                self.task().await;
-            }
-            Err(err) => {
-                error!("Token is invalid, will not start report thread!");
-                error!("Error: {:?}", err);
-            }
-        }
+        self.register().await;
+        self.connect().await;
+        self.task().await;
+        // match self.check_token().await {
+        //     Ok(_) => {
+        //         info!("Token is valid, will start report thread!");
+        //
+        //     }
+        //     Err(err) => {
+        //         error!("Token is invalid, will not start report thread!");
+        //         error!("Error: {:?}", err);
+        //     }
+        // }
     }
 
     async fn task(&self) {
@@ -152,7 +153,7 @@ impl Reporter {
 
     fn http_url(&self) -> String {
         let server_host = self.config.read().unwrap().server_host();
-        format!("https://{}", server_host.unwrap())
+        format!("http://{}", server_host.unwrap())
     }
 
     fn check_token_url(&self) -> String {
@@ -199,6 +200,7 @@ impl Reporter {
         let device_info = sys.get_device_info().convert();
 
         let client = awc::Client::default();
+        println!("Registering register_url: {:?}", self.register_url());
         match client
             .post(self.register_url())
             .send_json(&device_info)
@@ -218,7 +220,7 @@ impl Reporter {
                 }
             },
             Err(err) => {
-                panic!("Register error while parsing JSON: {:?}", err);
+                panic!("Register error: {:?}", err);
             }
         }
     }
