@@ -1,6 +1,4 @@
-use actix_web::body::BoxBody;
-use actix_web::http::header::ContentType;
-use actix_web::{HttpRequest, HttpResponse, Responder};
+use crate::traits::json_response::JsonResponder;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
@@ -26,16 +24,4 @@ impl HttpResult {
         }
     }
 }
-
-impl Responder for HttpResult {
-    type Body = BoxBody;
-
-    fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
-        let body = serde_json::to_string(&self).unwrap();
-
-        // Create response and set content type
-        HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(body)
-    }
-}
+impl JsonResponder for HttpResult {}

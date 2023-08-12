@@ -5,7 +5,6 @@ use crate::system_info::SystemInfo;
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::result::RegisterResult;
-use actix_web::web::post;
 use ezsockets::ClientConfig;
 use log::{error, info, warn};
 use reqwest::{Error, Response};
@@ -194,7 +193,7 @@ impl Reporter {
         format!("{}{}", self.http_url(), REGISTER_ENDPOINT)
     }
 
-    async fn register(&self) -> String {
+    async fn register(&self) {
         let mut sys = SystemInfo::new();
 
         let device_info = sys.get_device_info().convert();
@@ -209,10 +208,9 @@ impl Reporter {
             Ok(mut res) => match res.json::<RegisterResult>().await {
                 Ok(res) => {
                     info!("Register response: {res:?}");
-                    if res.success {
-                        res.data.map(|token| token.token).unwrap()
-                    } else {
-                        panic!("register failed: {:?}", res.message);
+                    if !res.success {
+                        res.data.map(|token| token.token).unwrap();
+                        error!("Register failed: {:?}", res.message);
                     }
                 }
                 Err(err) => {
@@ -220,7 +218,7 @@ impl Reporter {
                 }
             },
             Err(err) => {
-                panic!("Register error: {:?}", err);
+                error!("Register error: {:?}", err);
             }
         }
     }

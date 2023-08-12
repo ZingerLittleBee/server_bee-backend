@@ -1,4 +1,6 @@
 use crate::cli::Args;
+use crate::config::constant::{APP_TOKEN, CLIENT_TOKEN, DEFAULT_PORT, LOG_PATH, PORT, SERVER_HOST};
+use crate::traits::json_response::JsonResponder;
 use anyhow::Result;
 use log::{info, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
@@ -10,7 +12,6 @@ use sled::Db;
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
-use crate::config::constant::{APP_TOKEN, CLIENT_TOKEN, DEFAULT_PORT, LOG_PATH, PORT, SERVER_HOST};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
 struct WebConfig {
@@ -26,15 +27,19 @@ impl Default for WebConfig {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-struct ClientConfig {
+pub struct ClientConfig {
     token: Option<String>,
     server_host: Option<String>,
 }
 
+impl JsonResponder for ClientConfig {}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-struct AppConfig {
+pub struct AppConfig {
     token: Option<String>,
 }
+
+impl JsonResponder for AppConfig {}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
 struct Port {
@@ -105,7 +110,10 @@ impl Config {
             web_config: WebConfig {
                 server: Port { port },
             },
-            client_config: ClientConfig { token: client_token, server_host },
+            client_config: ClientConfig {
+                token: client_token,
+                server_host,
+            },
             app_config: AppConfig { token: app_token },
         };
         config.init_logging();
@@ -127,6 +135,10 @@ impl Config {
 
     pub fn client_token(&self) -> Option<String> {
         self.client_config.token.clone()
+    }
+
+    pub fn client_config(&self) -> ClientConfig {
+        self.client_config.clone()
     }
 
     pub fn server_host(&self) -> Option<String> {
@@ -209,6 +221,17 @@ impl Config {
         Ok(())
     }
 
+    pub fn set_client_config(&mut self, config: ClientConfig) -> Result<()> {
+        self.client_config = config;
+        if let Some(token) = &self.client_config.token {
+            self.db.insert(CLIENT_TOKEN, token.as_bytes())?;
+        }
+        if let Some(server_host) = &self.client_config.server_host {
+            self.db.insert(SERVER_HOST, server_host.as_bytes())?;
+        }
+        Ok(())
+    }
+
     pub fn set_server_host(&mut self, server_host: &str) -> Result<()> {
         self.client_config.server_host = Some(server_host.to_string());
         self.db.insert(SERVER_HOST, server_host.as_bytes())?;
@@ -216,8 +239,12 @@ impl Config {
     }
 
     fn persistence(&self) {
-        self.db.insert(PORT, self.web_config.server.port.to_string().as_bytes()).unwrap();
-        self.db.insert(LOG_PATH, self.log_path.to_str().unwrap().as_bytes()).unwrap();
+        self.db
+            .insert(PORT, self.web_config.server.port.to_string().as_bytes())
+            .unwrap();
+        self.db
+            .insert(LOG_PATH, self.log_path.to_str().unwrap().as_bytes())
+            .unwrap();
         if let Some(token) = &self.app_config.token {
             self.db.insert(APP_TOKEN, token.as_bytes()).unwrap();
         }
@@ -227,6 +254,5 @@ impl Config {
         if let Some(server_host) = &self.client_config.server_host {
             self.db.insert(SERVER_HOST, server_host.as_bytes()).unwrap();
         }
-
     }
 }

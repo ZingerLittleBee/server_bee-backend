@@ -9,7 +9,9 @@ use crate::handler::http_handler::{
     clear_token, index, kill_process, rest_token, rest_token_local, version, view_token,
 };
 
-use crate::handler::client_handler::{set_client_token, view_client_token};
+use crate::handler::client_handler::{
+    set_client_config, set_client_token, view_client_config, view_client_token,
+};
 use crate::report::reporter::Reporter;
 use crate::token::communication_token::CommunicationToken;
 use actix_web::{guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
@@ -26,6 +28,7 @@ mod report;
 mod server;
 mod system_info;
 mod token;
+mod traits;
 mod vo;
 
 use self::server::MyWebSocket;
@@ -86,8 +89,13 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/client")
                     // private api localhost only
                     .guard(guard::Any(guard::Host("localhost")).or(guard::Host(host.as_str())))
-                    .service(web::resource("/token/view").to(view_client_token))
-                    .service(web::resource("/token/rest").to(set_client_token)),
+                    .service(web::resource("/token/view").route(web::get().to(view_client_token)))
+                    .service(web::resource("/token/rest").to(set_client_token))
+                    .service(
+                        web::resource("/config")
+                            .route(web::get().to(view_client_config))
+                            .route(web::post().to(set_client_config)),
+                    ),
             )
             // enable logger
             .wrap(middleware::Logger::default())
