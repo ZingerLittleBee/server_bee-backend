@@ -69,7 +69,7 @@ impl Client {
                             data: fusion,
                         };
                         let json_str = serde_json::to_string(&event).unwrap();
-                        info!("json_str: {json_str}");
+                        debug!("json_str: {json_str}");
                         handle.text(json_str);
                     }
                 }

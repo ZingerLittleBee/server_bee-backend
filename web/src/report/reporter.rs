@@ -1,12 +1,12 @@
 use crate::config::config::Config;
 use crate::report::client::Client;
-use crate::report::constant::{CHECK_TOKEN_ENDPOINT, REGISTER_ENDPOINT};
+use crate::report::constant::{CHECK_TOKEN_ENDPOINT, PERSIST_ENDPOINT, REGISTER_ENDPOINT};
 use crate::system_info::SystemInfo;
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::result::RegisterResult;
 use ezsockets::ClientConfig;
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -58,8 +58,8 @@ impl Reporter {
             warn!("Token or server host is empty, will not start report thread!");
             return;
         }
-        self.register().await;
-        self.connect().await;
+        // self.register().await;
+        // self.connect().await;
         self.task().await;
         // match self.check_token().await {
         //     Ok(_) => {
@@ -75,7 +75,7 @@ impl Reporter {
 
     async fn task(&self) {
         let client = reqwest::Client::new();
-        let url = self.http_url();
+        let url = self.persist_url();
         let config = self.config.clone();
 
         actix_rt::spawn(async move {
@@ -152,7 +152,7 @@ impl Reporter {
 
     fn http_url(&self) -> String {
         let server_host = self.config.read().unwrap().server_host();
-        format!("http://{}", server_host.unwrap())
+        format!("http://{}:3002", server_host.unwrap())
     }
 
     fn check_token_url(&self) -> String {
@@ -193,30 +193,42 @@ impl Reporter {
         format!("{}{}", self.http_url(), REGISTER_ENDPOINT)
     }
 
+    fn persist_url(&self) -> String {
+        format!("{}{}", self.http_url(), PERSIST_ENDPOINT)
+    }
+
     async fn register(&self) {
         let mut sys = SystemInfo::new();
 
         let device_info = sys.get_device_info().convert();
 
+        debug!("device_info: {:?}", device_info);
+
         let client = awc::Client::default();
         println!("Registering register_url: {:?}", self.register_url());
         match client
             .post(self.register_url())
+            .bearer_auth(self.get_token())
             .send_json(&device_info)
             .await
         {
-            Ok(mut res) => match res.json::<RegisterResult>().await {
-                Ok(res) => {
-                    info!("Register response: {res:?}");
-                    if !res.success {
-                        res.data.map(|token| token.token).unwrap();
-                        error!("Register failed: {:?}", res.message);
+            Ok(mut res) => {
+                if res.status().is_success() {
+                    match res.json::<RegisterResult>().await {
+                        Ok(res) => {
+                            if !res.success {
+                                error!("Register failed: {:?}", res.message);
+                            }
+                            info!("Register success.")
+                        }
+                        Err(err) => {
+                            panic!("Register error while parsing response to JSON: {:?}", err);
+                        }
                     }
+                } else {
+                    error!("Register failed: {:?}", res.status());
                 }
-                Err(err) => {
-                    panic!("Register error while parsing response to JSON: {:?}", err);
-                }
-            },
+            }
             Err(err) => {
                 error!("Register error: {:?}", err);
             }
