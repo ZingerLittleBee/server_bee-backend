@@ -58,19 +58,19 @@ impl Reporter {
             warn!("Token or server host is empty, will not start report thread!");
             return;
         }
-        // self.register().await;
-        // self.connect().await;
-        self.task().await;
-        // match self.check_token().await {
-        //     Ok(_) => {
-        //         info!("Token is valid, will start report thread!");
-        //
-        //     }
-        //     Err(err) => {
-        //         error!("Token is invalid, will not start report thread!");
-        //         error!("Error: {:?}", err);
-        //     }
-        // }
+
+        match self.check_token().await {
+            Ok(_) => {
+                info!("Token is valid.");
+                // self.register().await;
+                // self.connect().await;
+                self.task().await;
+            }
+            Err(err) => {
+                error!("Token is invalid, Please check your token!");
+                error!("Error: {:?}", err);
+            }
+        }
     }
 
     async fn task(&self) {
@@ -87,11 +87,11 @@ impl Reporter {
                     .unwrap()
                     .client_token()
                     .expect("Token is empty!");
-                match Reporter::send_persistent_data(
+                match Reporter::report_fusion_data(
                     &client,
                     token,
                     &url,
-                    sys.get_fusion_with_full_process(),
+                    sys.get_fusion_with_simple_process(),
                 )
                 .await
                 {
@@ -117,7 +117,7 @@ impl Reporter {
         });
     }
 
-    async fn send_persistent_data(
+    async fn report_fusion_data(
         client: &reqwest::Client,
         token: String,
         url: &String,

@@ -1,9 +1,9 @@
 use crate::vo::overview::{OsOverviewVo, OverviewVo};
+use crate::vo::process::ProcessVo;
 use crate::vo::realtime_status::RealtimeStatusVo;
+use crate::vo::simple_process::SimpleProcessVo;
 use bytestring::ByteString;
 use serde::{Deserialize, Serialize};
-use crate::vo::process::ProcessVo;
-use crate::vo::simple_process::SimpleProcessVo;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Fusion {
@@ -73,11 +73,27 @@ impl Fusion {
         }
     }
 
+    pub fn new_simple_process(
+        overview: OverviewVo,
+        os: Option<OsOverviewVo>,
+        realtime: Option<RealtimeStatusVo>,
+        process: Option<Vec<SimpleProcessVo>>,
+    ) -> Self {
+        Fusion {
+            overview,
+            os,
+            realtime,
+            process,
+            current_process: None,
+            full_process: None,
+        }
+    }
+
     pub fn new_full_process(
         overview: OverviewVo,
         os: Option<OsOverviewVo>,
         realtime: Option<RealtimeStatusVo>,
-        full_process: Option<Vec<ProcessVo>>
+        full_process: Option<Vec<ProcessVo>>,
     ) -> Self {
         Fusion {
             overview,
