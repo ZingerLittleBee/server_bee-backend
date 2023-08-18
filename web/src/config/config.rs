@@ -28,8 +28,9 @@ impl Default for WebConfig {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct ClientConfig {
-    token: Option<String>,
-    server_host: Option<String>,
+    pub token: Option<String>,
+    pub server_host: Option<String>,
+    pub disable_ssl: bool,
 }
 
 impl JsonResponder for ClientConfig {}
@@ -113,6 +114,7 @@ impl Config {
             client_config: ClientConfig {
                 token: client_token,
                 server_host,
+                disable_ssl: args.disable_ssl,
             },
             app_config: AppConfig { token: app_token },
         };
@@ -160,7 +162,7 @@ impl Config {
         let logfile = FileAppender::builder()
             // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
             .encoder(Box::new(PatternEncoder::new(
-                "[{d(%Y-%m-%d %H:%M:%S)} {T} {l}] {m}{n}",
+                "[{d(%Y-%m-%d %H:%M:%S)} {T} {h({l})}] {m}{n}",
             )))
             .build(log_path)
             .unwrap();

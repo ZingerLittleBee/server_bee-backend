@@ -6,7 +6,7 @@ use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::result::RegisterResult;
 use ezsockets::ClientConfig;
-use log::{debug, error, info, warn};
+use log::{error, info, warn};
 use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -45,10 +45,9 @@ pub struct Reporter {
 }
 
 impl Reporter {
-    pub async fn new(config: Arc<RwLock<Config>>) -> Self {
+    pub async fn run(config: Arc<RwLock<Config>>) {
         let reporter = Reporter { config };
         reporter.start().await;
-        reporter
     }
 
     pub async fn start(&self) {
@@ -59,16 +58,22 @@ impl Reporter {
             return;
         }
 
-        match self.check_token().await {
-            Ok(_) => {
-                info!("Token is valid.");
-                // self.register().await;
-                // self.connect().await;
-                self.task().await;
-            }
-            Err(err) => {
-                error!("Token is invalid, Please check your token!");
-                error!("Error: {:?}", err);
+        loop {
+            match self.check_token().await {
+                Ok(_) => {
+                    info!("Token is valid.");
+                    self.register().await;
+                    // self.connect().await;
+                    self.task().await;
+                    break;
+                }
+                Err(err) => {
+                    error!("Token is invalid, Please check your token!");
+                    error!("Error: {:?}", err);
+                    warn!("Will retry after 10 minutes.");
+                    // 等待 10 分钟后重试
+                    tokio::time::sleep(Duration::from_secs(10 * 60)).await;
+                }
             }
         }
     }
@@ -146,13 +151,21 @@ impl Reporter {
     }
 
     fn ws_url(&self) -> String {
-        let server_host = self.config.read().unwrap().server_host();
-        format!("ws://{}:9876", server_host.unwrap())
+        let config = self.config.read().unwrap().client_config();
+        format!(
+            "{}://{}:9876",
+            if config.disable_ssl { "ws" } else { "wss" },
+            config.server_host.unwrap()
+        )
     }
 
     fn http_url(&self) -> String {
-        let server_host = self.config.read().unwrap().server_host();
-        format!("http://{}:3002", server_host.unwrap())
+        let config = self.config.read().unwrap().client_config();
+        format!(
+            "{}://{}:3002",
+            if config.disable_ssl { "http" } else { "https" },
+            config.server_host.unwrap()
+        )
     }
 
     fn check_token_url(&self) -> String {
@@ -202,10 +215,8 @@ impl Reporter {
 
         let device_info = sys.get_device_info().convert();
 
-        debug!("device_info: {:?}", device_info);
-
         let client = awc::Client::default();
-        println!("Registering register_url: {:?}", self.register_url());
+        info!("Registering register_url: {:?}", self.register_url());
         match client
             .post(self.register_url())
             .bearer_auth(self.get_token())

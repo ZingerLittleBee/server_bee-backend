@@ -62,7 +62,11 @@ async fn main() -> std::io::Result<()> {
 
     let config = Arc::new(RwLock::new(config));
 
-    Reporter::new(Arc::clone(&config)).await;
+    let report_config = Arc::clone(&config);
+
+    actix_rt::spawn(async {
+        Reporter::run(report_config).await;
+    });
 
     HttpServer::new(move || {
         App::new()

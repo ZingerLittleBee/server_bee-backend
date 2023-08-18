@@ -3,6 +3,7 @@ use clap::Parser;
 /// ServerBee 的后端配置项
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
+#[clap(disable_help_flag = true)]
 pub struct Args {
     /// 日志路径
     #[clap(short, long)]
@@ -21,6 +22,14 @@ pub struct Args {
     pub client_token: Option<String>,
 
     /// 服务器地址, ip 或 domain
-    #[clap(short, long)]
+    #[clap(short = 'h', long = "host")]
     pub server_host: Option<String>,
+
+    /// 禁用 SSL
+    #[clap(long)]
+    pub disable_ssl: bool,
+
+    /// 打印帮助信息
+    #[arg(long, action = clap::ArgAction::Help)]
+    help: Option<bool>,
 }
