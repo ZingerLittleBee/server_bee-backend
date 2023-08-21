@@ -84,7 +84,7 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/local")
                     // private api localhost only
-                    .guard(guard::Host("localhost"))
+                    .guard(guard::Any(guard::Host("localhost")).or(guard::Host("127.0.0.1")))
                     .service(web::resource("/token/view").to(view_token))
                     .service(web::resource("/token/clear").to(clear_token))
                     .service(web::resource("/token/rest").to(rest_token_local)),
@@ -92,7 +92,11 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/client")
                     // private api localhost only
-                    .guard(guard::Any(guard::Host("localhost")).or(guard::Host(host.as_str())))
+                    .guard(
+                        guard::Any(guard::Host("localhost"))
+                            .or(guard::Host("127.0.0.1"))
+                            .or(guard::Host(host.as_str())),
+                    )
                     .service(web::resource("/token/view").route(web::get().to(view_client_token)))
                     .service(web::resource("/token/rest").to(set_client_token))
                     .service(
