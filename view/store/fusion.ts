@@ -3,9 +3,7 @@ import React from "react";
 
 export const kSetFusion = 'SET_FUSION'
 
-export interface FusionState {
-    fusion?: Fusion
-}
+export type FusionState = Fusion
 
 export interface FusionAction {
     type: typeof kSetFusion
@@ -22,7 +20,7 @@ export const fusionReducer = (state: FusionState, action: FusionAction): FusionS
         case kSetFusion:
             return {
                 ...state,
-                fusion: action.payload.fusion
+                ...action.payload
             }
         default:
             return state
