@@ -1,0 +1,34 @@
+"use client"
+
+import {ReactNode} from 'react'
+import './globals.css'
+import {Inter} from 'next/font/google'
+import {SiteHeader} from "@/components/site-header";
+import {ThemeProvider} from "@/components/theme-provider";
+import {Toaster} from "@/components/ui/toaster";
+import {TailwindIndicator} from "@/components/tailwind-indicator";
+
+const inter = Inter({subsets: ['latin']})
+
+export default function RootLayout({
+                                       children,
+                                   }: {
+    children: ReactNode
+}) {
+    return (
+        <html lang="en">
+        <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="relative flex min-h-screen flex-col">
+                <SiteHeader/>
+                <div className="container items-center space-x-4 sm:justify-between sm:space-x-0 pt-4">
+                    {children}
+                </div>
+                <Toaster/>
+            </div>
+            <TailwindIndicator/>
+        </ThemeProvider>
+        </body>
+        </html>
+    )
+}
