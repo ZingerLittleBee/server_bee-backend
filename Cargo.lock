@@ -2145,6 +2145,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "serde_urlencoded",
  "serde_yaml 0.9.16",
  "sled",
  "sysinfo",
