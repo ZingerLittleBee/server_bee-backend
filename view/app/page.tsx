@@ -5,26 +5,21 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Overview} from "@/components/overview";
 import {RecentSales} from "@/components/recent-sales";
-import {useEffect, useState} from "react";
-import {getToken} from "@/requests/token";
+import useWebsocket from "@/hooks/useWebsocket";
+import {useToken} from "@/hooks/useToken";
 
 export default function DashboardPage() {
 
-  const [token, setToken] = useState<string | undefined>()
+  const token = useToken()
 
-  useEffect(() => {
-    getToken().then(res => {
-          setToken(res)
-        }
-    )
-  }, [])
+  const {sendMessage} = useWebsocket()
 
   return (
       <>
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <Button>Download</Button>
+            <Button>{token.communicationToken}</Button>
           </div>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
