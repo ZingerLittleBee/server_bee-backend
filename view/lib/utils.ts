@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const toGiB = ([strNum, unit]: [string, string]): number => {
-  if (!unit) return 0
+  if (!strNum || !unit) return 0
   if (unit === "B") {
     return parseInt(strNum) / 1024 / 1024 / 1024
   } else if (unit === "KiB") {
@@ -20,6 +20,22 @@ export const toGiB = ([strNum, unit]: [string, string]): number => {
     return parseInt(strNum) / 1024
   } else if (unit === "TiB") {
     return parseInt(strNum) * 1024
+  }
+  return 0
+}
+
+export const toMiB = ([strNum, unit]: [string, string]): number => {
+  if (!strNum || !unit) return 0
+  if (unit === "B") {
+    return parseInt(strNum) / 1024 / 1024
+  } else if (unit === "KiB") {
+    return parseInt(strNum) / 1024
+  } else if (unit === "MiB") {
+    return parseInt(strNum)
+  } else if (unit === "GiB") {
+    return parseInt(strNum) * 1024
+  } else if (unit === "TiB") {
+    return parseInt(strNum) * 1024 * 1024
   }
   return 0
 }

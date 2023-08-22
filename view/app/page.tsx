@@ -3,7 +3,6 @@
 import {Button} from "@/components/ui/button";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import {Overview} from "@/components/overview";
 import {RecentSales} from "@/components/recent-sales";
 import useWebsocket from "@/hooks/useWebsocket";
 import {useToken} from "@/hooks/useToken";
@@ -12,6 +11,7 @@ import CpuWidget from "@/components/widget/cpu";
 import {MemoryWidget} from "@/components/widget/memory";
 import NetworkWidget from "@/components/widget/network";
 import {DiskWidget} from "@/components/widget/disk";
+import {Overview} from "@/components/widget/overview";
 
 export default function DashboardPage() {
 

@@ -2,11 +2,13 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useStore} from "@/store";
 import {useEffect, useRef} from "react";
 import {BadgeDelta} from "@tremor/react";
+import {formatToString} from "@/lib/utils";
 
 
 export default function CpuWidget() {
     const {fusion} = useStore()
-    let cpuUsage = fusion?.overview?.cpu_usage
+    const cpuUsage = fusion?.overview?.cpu_usage
+    const loadAverage = fusion?.overview?.load_avg
 
     const lastCpuUsageRef = useRef(cpuUsage);
 
@@ -33,6 +35,9 @@ export default function CpuWidget() {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">{`${cpuUsage}%`}</div>
+                <p className="text-xs text-muted-foreground">
+                    1 min: {loadAverage?.[0]} | 5 min: {loadAverage?.[1]} | 15 min: {loadAverage?.[2]}
+                </p>
             </CardContent>
         </Card>
     )

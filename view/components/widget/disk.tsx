@@ -1,9 +1,8 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge, Tracker} from "@tremor/react";
-import {ArrowDownCircle, ArrowUpCircle, Sigma} from "lucide-react";
+import {Sigma} from "lucide-react";
 import {formatToString} from "@/lib/utils";
 import {useStore} from "@/store";
-import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 
 export function DiskWidget() {
     const {fusion} = useStore()
