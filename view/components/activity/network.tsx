@@ -43,7 +43,7 @@ const CustomTooltip: FC<TooltipProps<string, number>> = ({active, payload, label
         return (
             <Card className="min-w-[150px]" decoration="bottom" decorationColor="indigo">
                 <Text>{time}</Text>
-                <div className="flex flex-col justify-center items-start text-2xl font-bold">
+                <div className="flex flex-col justify-center items-start text-xl font-bold">
                     <p style={{color: '#22c55e'}}>
                         tx: {tx}
                     </p>
