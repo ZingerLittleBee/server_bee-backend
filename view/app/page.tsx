@@ -2,8 +2,7 @@
 
 import {Button} from "@/components/ui/button";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import {RecentSales} from "@/components/recent-sales";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import useWebsocket from "@/hooks/useWebsocket";
 import {useToken} from "@/hooks/useToken";
 import {useStore} from "@/store";
@@ -11,7 +10,8 @@ import CpuWidget from "@/components/widget/cpu";
 import {MemoryWidget} from "@/components/widget/memory";
 import NetworkWidget from "@/components/widget/network";
 import {DiskWidget} from "@/components/widget/disk";
-import {Overview} from "@/components/widget/overview";
+import {CpuActivity} from "@/components/activity/cpu";
+import {NetworkActivity} from "@/components/activity/network";
 
 export default function DashboardPage() {
 
@@ -53,21 +53,21 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4">
                 <CardHeader>
-                  <CardTitle>Overview</CardTitle>
+                  <CardTitle>CPU Activity</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <Overview/>
+                  <CpuActivity/>
                 </CardContent>
               </Card>
               <Card className="col-span-3">
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
-                  <CardDescription>
-                    You made 265 sales this month.
-                  </CardDescription>
+                  <CardTitle>Network Activity</CardTitle>
+                  {/*<CardDescription>*/}
+                  {/*  You made {fusion.process?.length} sales this month.*/}
+                  {/*</CardDescription>*/}
                 </CardHeader>
                 <CardContent>
-                  <RecentSales/>
+                  <NetworkActivity/>
                 </CardContent>
               </Card>
             </div>

@@ -6,7 +6,7 @@ import {Area, AreaChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxi
 import {unix} from 'dayjs'
 import {Text, Card} from "@tremor/react";
 
-export function Overview() {
+export function CpuActivity() {
     const {history} = useStore()
 
     const chartData = useMemo(() => {
@@ -49,6 +49,7 @@ export function Overview() {
                        tick={{fontSize: 14}}
                 />
                 <YAxis dataKey="percent" domain={[0, 100]}
+                       tick={{fontSize: 14}}
                        tickFormatter={(tick) => tick !== 0 ? tick.toString() : ''}
                 />
                 <Tooltip content={<CustomTooltip/>}/>

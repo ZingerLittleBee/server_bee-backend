@@ -1,6 +1,6 @@
 import {Overview} from "@/types/fusion";
 import {Dispatch} from "react";
-import {toMiB} from "@/lib/utils";
+import {toKiB, toMiB} from "@/lib/utils";
 
 export const kHistoryAdd = 'HISTORY_ADD'
 
@@ -31,8 +31,8 @@ export const historyReducer = (state: HistoryState, action: HistoryAction): Hist
                     time: time
                 }],
                 network: [...state.network, {
-                    tx: toMiB(action.payload.network_io.tx).toFixed(1),
-                    rx: toMiB(action.payload.network_io.rx).toFixed(1),
+                    tx: toKiB(action.payload.network_io.tx).toFixed(1),
+                    rx: toKiB(action.payload.network_io.rx).toFixed(1),
                     time: time
                 }]
             }
