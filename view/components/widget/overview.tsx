@@ -10,9 +10,9 @@ export function Overview() {
     const {history} = useStore()
 
     const chartData = useMemo(() => {
-        return history.cpu.map((item, index) => {
+        return history.cpu.map(item => {
             return {
-                name: index,
+                name: unix(item.time).format('hh:mm:ss'),
                 time: item.time,
                 percent: item.value,
             }
@@ -41,11 +41,15 @@ export function Overview() {
                     top: 10,
                     right: 30,
                     left: 0,
-                    bottom: 12,
+                    bottom: 0,
                 }}
             >
-                <XAxis dataKey="name" label={{value: 'Seconds (s)', position: 'insideBottomRight', offset: -10}}/>
+                <XAxis dataKey="name"
+                       interval="preserveStartEnd"
+                       tick={{fontSize: 14}}
+                />
                 <YAxis dataKey="percent" domain={[0, 100]}
+                       tickFormatter={(tick) => tick !== 0 ? tick.toString() : ''}
                 />
                 <Tooltip content={<CustomTooltip/>}/>
                 <Area isAnimationActive={false} type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8"/>
