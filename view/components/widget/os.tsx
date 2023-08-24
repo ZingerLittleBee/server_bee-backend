@@ -3,6 +3,7 @@ import {Timer, UserSquare} from "lucide-react";
 import {Icons} from "@/components/icons";
 import {useStore} from "@/store";
 import {Skeleton} from "@/components/ui/skeleton";
+import {unix} from "dayjs";
 
 export const OsWidget = () => {
     const {fusion} = useStore()
@@ -49,7 +50,8 @@ export const OsWidget = () => {
                         <div className="flex justify-end items-center space-x-2 text-sm text-muted-foreground">
                             <Timer size={16}/>
                             {
-                                os?.boot_time ? <p>{os?.boot_time}</p> : <Skeleton className="h-5 w-[100px]"/>
+                                os?.boot_time ? <p>{unix(os?.boot_time).format('YYYY-MM-DD HH:mm:ss')}</p> :
+                                    <Skeleton className="h-5 w-[100px]"/>
                             }
                         </div>
                     </TooltipTrigger>
