@@ -56,20 +56,20 @@ export const toKiB = ([strNum, unit]: [string, string]): number => {
   return 0
 }
 
-export const kiBToMaxUnit = (kiB: number | string | undefined): [string, string] => {
+export const kiBToMaxUnit = (kiB: number | string | undefined, fixed = 1): [string, string] => {
   if (typeof kiB === "string") {
     kiB = parseInt(kiB)
   }
   if (!kiB) {
     return ["0", ""]
   } else if (kiB < 1024) {
-    return [kiB.toFixed(1), "KB"]
+    return [kiB.toFixed(fixed), "KB"]
   } else if (kiB < 1024 * 1024) {
-    return [(kiB / 1024).toFixed(1), "MB"]
+    return [(kiB / 1024).toFixed(fixed), "MB"]
   } else if (kiB < 1024 * 1024 * 1024) {
-    return [(kiB / 1024 / 1024).toFixed(1), "GB"]
+    return [(kiB / 1024 / 1024).toFixed(fixed), "GB"]
   } else {
-    return [(kiB / 1024 / 1024 / 1024).toFixed(1), "TB"]
+    return [(kiB / 1024 / 1024 / 1024).toFixed(fixed), "TB"]
   }
 }
 
@@ -80,7 +80,11 @@ export const computedMemoryUsagePercentage = (usage: MemUsage): string => {
 
 export const formatToString = (data: FormatData | [string, string]): string => {
   if (data) {
-    const [value, unit] = data
+    let [value, unit] = data
+    if (unit === 'KiB') unit = 'KB'
+    if (unit === 'MiB') unit = 'MB'
+    if (unit === 'GiB') unit = 'GB'
+    if (unit === 'TiB') unit = 'TB'
     return unit ? `${value} ${unit}` : value
   }
   return ''

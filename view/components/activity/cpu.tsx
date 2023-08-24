@@ -24,7 +24,7 @@ export function CpuActivity() {
             let time = unix(payload?.[0].payload.time).format('hh:mm:ss')
 
             return (
-                <Card className="min-w-[150px]" decoration="bottom" decorationColor="indigo">
+                <Card className="px-4 py-2 min-w-[150px]" decoration="bottom" decorationColor="indigo">
                     <Text>{time}</Text>
                     <div className="text-2xl font-bold">{`${payload?.[0].value}`}%</div>
                 </Card>

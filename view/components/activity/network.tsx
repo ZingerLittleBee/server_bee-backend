@@ -14,48 +14,6 @@ import {unix} from 'dayjs'
 import {formatToString, kiBToMaxUnit} from "@/lib/utils";
 import {Card, Text} from "@tremor/react";
 
-const CustomizedYAxisTick = ({x, y, payload}: any) => {
-    let [value, unit] = kiBToMaxUnit(payload.value)
-
-    if (payload.value === 0) {
-        value = ''
-        unit = ''
-    }
-
-    return (
-        <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} textAnchor="end" fill="#666" className="text-[14px]">
-                {value}
-            </text>
-            <text x={0} y={15} textAnchor="end" fill="#666" className="text-[10px] italic">
-                {unit}
-            </text>
-        </g>
-    );
-}
-
-const CustomTooltip: FC<TooltipProps<string, number>> = ({active, payload, label}) => {
-    if (active) {
-        let time = payload?.[0].payload.name
-        let tx = formatToString(kiBToMaxUnit(payload?.[0].value))
-        let rx = formatToString(kiBToMaxUnit(payload?.[1].value))
-
-        return (
-            <Card className="min-w-[150px]" decoration="bottom" decorationColor="indigo">
-                <Text>{time}</Text>
-                <div className="flex flex-col justify-center items-start text-xl font-bold">
-                    <p style={{color: '#22c55e'}}>
-                        tx: {tx}
-                    </p>
-                    <p style={{color: '#8b5cf6'}}>
-                        rx: {rx}
-                    </p>
-                </div>
-            </Card>
-        );
-    }
-    return null;
-}
 
 export function NetworkActivity() {
     const {history} = useStore()
@@ -94,4 +52,47 @@ export function NetworkActivity() {
             </LineChart>
         </ResponsiveContainer>
     );
+}
+
+const CustomizedYAxisTick = ({x, y, payload}: any) => {
+    let [value, unit] = kiBToMaxUnit(payload.value, 0)
+
+    if (payload.value === 0) {
+        value = ''
+        unit = ''
+    }
+
+    return (
+        <g transform={`translate(${x},${y})`}>
+            <text x={0} y={0} textAnchor="end" fill="#666" className="text-[14px]">
+                {value}
+            </text>
+            <text x={0} y={15} textAnchor="end" fill="#666" className="text-[10px] italic">
+                {unit}
+            </text>
+        </g>
+    );
+}
+
+const CustomTooltip: FC<TooltipProps<string, number>> = ({active, payload, label}) => {
+    if (active) {
+        let time = payload?.[0].payload.name
+        let tx = formatToString(kiBToMaxUnit(payload?.[0].value))
+        let rx = formatToString(kiBToMaxUnit(payload?.[1].value))
+
+        return (
+            <Card className="px-4 py-2 min-w-[150px]" decoration="bottom" decorationColor="indigo">
+                <Text>{time}</Text>
+                <div className="flex flex-col justify-center items-start text-xl font-bold">
+                    <p style={{color: '#8b5cf6'}}>
+                        tx: {tx}
+                    </p>
+                    <p style={{color: '#22c55e'}}>
+                        rx: {rx}
+                    </p>
+                </div>
+            </Card>
+        );
+    }
+    return null;
 }

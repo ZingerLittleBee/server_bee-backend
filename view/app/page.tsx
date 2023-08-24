@@ -51,7 +51,7 @@ export default function DashboardPage() {
               <DiskWidget/>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-4">
+              <Card className="col-span-3">
                 <CardHeader>
                   <CardTitle>CPU Activity</CardTitle>
                 </CardHeader>
@@ -59,12 +59,9 @@ export default function DashboardPage() {
                   <CpuActivity/>
                 </CardContent>
               </Card>
-              <Card className="col-span-3">
+              <Card className="col-span-4">
                 <CardHeader>
                   <CardTitle>Network Activity</CardTitle>
-                  {/*<CardDescription>*/}
-                  {/*  You made {fusion.process?.length} sales this month.*/}
-                  {/*</CardDescription>*/}
                 </CardHeader>
                 <CardContent>
                   <NetworkActivity/>
