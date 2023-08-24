@@ -4,7 +4,7 @@ import {useStore} from "@/store";
 import React, {FC, useMemo} from "react";
 import {Area, AreaChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis} from "recharts";
 import {unix} from 'dayjs'
-import {Text, Card} from "@tremor/react";
+import {Text, Card, Divider} from "@tremor/react";
 
 export function CpuActivity() {
     const {history} = useStore()

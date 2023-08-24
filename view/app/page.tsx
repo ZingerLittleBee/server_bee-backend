@@ -12,6 +12,11 @@ import NetworkWidget from "@/components/widget/network";
 import {DiskWidget} from "@/components/widget/disk";
 import {CpuActivity} from "@/components/activity/cpu";
 import {NetworkActivity} from "@/components/activity/network";
+import {info} from "autoprefixer";
+import {History, UserSquare} from "lucide-react";
+import {Icons} from "@/components/icons";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import {OsWidget} from "@/components/widget/os";
 
 export default function DashboardPage() {
 
@@ -21,11 +26,11 @@ export default function DashboardPage() {
 
   const {fusion} = useStore()
 
-  const info = fusion?.os?.name
+  const os = fusion?.os
   return (
       <>
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">{info}</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{os?.name}</h2>
           <div className="flex items-center space-x-2">
             <Button>{token.communicationToken}</Button>
           </div>
@@ -33,8 +38,8 @@ export default function DashboardPage() {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics" disabled>
-              Analytics
+            <TabsTrigger value="process">
+              Process
             </TabsTrigger>
             <TabsTrigger value="reports" disabled>
               Reports
@@ -44,6 +49,7 @@ export default function DashboardPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
+            <OsWidget/>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <CpuWidget/>
               <MemoryWidget/>
