@@ -17,16 +17,20 @@ import {History, UserSquare} from "lucide-react";
 import {Icons} from "@/components/icons";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {OsWidget} from "@/components/widget/os";
+import {ReactNode} from "react";
+import ProcessList from "@/components/process/list/page";
+import ProcessDetail from "@/components/process/detail";
 
 export default function DashboardPage() {
 
   const token = useToken()
 
-  const {sendMessage} = useWebsocket()
+  const {requestProcess} = useWebsocket()
 
   const {fusion} = useStore()
 
   const os = fusion?.os
+
   return (
       <>
         <div className="flex items-center justify-between space-y-2">
@@ -35,7 +39,8 @@ export default function DashboardPage() {
             <Button>{token.communicationToken}</Button>
           </div>
         </div>
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-4"
+              onValueChange={value => value === 'process' && requestProcess()}>
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="process">
@@ -73,6 +78,12 @@ export default function DashboardPage() {
                   <NetworkActivity/>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+          <TabsContent value="process" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <div className="col-span-3">{<ProcessList/>}</div>
+              <div className="col-span-4">{<ProcessDetail/>}</div>
             </div>
           </TabsContent>
         </Tabs>

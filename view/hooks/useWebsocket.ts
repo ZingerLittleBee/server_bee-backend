@@ -1,6 +1,6 @@
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import {useToken} from "@/hooks/useToken";
-import {Fusion} from "@/types/fusion";
+import {Fusion, SimpleProcessKey} from "@/types/fusion";
 import {useStore} from "@/store";
 import {kSetFusion} from "@/store/fusion";
 import {kHistoryAdd} from "@/store/history";
@@ -10,7 +10,8 @@ const useWebsocket = () => {
     const {communicationToken} = useToken()
     const {fusionDispatch, historyDispatch} = useStore()
 
-    let ws: WebSocket;
+    const wsRef = useRef<WebSocket | null>(null);
+
     useEffect(() => {
         if (communicationToken) {
             const loc = window.location;
@@ -18,13 +19,18 @@ const useWebsocket = () => {
             if (loc.protocol === 'https:') {
                 protocol = 'wss://';
             }
-            ws = new WebSocket(`${protocol}${loc.host}/ws?token=${communicationToken}`);
+
+            if (!wsRef.current) {
+                wsRef.current = new WebSocket(`${protocol}${loc.host}/ws?token=${communicationToken}`);
+            }
+
+            const ws = wsRef.current;
+
             ws.onopen = () => {
                 console.log('Websocket Connected');
                 ws.send('/more')
             };
             ws.onmessage = (e) => {
-                console.log(e.data);
                 const fusion = JSON.parse(e.data) as Fusion
                 fusionDispatch({type: kSetFusion, payload: fusion})
                 historyDispatch({type: kHistoryAdd, payload: fusion.overview})
@@ -40,10 +46,29 @@ const useWebsocket = () => {
     }, [communicationToken])
 
     const sendMessage = (message: string) => {
-        ws.send(message);
+        if (wsRef.current) {
+            wsRef.current.send(message);
+        }
     }
 
-    return {sendMessage};
+    const requestMore = () => {
+        sendMessage('/more')
+    }
+
+    const requestLess = () => sendMessage('/less')
+
+    const requestProcess = (pid?: string) => sendMessage(pid ? `/process ${pid}` : '/process')
+
+    const sortUp = (key: SimpleProcessKey) => sendMessage(`/up ${key}`)
+    const sortDown = (key: SimpleProcessKey) => sendMessage(`/down ${key}`)
+
+    return {
+        requestMore,
+        requestLess,
+        requestProcess,
+        sortUp,
+        sortDown
+    };
 }
 
 export default useWebsocket

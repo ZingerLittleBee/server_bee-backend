@@ -30,7 +30,7 @@ export default function CpuWidget() {
                 <CardTitle className="text-sm font-medium">
                     CPU
                 </CardTitle>
-                <BadgeDelta className="h-2.5" size="xs" isIncreasePositive={false}
+                <BadgeDelta className="h-2.5 p-2" isIncreasePositive={false}
                             deltaType={diff > 0 ? 'increase' : diff === 0 ? 'moderateIncrease' : 'decrease'}>{`${Math.abs(diff).toFixed(1)}%`}</BadgeDelta>
             </CardHeader>
             <CardContent>

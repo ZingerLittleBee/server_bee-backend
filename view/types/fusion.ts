@@ -114,7 +114,9 @@ export type Process = {
     // group_id?: string;
 };
 
-export type SimpleProcess = Pick<Process, "name" | "pid" | "cpu" | "memory">;
+export type SimpleProcessKey = "name" | "pid" | "cpu" | "memory";
+
+export type SimpleProcess = Pick<Process, SimpleProcessKey>;
 
 export type Fusion = {
     overview: Overview;

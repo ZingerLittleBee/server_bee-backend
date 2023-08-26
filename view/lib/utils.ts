@@ -81,11 +81,12 @@ export const computedMemoryUsagePercentage = (usage: MemUsage): string => {
 export const formatToString = (data: FormatData | [string, string]): string => {
   if (data) {
     let [value, unit] = data
-    if (unit === 'KiB') unit = 'KB'
-    if (unit === 'MiB') unit = 'MB'
-    if (unit === 'GiB') unit = 'GB'
-    if (unit === 'TiB') unit = 'TB'
-    return unit ? `${value} ${unit}` : value
+    let newUnit: string = unit
+    if (unit === 'KiB') newUnit = 'KB'
+    if (unit === 'MiB') newUnit = 'MB'
+    if (unit === 'GiB') newUnit = 'GB'
+    if (unit === 'TiB') newUnit = 'TB'
+    return unit ? `${value} ${newUnit}` : value
   }
   return ''
 }
