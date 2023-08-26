@@ -22,7 +22,7 @@ import {
   User,
   X,
   Mail,
-  LogIn, LucideIcon
+  LogIn, LucideIcon, ArrowDownWideNarrow, ArrowUpNarrowWide
 } from 'lucide-react'
 
 export type Icon = LucideIcon
@@ -166,5 +166,9 @@ export const Icons = {
               d="M10.5,9C7.47,9,5,12.14,5,16s2.47,7,5.5,7S16,19.86,16,16,13.53,9,10.5,9Zm0,12C8.6,21,7,18.71,7,16s1.6-5,3.5-5S14,13.29,14,16,12.4,21,10.5,21Z"></path>
         </g>
       </svg>
-  )
+  ),
+  descende: ({...props}: LucideProps) =>
+      <ArrowDownWideNarrow {...props} />
+  ,
+  ascende: ({...props}: LucideProps) => <ArrowUpNarrowWide {...props} />
 }

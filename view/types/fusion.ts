@@ -115,6 +115,7 @@ export type Process = {
 };
 
 export type SimpleProcessKey = "name" | "pid" | "cpu" | "memory";
+export type processSortKey = Omit<SimpleProcessKey, "memory"> | "mem"
 
 export type SimpleProcess = Pick<Process, SimpleProcessKey>;
 

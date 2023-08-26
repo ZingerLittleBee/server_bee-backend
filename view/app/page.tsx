@@ -14,7 +14,7 @@ import {CpuActivity} from "@/components/activity/cpu";
 import {NetworkActivity} from "@/components/activity/network";
 import {OsWidget} from "@/components/widget/os";
 import ProcessDetail from "@/components/process/detail";
-import ProcessList from "@/components/process/list";
+import ProcessList from "@/components/process/list/page";
 
 export default function DashboardPage() {
 

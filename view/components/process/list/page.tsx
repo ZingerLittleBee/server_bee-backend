@@ -7,6 +7,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {STooltip} from "@/components/s-tooltip";
 import {Divider} from "@tremor/react";
+import {ProcessListHeader} from "@/components/process/list/header";
 
 export default function ProcessList() {
     const {fusion} = useStore()
@@ -21,14 +22,10 @@ export default function ProcessList() {
         }))
     }, [process])
 
+
     return (
         <Card>
-            <div className="pl-2 py-2 grid grid-cols-6 text-sm text-muted-foreground bg-muted">
-                <p className=" col-span-1 truncate">PID</p>
-                <p className="col-span-3 truncate">Name</p>
-                <p className="col-span-1 truncate">CPU</p>
-                <p className="col-span-1 truncate">Mem</p>
-            </div>
+            <ProcessListHeader/>
             <CardContent className="p-0">
                 <ScrollArea className="h-[calc(100vh-65px-16px-48px-40px-80px)] w-full rounded-md">
                     <Virtuoso

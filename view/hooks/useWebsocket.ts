@@ -1,54 +1,59 @@
 import {useEffect, useRef} from "react";
 import {useToken} from "@/hooks/useToken";
-import {Fusion, SimpleProcessKey} from "@/types/fusion";
+import {Fusion, processSortKey, SimpleProcessKey} from "@/types/fusion";
 import {useStore} from "@/store";
 import {kSetFusion} from "@/store/fusion";
 import {kHistoryAdd} from "@/store/history";
+import {kSetWs} from "@/store/ws";
+import instance from "@/requests/instance";
 
 const useWebsocket = () => {
 
     const {communicationToken} = useToken()
+    const {ws, wsDispatch} = useStore()
     const {fusionDispatch, historyDispatch} = useStore()
 
-    const wsRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
         if (communicationToken) {
-            const loc = window.location;
-            let protocol = 'ws://';
-            if (loc.protocol === 'https:') {
-                protocol = 'wss://';
+            let instance: WebSocket
+            if (!ws.instance || ws.instance.readyState !== WebSocket.OPEN) {
+                const loc = window.location;
+                let protocol = 'ws://';
+                if (loc.protocol === 'https:') {
+                    protocol = 'wss://';
+                }
+                instance = new WebSocket(`${protocol}${loc.host}/ws?token=${communicationToken}`)
+                wsDispatch({
+                    type: kSetWs,
+                    payload: instance
+                })
+            } else {
+                instance = ws.instance
             }
 
-            if (!wsRef.current) {
-                wsRef.current = new WebSocket(`${protocol}${loc.host}/ws?token=${communicationToken}`);
-            }
 
-            const ws = wsRef.current;
-
-            ws.onopen = () => {
+            instance.onopen = () => {
                 console.log('Websocket Connected');
-                ws.send('/more')
+                instance.send('/more')
             };
-            ws.onmessage = (e) => {
+            instance.onmessage = (e) => {
                 const fusion = JSON.parse(e.data) as Fusion
                 fusionDispatch({type: kSetFusion, payload: fusion})
                 historyDispatch({type: kHistoryAdd, payload: fusion.overview})
             };
-            ws.onclose = () => {
+            instance.onclose = () => {
                 console.log('Disconnected');
             };
-            ws.onerror = (e) => {
+            instance.onerror = (e) => {
                 console.log('Websocket Error', e);
             };
-            return () => ws.close();
+            // return () => instance.close();
         }
     }, [communicationToken])
 
     const sendMessage = (message: string) => {
-        if (wsRef.current) {
-            wsRef.current.send(message);
-        }
+        ws.instance?.send(message)
     }
 
     const requestMore = () => {
@@ -59,15 +64,18 @@ const useWebsocket = () => {
 
     const requestProcess = (pid?: string) => sendMessage(pid ? `/process ${pid}` : '/process')
 
-    const sortUp = (key: SimpleProcessKey) => sendMessage(`/up ${key}`)
-    const sortDown = (key: SimpleProcessKey) => sendMessage(`/down ${key}`)
+    const sortUp = (key: processSortKey) => sendMessage(`/up ${key}`)
+    const sortDown = (key: processSortKey) => sendMessage(`/down ${key}`)
+
+    const status = () => ws.instance?.readyState
 
     return {
         requestMore,
         requestLess,
         requestProcess,
         sortUp,
-        sortDown
+        sortDown,
+        status
     };
 }
 

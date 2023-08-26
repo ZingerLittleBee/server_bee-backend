@@ -2,8 +2,9 @@ import React, {createContext, ReactNode, useContext, useReducer} from "react";
 import {FusionContext, fusionReducer, FusionState} from "@/store/fusion";
 import {TokenContext, tokenReducer} from "@/store/token";
 import {HistoryContext, historyReducer, HistoryState} from "@/store/history";
+import {WsContext, wsReducer, WsState} from "@/store/ws";
 
-type StoreContextProps = FusionContext & TokenContext & HistoryContext
+type StoreContextProps = FusionContext & TokenContext & HistoryContext & WsContext
 
 
 const StoreContext = createContext<StoreContextProps>({} as StoreContextProps);
@@ -20,11 +21,14 @@ export const StoreProvider = ({children}: {
         network: [],
     })
 
+    const [ws, wsDispatch] = useReducer(wsReducer, {} as WsState)
+
     return (
         <StoreContext.Provider value={{
             fusion, fusionDispatch,
             token, tokenDispatch,
-            history, historyDispatch
+            history, historyDispatch,
+            ws, wsDispatch
         }}>
             {children}
         </StoreContext.Provider>
