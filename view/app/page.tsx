@@ -12,14 +12,9 @@ import NetworkWidget from "@/components/widget/network";
 import {DiskWidget} from "@/components/widget/disk";
 import {CpuActivity} from "@/components/activity/cpu";
 import {NetworkActivity} from "@/components/activity/network";
-import {info} from "autoprefixer";
-import {History, UserSquare} from "lucide-react";
-import {Icons} from "@/components/icons";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {OsWidget} from "@/components/widget/os";
-import {ReactNode} from "react";
-import ProcessList from "@/components/process/list/page";
 import ProcessDetail from "@/components/process/detail";
+import ProcessList from "@/components/process/list";
 
 export default function DashboardPage() {
 
