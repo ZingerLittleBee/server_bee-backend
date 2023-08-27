@@ -1,11 +1,10 @@
-import {useEffect, useRef} from "react";
+import {useEffect} from "react";
 import {useToken} from "@/hooks/useToken";
-import {Fusion, processSortKey, SimpleProcessKey} from "@/types/fusion";
+import {Fusion, processSortKey} from "@/types/fusion";
 import {useStore} from "@/store";
 import {kSetFusion} from "@/store/fusion";
 import {kHistoryAdd} from "@/store/history";
 import {kSetWs} from "@/store/ws";
-import instance from "@/requests/instance";
 
 const useWebsocket = () => {
 
@@ -17,7 +16,7 @@ const useWebsocket = () => {
     useEffect(() => {
         if (communicationToken) {
             let instance: WebSocket
-            if (!ws.instance || ws.instance.readyState !== WebSocket.OPEN) {
+            if (!ws.instance || (ws.instance.readyState !== WebSocket.OPEN && ws.instance.readyState !== WebSocket.CONNECTING)) {
                 const loc = window.location;
                 let protocol = 'ws://';
                 if (loc.protocol === 'https:') {

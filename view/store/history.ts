@@ -30,7 +30,7 @@ export const historyReducer = (state: HistoryState, action: HistoryAction): Hist
                     value: action.payload.cpu_usage,
                     time: time
                 }],
-                network: [...state.network, {
+                network: [...(state.network?.length > 1000 ? state.network.slice(-1000) : state.network), {
                     tx: toKiB(action.payload.network_io.tx).toFixed(1),
                     rx: toKiB(action.payload.network_io.rx).toFixed(1),
                     time: time

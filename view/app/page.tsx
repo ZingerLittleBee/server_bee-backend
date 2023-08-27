@@ -1,6 +1,5 @@
 "use client"
 
-import {Button} from "@/components/ui/button";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import useWebsocket from "@/hooks/useWebsocket";
@@ -15,24 +14,40 @@ import {NetworkActivity} from "@/components/activity/network";
 import {OsWidget} from "@/components/widget/os";
 import ProcessDetail from "@/components/process/detail";
 import ProcessList from "@/components/process/list/page";
+import {Badge, Color} from "@tremor/react";
+import {ElementType, useMemo} from "react";
+import {Cable, HelpCircle, PlugZap, Unplug, Wifi} from "lucide-react";
 
 export default function DashboardPage() {
 
   const token = useToken()
 
-  const {requestProcess} = useWebsocket()
+  const {requestProcess, status} = useWebsocket()
 
   const {fusion} = useStore()
 
   const os = fusion?.os
 
+  const statusText: [ElementType, Color, string] = useMemo(() => {
+    switch (status()) {
+      case WebSocket.CONNECTING:
+        return [PlugZap, 'teal', 'Connecting']
+      case WebSocket.OPEN:
+        return [Wifi, 'green', 'Connected']
+      case WebSocket.CLOSING:
+        return [Cable, 'amber', 'Closing']
+      case WebSocket.CLOSED:
+        return [Unplug, 'rose', 'Disconnected']
+      default:
+        return [HelpCircle, 'slate', 'Unknown']
+    }
+  }, [status])
+
   return (
       <>
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">{os?.name}</h2>
-          <div className="flex items-center space-x-2">
-            <Button>{token.communicationToken}</Button>
-          </div>
+          <Badge size="md" icon={statusText[0]} color={statusText[1]}>{statusText[2]}</Badge>
         </div>
         <Tabs defaultValue="overview" className="space-y-4"
               onValueChange={value => value === 'process' && requestProcess()}>

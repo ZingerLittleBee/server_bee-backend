@@ -17,20 +17,20 @@ export function DiskWidget() {
             <CardContent>
                 <div className="grid md:grid-cols-2 justify-between">
                     <div className="flex flex-col space-y-1 items-start">
-                        <Badge color="emerald">
-                            <div className="flex justify-center items-center space-x-2">
-                                <Tracker data={[{color: "emerald", tooltip: "Read"}]}
-                                         className="flex justify-center items-center w-2 h-3"/>
-                                <p>{formatToString(disk?.read)}</p>
-                            </div>
-                        </Badge>
-                        <Badge color="rose">
-                            <div className="flex justify-center items-center space-x-2">
-                                <Tracker data={[{color: "rose", tooltip: "Write"}]}
-                                         className="flex justify-center items-center w-2 h-3"/>
-                                <p>{formatToString(disk?.write)}</p>
-                            </div>
-                        </Badge>
+                        <div className="flex justify-center items-center space-x-2">
+                            <Tracker data={[{color: "emerald", tooltip: "Read"}]}
+                                     className="flex justify-center items-center w-2 h-3"/>
+                            <Badge color="emerald">
+                                {disk ? formatToString(disk?.read) : '0 B'}
+                            </Badge>
+                        </div>
+                        <div className="flex justify-center items-center space-x-2">
+                            <Tracker data={[{color: "rose", tooltip: "Write"}]}
+                                     className="flex justify-center items-center w-2 h-3"/>
+                            <Badge color="rose">
+                                {disk ? formatToString(disk?.write) : '0 B'}
+                            </Badge>
+                        </div>
                     </div>
                     <div className="flex flex-col space-y-1 items-end">
                         <Badge icon={Sigma}>{formatToString(disk?.total_read)}</Badge>
