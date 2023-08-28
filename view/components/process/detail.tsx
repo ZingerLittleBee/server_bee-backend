@@ -69,8 +69,8 @@ export default function ProcessDetail() {
                                     <Text>Disk</Text>
                                     <div className="flex justify-between">
                                         {
-                                            process?.disk && ['read', 'write', 'total_read', 'total_write'].map((key) => {
-                                                return <div className="">
+                                            process?.disk && ['read', 'write', 'total_read', 'total_write'].map((key, index) => {
+                                                return <div key={`${key}-${index}`}>
                                                     <Text>{key}</Text>
                                                     <Bold>{formatToString(process?.disk[key as keyof DiskIO])}</Bold>
                                                 </div>
@@ -96,8 +96,8 @@ export default function ProcessDetail() {
                                 <TremorCard>
                                     <Text>Command</Text>
                                     {
-                                        process?.cmd.map((cmd) => (
-                                            <STooltip content={cmd}>
+                                        process?.cmd.map((cmd, index) => (
+                                            <STooltip key={`${cmd}-${index}`} content={cmd}>
                                                 <p className="truncate font-bold">{cmd}</p>
                                             </STooltip>
                                         ))
@@ -111,8 +111,8 @@ export default function ProcessDetail() {
                                     <Text>Environ</Text>
                                     <ScrollArea className="h-64">
                                         {
-                                            process?.environ.map((env) => {
-                                                return <STooltip content={env}>
+                                            process?.environ.map((env, index) => {
+                                                return <STooltip key={`${env}-${index}`} content={env}>
                                                     <p className="truncate font-bold">{env}</p>
                                                 </STooltip>
                                             })
