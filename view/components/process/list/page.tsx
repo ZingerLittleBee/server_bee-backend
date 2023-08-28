@@ -8,9 +8,11 @@ import {ScrollArea} from "@/components/ui/scroll-area";
 import {STooltip} from "@/components/s-tooltip";
 import {Divider} from "@tremor/react";
 import {ProcessListHeader} from "@/components/process/list/header";
+import useWebsocket from "@/hooks/useWebsocket";
 
 export default function ProcessList() {
     const {fusion} = useStore()
+    const {requestProcess} = useWebsocket()
     const process = fusion.process
 
     const processes = useMemo(() => {
@@ -22,12 +24,11 @@ export default function ProcessList() {
         }))
     }, [process])
 
-
     return (
         <Card>
             <ProcessListHeader/>
             <CardContent className="p-0">
-                <ScrollArea className="h-[calc(100vh-65px-16px-48px-40px-80px)] w-full rounded-md">
+                <ScrollArea className="h-[calc(100vh-65px-1rem-36px-40px-16px-36px-20px)] w-full rounded-md">
                     <Virtuoso
                         useWindowScroll
                         style={{height: '400px'}}
@@ -37,7 +38,8 @@ export default function ProcessList() {
                             return (
                                 <>
                                     <div className="pl-2 grid grid-cols-6 mt-2 text-[14px]">
-                                        <p className="col-span-1 truncate">{process.pid}</p>
+                                        <p className="col-span-1 truncate cursor-pointer"
+                                           onClick={() => process.pid && requestProcess(process.pid)}>{process.pid}</p>
                                         <STooltip content={process.name}>
                                             <p className="col-span-3 truncate">
                                                 {process.name}

@@ -3,7 +3,6 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import useWebsocket from "@/hooks/useWebsocket";
-import {useToken} from "@/hooks/useToken";
 import {useStore} from "@/store";
 import CpuWidget from "@/components/widget/cpu";
 import {MemoryWidget} from "@/components/widget/memory";
@@ -20,8 +19,6 @@ import {Cable, HelpCircle, PlugZap, Unplug, Wifi} from "lucide-react";
 
 export default function DashboardPage() {
 
-  const token = useToken()
-
   const {requestProcess, status} = useWebsocket()
 
   const {fusion} = useStore()
@@ -29,7 +26,7 @@ export default function DashboardPage() {
   const os = fusion?.os
 
   const statusText: [ElementType, Color, string] = useMemo(() => {
-    switch (status()) {
+    switch (status) {
       case WebSocket.CONNECTING:
         return [PlugZap, 'teal', 'Connecting']
       case WebSocket.OPEN:
@@ -55,12 +52,6 @@ export default function DashboardPage() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="process">
               Process
-            </TabsTrigger>
-            <TabsTrigger value="reports" disabled>
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="notifications" disabled>
-              Notifications
             </TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">

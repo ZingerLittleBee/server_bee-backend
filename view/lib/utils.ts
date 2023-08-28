@@ -78,7 +78,7 @@ export const computedMemoryUsagePercentage = (usage: MemUsage): string => {
   return (toGiB(usage.total) !== 0 ? toGiB(usage.used) / toGiB(usage.total) * 100 : 0).toFixed(1)
 }
 
-export const formatToString = (data: FormatData | [string, string]): string => {
+export const formatToString = (data: FormatData | [string, string] | undefined): string => {
   if (data) {
     let [value, unit] = data
     let newUnit: string = unit

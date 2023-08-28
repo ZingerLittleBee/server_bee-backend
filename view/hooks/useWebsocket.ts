@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useToken} from "@/hooks/useToken";
 import {Fusion, processSortKey} from "@/types/fusion";
 import {useStore} from "@/store";
@@ -11,6 +11,7 @@ const useWebsocket = () => {
     const {communicationToken} = useToken()
     const {ws, wsDispatch} = useStore()
     const {fusionDispatch, historyDispatch} = useStore()
+    const [status, setStatus] = useState<number | undefined>()
 
 
     useEffect(() => {
@@ -42,6 +43,7 @@ const useWebsocket = () => {
                 historyDispatch({type: kHistoryAdd, payload: fusion.overview})
             };
             instance.onclose = () => {
+                setStatus(WebSocket.CLOSED)
                 console.log('Disconnected');
             };
             instance.onerror = (e) => {
@@ -66,15 +68,13 @@ const useWebsocket = () => {
     const sortUp = (key: processSortKey) => sendMessage(`/up ${key}`)
     const sortDown = (key: processSortKey) => sendMessage(`/down ${key}`)
 
-    const status = () => ws.instance?.readyState
-
     return {
         requestMore,
         requestLess,
         requestProcess,
         sortUp,
         sortDown,
-        status
+        status: status ?? ws.instance?.readyState
     };
 }
 
