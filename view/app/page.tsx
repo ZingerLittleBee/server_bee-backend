@@ -14,10 +14,14 @@ import {OsWidget} from "@/components/widget/os";
 import ProcessDetail from "@/components/process/detail";
 import ProcessList from "@/components/process/list/page";
 import {Badge, Color} from "@tremor/react";
-import {ElementType, useMemo} from "react";
+import {ElementType, useEffect, useMemo} from "react";
 import {Cable, HelpCircle, PlugZap, Unplug, Wifi} from "lucide-react";
 
 export default function DashboardPage() {
+
+  useEffect(() => {
+
+  }, [])
 
   const {requestProcess, status} = useWebsocket()
 

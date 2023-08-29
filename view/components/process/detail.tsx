@@ -85,7 +85,7 @@ export default function ProcessDetail() {
                                 <TremorCard>
                                     <Text>Executable</Text>
                                     <STooltip content={process?.exe}>
-                                        <p className="truncate font-bold">{process?.cmd}</p>
+                                        <p className="truncate font-bold">{process?.exe}</p>
                                     </STooltip>
                                 </TremorCard>
                             </Col>

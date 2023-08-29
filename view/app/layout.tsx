@@ -20,9 +20,9 @@ export default function RootLayout({
         <html lang="en">
         <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex min-h-screen flex-col">
+            <div className="h-full relative flex min-h-screen flex-col">
                 <SiteHeader/>
-                <div className="container items-center space-x-4 sm:justify-between sm:space-x-0 pt-4">
+                <div className="container h-full items-center space-x-4 sm:justify-between sm:space-x-0 pt-4">
                     <StoreProvider>
                         {children}
                     </StoreProvider>
