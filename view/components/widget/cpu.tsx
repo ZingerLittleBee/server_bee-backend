@@ -34,7 +34,7 @@ export default function CpuWidget() {
                             deltaType={diff > 0 ? 'increase' : diff === 0 ? 'moderateIncrease' : 'decrease'}>{`${Math.abs(diff).toFixed(1)}%`}</BadgeDelta>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{`${cpuUsage}%`}</div>
+                <div className="text-2xl font-bold">{cpuUsage ? `${cpuUsage}%` : 'N/A'}</div>
                 <p className="text-xs text-muted-foreground">
                     1 min: {loadAverage?.[0]} | 5 min: {loadAverage?.[1]} | 15 min: {loadAverage?.[2]}
                 </p>

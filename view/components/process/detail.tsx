@@ -57,7 +57,7 @@ export default function ProcessDetail() {
                 </CardHeader>
                 <CardContent>
                     <Grid numItems={3} numItemsSm={2} numItemsLg={3} className="gap-6">
-                        {data.map((item) => (
+                        {data.filter(d => d.metric != undefined).map((item) => (
                             <TremorCard key={item.title}>
                                 <Text>{item.title}</Text>
                                 <Bold>{item.metric}</Bold>

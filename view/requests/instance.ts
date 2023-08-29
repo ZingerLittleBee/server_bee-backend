@@ -14,7 +14,7 @@ instance.interceptors.response.use(
     function (error) {
         toast({
             title: 'Uh oh! Something went wrong.',
-            description: error
+            description: error.toString()
         })
         return Promise.reject(error)
     }
