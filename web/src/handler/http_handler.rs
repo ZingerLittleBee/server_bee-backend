@@ -55,6 +55,10 @@ pub async fn rest_token(
     JsonResponse(HttpResult::new(true))
 }
 
+pub async fn check_token(_token: CommunicationToken) -> impl Responder {
+    HttpResponse::Ok().finish()
+}
+
 /// private api localhost only
 // /local/token/view
 pub async fn view_token(db: web::Data<Db>) -> impl Responder {

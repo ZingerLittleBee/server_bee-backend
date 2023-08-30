@@ -8,14 +8,14 @@ import {kSetWs} from "@/store/ws";
 
 const useWebsocket = () => {
 
-    const {communicationToken} = useToken()
+    const {token} = useToken()
     const {ws, wsDispatch} = useStore()
     const {fusionDispatch, historyDispatch} = useStore()
     const [status, setStatus] = useState<number | undefined>()
 
 
     useEffect(() => {
-        if (communicationToken) {
+        if (token.communicationToken) {
             let instance: WebSocket
             if (!ws.instance || (ws.instance.readyState !== WebSocket.OPEN && ws.instance.readyState !== WebSocket.CONNECTING)) {
                 const loc = window.location;
@@ -23,7 +23,7 @@ const useWebsocket = () => {
                 if (loc.protocol === 'https:') {
                     protocol = 'wss://';
                 }
-                instance = new WebSocket(`${protocol}${loc.host}/ws?token=${communicationToken}`)
+                instance = new WebSocket(`${protocol}${loc.host}/ws?token=${token.communicationToken}`)
                 wsDispatch({
                     type: kSetWs,
                     payload: instance
@@ -51,7 +51,7 @@ const useWebsocket = () => {
             };
             // return () => instance.close();
         }
-    }, [communicationToken])
+    }, [token.communicationToken])
 
     const sendMessage = (message: string) => {
         ws.instance?.send(message)

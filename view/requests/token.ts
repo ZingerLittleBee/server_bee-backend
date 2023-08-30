@@ -6,3 +6,18 @@ export const getToken = async () => {
     )
     return data
 }
+
+export const verifyToken = async (token: string) => {
+    try {
+        await instance.post(
+            '/check', {}, {
+                headers: {
+                    "Authorization": token
+                }
+            }
+        )
+        return true
+    } catch {
+        return false
+    }
+}

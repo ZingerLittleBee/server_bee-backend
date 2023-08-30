@@ -11,11 +11,8 @@ import {StoreProvider} from "@/store";
 
 const inter = Inter({subsets: ['latin']})
 
-export default function RootLayout({
-                                       children,
-                                   }: {
-    children: ReactNode
-}) {
+export default function RootLayout({children}: { children: ReactNode }) {
+
     return (
         <html lang="en">
         <body className={inter.className}>

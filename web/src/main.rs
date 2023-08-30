@@ -6,7 +6,8 @@ use std::sync::{Arc, RwLock};
 use crate::config::config::Config;
 use crate::handler::db_handler::{config_test, db_test};
 use crate::handler::http_handler::{
-    clear_token, index, kill_process, rest_token, rest_token_local, version, view_token,
+    check_token, clear_token, index, kill_process, rest_token, rest_token_local, version,
+    view_token,
 };
 
 use crate::handler::client_handler::{
@@ -77,6 +78,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/version").to(version))
             .service(web::resource("/db").to(db_test))
             .service(web::resource("/config").to(config_test))
+            .service(web::resource("/check").route(web::post().to(check_token)))
             .service(kill_process)
             .service(rest_token)
             // websocket route
