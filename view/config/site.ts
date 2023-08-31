@@ -1,5 +1,5 @@
 import {
-  kDashboardRoute, kTokenRoute,
+  kDashboardRoute, kSettingsRoute,
 } from "@/lib/route"
 
 export type SiteConfig = typeof siteConfig
@@ -18,12 +18,12 @@ export const siteConfig = {
       href: kDashboardRoute,
     },
     client: {
-      title: "Token",
-      href: kTokenRoute,
+      title: "Settings",
+      href: kSettingsRoute,
     },
   },
   links: {
     twitter: "https://twitter.com/zinger_bee",
-    github: "https://github.com/ZingerLittleBee/server-octopus",
+    github: "https://github.com/ZingerLittleBee/server_bee-backend",
   },
 }

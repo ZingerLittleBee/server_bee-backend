@@ -7,7 +7,6 @@ import {
   ClipboardCheck,
   Copy,
   CreditCard,
-  Fingerprint,
   HelpCircle,
   Laptop,
   Loader2,
@@ -22,13 +21,13 @@ import {
   User,
   X,
   Mail,
-  LogIn, LucideIcon, ArrowDownWideNarrow, ArrowUpNarrowWide
+  LogIn, LucideIcon, ArrowDownWideNarrow, ArrowUpNarrowWide, Activity
 } from 'lucide-react'
 
 export type Icon = LucideIcon
 
 export const Icons = {
-  logo: Fingerprint,
+  logo: Activity,
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,
