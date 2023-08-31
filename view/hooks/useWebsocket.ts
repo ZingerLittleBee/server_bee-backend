@@ -47,6 +47,7 @@ const useWebsocket = () => {
                 console.log('Disconnected');
             };
             instance.onerror = (e) => {
+                setStatus(WebSocket.CLOSED)
                 console.log('Websocket Error', e);
             };
             // return () => instance.close();

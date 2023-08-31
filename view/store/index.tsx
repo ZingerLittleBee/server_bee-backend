@@ -3,6 +3,7 @@ import {FusionContext, fusionReducer, FusionState} from "@/store/fusion";
 import {TokenContext, tokenReducer} from "@/store/token";
 import {HistoryContext, historyReducer, HistoryState} from "@/store/history";
 import {WsContext, wsReducer, WsState} from "@/store/ws";
+import {kCommunicationToken} from "@/const";
 
 type StoreContextProps = FusionContext & TokenContext & HistoryContext & WsContext
 
@@ -14,7 +15,7 @@ export const StoreProvider = ({children}: {
 }) => {
     const [fusion, fusionDispatch] = useReducer(fusionReducer, {} as FusionState)
     const [token, tokenDispatch] = useReducer(tokenReducer, {
-        communicationToken: "",
+        communicationToken: localStorage.getItem(kCommunicationToken) ?? '',
     })
     const [history, historyDispatch] = useReducer(historyReducer, {
         cpu: [],

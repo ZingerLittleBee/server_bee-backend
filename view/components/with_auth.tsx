@@ -1,6 +1,7 @@
 import {useRouter} from 'next/navigation';
 import React, {ComponentType, useEffect, useState} from 'react';
 import {useToken} from "@/hooks/useToken";
+import {Loader2} from "lucide-react";
 
 export default function WithAuth(WrappedComponent: ComponentType) {
     return (props: any) => {
@@ -13,9 +14,12 @@ export default function WithAuth(WrappedComponent: ComponentType) {
                 (async () => {
                     const isValid = await isVerified()
                     if (!isValid) {
-                        router.replace('/login');
+                        setTimeout(() => {
+                            router.replace('/login')
+                        }, 500)
+                    } else {
+                        setLoading(false);
                     }
-                    setLoading(false);
                 })();
             } else {
                 router.replace('/login');
@@ -23,8 +27,13 @@ export default function WithAuth(WrappedComponent: ComponentType) {
         }, [token.communicationToken]);
 
         if (loading) {
-            return <div>Loading...</div>;
+            return (
+                <div className="h-full flex justify-center items-center">
+                    <Loader2 size={60} className="animate-spin"/>
+                </div>
+            )
         }
+
         return <WrappedComponent {...props} />;
     };
 }

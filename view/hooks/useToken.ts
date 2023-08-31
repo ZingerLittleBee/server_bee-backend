@@ -2,12 +2,13 @@ import {verifyToken} from "@/requests/token";
 import {useStore} from "@/store";
 import {kSetCommunicationToken} from "@/store/token";
 import {useEffect} from "react";
+import {kCommunicationToken} from "@/const";
 
 export const useToken = () => {
     const {token, tokenDispatch} = useStore()
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem(kCommunicationToken)
         if (token) {
             tokenDispatch({type: kSetCommunicationToken, payload: token})
         }

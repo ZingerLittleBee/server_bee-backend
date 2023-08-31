@@ -8,19 +8,21 @@ import {Checkbox} from "@/components/ui/checkbox";
 import {useToken} from "@/hooks/useToken";
 import {toast} from "@/components/ui/use-toast";
 import {useRouter} from "next/navigation";
+import {kCommunicationToken} from "@/const";
 
 export default function LoginPage() {
     const {verify} = useToken()
     const [showPassword, setShowPassword] = useState(false);
     const [inputValue, setInputValue] = useState("")
-    const [checked, setChecked] = useState(false)
+    const [checked, setChecked] = useState(true)
     const router = useRouter()
 
     const handleConfirm = async () => {
-        const res = await verify(inputValue)
+        const value = inputValue.trim()
+        const res = await verify(value)
         if (res) {
             if (checked) {
-                localStorage.setItem("token", inputValue)
+                localStorage.setItem(kCommunicationToken, value)
             }
             toast({
                 title: "Verify success"
