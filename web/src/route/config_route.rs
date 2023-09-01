@@ -1,5 +1,6 @@
 use crate::handler::config_handler::{
-    get_app_config, get_config, get_server_config, get_web_server_config,
+    get_app_config, get_config, get_server_config, get_web_server_config, set_app_config,
+    set_server_config, set_web_server_config,
 };
 use actix_web::web;
 
@@ -8,15 +9,25 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
         web::scope("/config")
             .service(web::resource("").route(web::get().to(get_config)))
             .service(
-                web::scope("/server")
-                    .service(web::resource("").route(web::get().to(get_server_config))),
+                web::scope("/server").service(
+                    web::resource("")
+                        .route(web::get().to(get_server_config))
+                        .route(web::post().to(set_server_config)),
+                ),
             )
             .service(
-                web::scope("/app").service(web::resource("").route(web::get().to(get_app_config))),
+                web::scope("/app").service(
+                    web::resource("")
+                        .route(web::get().to(get_app_config))
+                        .route(web::post().to(set_app_config)),
+                ),
             )
             .service(
-                web::scope("/webserver")
-                    .service(web::resource("").route(web::get().to(get_web_server_config))),
+                web::scope("/webserver").service(
+                    web::resource("")
+                        .route(web::get().to(get_web_server_config))
+                        .route(web::post().to(set_web_server_config)),
+                ),
             ),
     );
 }
