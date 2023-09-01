@@ -12,8 +12,13 @@ impl WebServerConfig {
         WebServerConfig { port }
     }
 
-    pub fn merge(&mut self, other: &WebServerConfig) {
-        self.port = other.port;
+    pub fn merge(&mut self, other: WebServerConfig) -> bool {
+        let mut merged = false;
+        if other.port != self.port {
+            self.port = other.port;
+            merged = true;
+        }
+        merged
     }
 
     pub fn port(&self) -> u16 {

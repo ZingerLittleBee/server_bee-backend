@@ -180,9 +180,24 @@ impl Config {
         Config::current_dir().join("web.log")
     }
 
+    pub fn set_web_server_config(&mut self, config: WebServerConfig) -> Result<()> {
+        self.web_server.merge(config).then(|| {
+            self.db
+                .set::<WebServerConfig>(WEB_SERVER_CONFIG, &self.web_server);
+        });
+        Ok(())
+    }
+
     pub fn set_app_token(&mut self, token: &str) -> Result<()> {
         self.app.set_token(Some(token.to_string()));
         self.db.set::<AppConfig>(APP_CONFIG, &self.app);
+        Ok(())
+    }
+
+    pub fn set_app_config(&mut self, config: AppConfig) -> Result<()> {
+        self.app.merge(config).then(|| {
+            self.db.set::<AppConfig>(APP_CONFIG, &self.app);
+        });
         Ok(())
     }
 
@@ -192,16 +207,16 @@ impl Config {
         Ok(())
     }
 
+    pub fn set_server_host(&mut self, host: &str) -> Result<()> {
+        self.server.set_host(Some(host.to_string()));
+        self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
+        Ok(())
+    }
+
     pub fn set_server_config(&mut self, config: ServerConfig) -> Result<()> {
         self.server.merge(config).then(|| {
             self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
         });
-        Ok(())
-    }
-
-    pub fn set_server_host(&mut self, host: &str) -> Result<()> {
-        self.server.set_host(Some(host.to_string()));
-        self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
         Ok(())
     }
 }
