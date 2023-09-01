@@ -19,7 +19,7 @@ pub struct Args {
 
     /// 用于和服务器通信的 Token
     #[clap(short, long)]
-    pub client_token: Option<String>,
+    pub server_token: Option<String>,
 
     /// 服务器地址, ip 或 domain
     #[clap(short = 'h', long = "host")]

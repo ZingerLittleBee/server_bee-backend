@@ -1,4 +1,5 @@
-use crate::config::config::{ClientConfig, Config};
+use crate::config::config::Config;
+use crate::config::server::ServerConfig;
 use crate::handler::http_handler::TokenInfo;
 use actix_web::{web, HttpResponse, Responder};
 use log::warn;
@@ -12,7 +13,7 @@ pub async fn set_client_token(
 ) -> HttpResponse {
     warn!("Local Event: set_client_token");
     HttpResponse::from(match config.write() {
-        Ok(mut c) => match c.set_client_token(info.token.as_str()) {
+        Ok(mut c) => match c.set_server_token(info.token.as_str()) {
             Ok(_) => HttpResponse::Ok(),
             Err(_) => HttpResponse::InternalServerError(),
         },
@@ -25,7 +26,7 @@ pub async fn view_client_token(config: web::Data<Arc<RwLock<Config>>>) -> impl R
     warn!("Local Event: view_client_token");
     match config.read() {
         Ok(c) => {
-            let token = c.client_token();
+            let token = c.server_token();
             token.unwrap_or("".into())
         }
         Err(_) => "".into(),
@@ -36,7 +37,7 @@ pub async fn view_client_token(config: web::Data<Arc<RwLock<Config>>>) -> impl R
 pub async fn view_client_config(config: web::Data<Arc<RwLock<Config>>>) -> impl Responder {
     warn!("Local Event: view_client_token");
     match config.read() {
-        Ok(c) => HttpResponse::Ok().json(c.client_config()),
+        Ok(c) => HttpResponse::Ok().json(c.server_token()),
         Err(_) => HttpResponse::Forbidden().json(Value::Object(Default::default())),
     }
 }
@@ -44,11 +45,11 @@ pub async fn view_client_config(config: web::Data<Arc<RwLock<Config>>>) -> impl 
 /// POST /client/config/
 pub async fn set_client_config(
     config: web::Data<Arc<RwLock<Config>>>,
-    data: web::Json<ClientConfig>,
+    data: web::Json<ServerConfig>,
 ) -> HttpResponse {
     warn!("Local Event: Set Client Config");
     HttpResponse::from(match config.write() {
-        Ok(mut c) => match c.set_client_config(data.0) {
+        Ok(mut c) => match c.set_server_config(data.0) {
             Ok(_) => HttpResponse::Ok(),
             Err(_) => HttpResponse::InternalServerError(),
         },

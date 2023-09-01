@@ -51,7 +51,7 @@ impl Reporter {
     }
 
     pub async fn start(&self) {
-        let token = self.config.read().unwrap().client_token();
+        let token = self.config.read().unwrap().server_token();
         let server_host = self.config.read().unwrap().server_host();
         if token.is_none() || server_host.is_none() {
             warn!("Token or server host is empty, will not start report thread!");
@@ -90,7 +90,7 @@ impl Reporter {
                 let token = config
                     .read()
                     .unwrap()
-                    .client_token()
+                    .server_token()
                     .expect("Token is empty!");
                 match Reporter::report_fusion_data(
                     &client,
@@ -151,20 +151,24 @@ impl Reporter {
     }
 
     fn ws_url(&self) -> String {
-        let config = self.config.read().unwrap().client_config();
+        let config = self.config.read().unwrap().server_config();
         format!(
             "{}://{}:9876",
-            if config.disable_ssl { "ws" } else { "wss" },
-            config.server_host.unwrap()
+            if config.disable_ssl() { "ws" } else { "wss" },
+            config.host().unwrap()
         )
     }
 
     fn http_url(&self) -> String {
-        let config = self.config.read().unwrap().client_config();
+        let config = self.config.read().unwrap().server_config();
         format!(
             "{}://{}:3002",
-            if config.disable_ssl { "http" } else { "https" },
-            config.server_host.unwrap()
+            if config.disable_ssl() {
+                "http"
+            } else {
+                "https"
+            },
+            config.host().unwrap()
         )
     }
 
@@ -173,7 +177,7 @@ impl Reporter {
     }
 
     fn get_token(&self) -> String {
-        let token = self.config.read().unwrap().client_token();
+        let token = self.config.read().unwrap().server_token();
         token.expect("Token is empty!")
     }
 

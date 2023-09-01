@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 pub struct HttpResult<T> {
     pub success: bool,
     pub message: Option<String>,
-    pub data: Option<T>
+    pub data: Option<T>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Token {
-    pub token: String
+    pub token: String,
 }
 
 pub type RegisterResult = HttpResult<Token>;

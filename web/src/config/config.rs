@@ -1,59 +1,26 @@
 use crate::cli::Args;
-use crate::config::constant::{APP_TOKEN, CLIENT_TOKEN, DEFAULT_PORT, LOG_PATH, PORT, SERVER_HOST};
-use crate::traits::json_response::JsonResponder;
+use crate::config::app::AppConfig;
+use crate::config::constant::{APP_TOKEN, DEFAULT_PORT, LOG_PATH, PORT, SERVER_HOST, SERVER_TOKEN};
+use crate::config::server::ServerConfig;
+use crate::config::web_server::WebServerConfig;
 use anyhow::Result;
 use log::{info, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use serde::{Deserialize, Serialize};
 use sled::Db;
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
-struct WebConfig {
-    server: Port,
-}
-
-impl Default for WebConfig {
-    fn default() -> Self {
-        WebConfig {
-            server: Port { port: 9527 },
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub struct ClientConfig {
-    pub token: Option<String>,
-    pub server_host: Option<String>,
-    pub disable_ssl: bool,
-}
-
-impl JsonResponder for ClientConfig {}
-
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-pub struct AppConfig {
-    token: Option<String>,
-}
-
-impl JsonResponder for AppConfig {}
-
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]
-struct Port {
-    port: u16,
-}
-
 #[derive(Clone, Debug)]
 pub struct Config {
     db: Db,
     log_path: PathBuf,
-    web_config: WebConfig,
-    client_config: ClientConfig,
-    app_config: AppConfig,
+    web_server: WebServerConfig,
+    server: ServerConfig,
+    app: AppConfig,
 }
 
 impl Config {
@@ -85,42 +52,48 @@ impl Config {
             app_token = args.app_token;
         }
 
-        let client_token: Option<String>;
-        if args.client_token.is_none() {
-            client_token = db
-                .get(CLIENT_TOKEN)
+        let server_token: Option<String>;
+        if args.server_token.is_none() {
+            server_token = db
+                .get(SERVER_TOKEN)
                 .unwrap()
                 .map(|v| String::from_utf8(v.to_vec()).unwrap());
         } else {
-            client_token = args.client_token;
+            server_token = args.server_token;
         }
 
-        let server_host: Option<String>;
+        let host: Option<String>;
         if args.server_host.is_none() {
-            server_host = db
+            host = db
                 .get(SERVER_HOST)
                 .unwrap()
                 .map(|v| String::from_utf8(v.to_vec()).unwrap());
         } else {
-            server_host = args.server_host;
+            host = args.server_host;
         }
 
         let config = Config {
             db,
             log_path: PathBuf::from(log_path),
-            web_config: WebConfig {
-                server: Port { port },
-            },
-            client_config: ClientConfig {
-                token: client_token,
-                server_host,
-                disable_ssl: args.disable_ssl,
-            },
-            app_config: AppConfig { token: app_token },
+            web_server: WebServerConfig::new(port),
+            server: ServerConfig::new(server_token, host, args.disable_ssl),
+            app: AppConfig::new(app_token),
         };
         config.init_logging();
         config.persistence();
         config
+    }
+
+    pub fn web_server_config(&self) -> WebServerConfig {
+        self.web_server.clone()
+    }
+
+    pub fn server_config(&self) -> ServerConfig {
+        self.server.clone()
+    }
+
+    pub fn app_config(&self) -> AppConfig {
+        self.app.clone()
     }
 
     pub fn get_log_path(&self) -> PathBuf {
@@ -128,23 +101,19 @@ impl Config {
     }
 
     pub fn server_port(&self) -> u16 {
-        self.web_config.server.port
+        self.web_server.port()
     }
 
     pub fn app_token(&self) -> Option<String> {
-        self.app_config.token.clone()
+        self.app.token()
     }
 
-    pub fn client_token(&self) -> Option<String> {
-        self.client_config.token.clone()
-    }
-
-    pub fn client_config(&self) -> ClientConfig {
-        self.client_config.clone()
+    pub fn server_token(&self) -> Option<String> {
+        self.server.token()
     }
 
     pub fn server_host(&self) -> Option<String> {
-        self.client_config.server_host.clone()
+        self.server.host()
     }
 
     fn init_logging(&self) {
@@ -181,7 +150,7 @@ impl Config {
         log4rs::init_config(log_config).unwrap();
     }
 
-    fn get_config_yml() -> Result<WebConfig> {
+    fn get_config_yml() -> Result<WebServerConfig> {
         let mut config_path = PathBuf::from("config.yml");
         if let Ok(current_exe) = env::current_exe() {
             if let Some(parent) = current_exe.parent() {
@@ -190,12 +159,14 @@ impl Config {
         }
 
         let config_file = File::open(config_path)?;
-        Ok(serde_yaml::from_reader::<File, WebConfig>(config_file)?)
+        Ok(serde_yaml::from_reader::<File, WebServerConfig>(
+            config_file,
+        )?)
     }
 
     pub fn get_server_port() -> u16 {
         let d = Config::get_config_yml().unwrap_or_default();
-        d.server.port
+        d.port()
     }
 
     pub fn current_dir() -> PathBuf {
@@ -212,48 +183,48 @@ impl Config {
     }
 
     pub fn set_app_token(&mut self, token: &str) -> Result<()> {
-        self.app_config.token = Some(token.to_string());
+        self.app.set_token(Some(token.to_string()));
         self.db.insert(APP_TOKEN, token.as_bytes())?;
         Ok(())
     }
 
-    pub fn set_client_token(&mut self, token: &str) -> Result<()> {
-        self.client_config.token = Some(token.to_string());
-        self.db.insert(CLIENT_TOKEN, token.as_bytes())?;
+    pub fn set_server_token(&mut self, token: &str) -> Result<()> {
+        self.server.set_token(Some(token.to_string()));
+        self.db.insert(SERVER_TOKEN, token.as_bytes())?;
         Ok(())
     }
 
-    pub fn set_client_config(&mut self, config: ClientConfig) -> Result<()> {
-        self.client_config = config;
-        if let Some(token) = &self.client_config.token {
-            self.db.insert(CLIENT_TOKEN, token.as_bytes())?;
+    pub fn set_server_config(&mut self, config: ServerConfig) -> Result<()> {
+        self.server = config;
+        if let Some(token) = &self.server.token() {
+            self.db.insert(SERVER_TOKEN, token.as_bytes())?;
         }
-        if let Some(server_host) = &self.client_config.server_host {
+        if let Some(server_host) = &self.server.host() {
             self.db.insert(SERVER_HOST, server_host.as_bytes())?;
         }
         Ok(())
     }
 
-    pub fn set_server_host(&mut self, server_host: &str) -> Result<()> {
-        self.client_config.server_host = Some(server_host.to_string());
-        self.db.insert(SERVER_HOST, server_host.as_bytes())?;
+    pub fn set_server_host(&mut self, host: &str) -> Result<()> {
+        self.server.set_host(Some(host.to_string()));
+        self.db.insert(SERVER_HOST, host.as_bytes())?;
         Ok(())
     }
 
     fn persistence(&self) {
         self.db
-            .insert(PORT, self.web_config.server.port.to_string().as_bytes())
+            .insert(PORT, self.web_server.port().to_string().as_bytes())
             .unwrap();
         self.db
             .insert(LOG_PATH, self.log_path.to_str().unwrap().as_bytes())
             .unwrap();
-        if let Some(token) = &self.app_config.token {
+        if let Some(token) = &self.app.token() {
             self.db.insert(APP_TOKEN, token.as_bytes()).unwrap();
         }
-        if let Some(token) = &self.client_config.token {
-            self.db.insert(CLIENT_TOKEN, token.as_bytes()).unwrap();
+        if let Some(token) = &self.server.token() {
+            self.db.insert(SERVER_TOKEN, token.as_bytes()).unwrap();
         }
-        if let Some(server_host) = &self.client_config.server_host {
+        if let Some(server_host) = &self.server.host() {
             self.db.insert(SERVER_HOST, server_host.as_bytes()).unwrap();
         }
     }

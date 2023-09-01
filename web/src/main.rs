@@ -10,10 +10,9 @@ use crate::handler::http_handler::{
     view_token,
 };
 
-use crate::handler::client_handler::{
-    set_client_config, set_client_token, view_client_config, view_client_token,
-};
 use crate::report::reporter::Reporter;
+use crate::route::config_route::config_services;
+use crate::route::local_route::local_services;
 use crate::token::communication_token::CommunicationToken;
 use actix_web::{guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
@@ -26,6 +25,7 @@ mod config;
 mod handler;
 mod model;
 mod report;
+mod route;
 mod server;
 mod system_info;
 mod token;
@@ -74,10 +74,12 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(db.clone()))
             .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
+            .configure(config_services)
+            .configure(local_services)
             .service(web::resource("/").to(index))
             .service(web::resource("/version").to(version))
             .service(web::resource("/db").to(db_test))
-            .service(web::resource("/config").to(config_test))
+            // .service(web::resource("/config").to(config_test))
             .service(web::resource("/check").route(web::post().to(check_token)))
             .service(kill_process)
             .service(rest_token)
@@ -90,22 +92,6 @@ async fn main() -> std::io::Result<()> {
                     .service(web::resource("/token/view").to(view_token))
                     .service(web::resource("/token/clear").to(clear_token))
                     .service(web::resource("/token/rest").to(rest_token_local)),
-            )
-            .service(
-                web::scope("/client")
-                    // private api localhost only
-                    .guard(
-                        guard::Any(guard::Host("localhost"))
-                            .or(guard::Host("127.0.0.1"))
-                            .or(guard::Host(host.as_str())),
-                    )
-                    .service(web::resource("/token/view").route(web::get().to(view_client_token)))
-                    .service(web::resource("/token/rest").to(set_client_token))
-                    .service(
-                        web::resource("/config")
-                            .route(web::get().to(view_client_config))
-                            .route(web::post().to(set_client_config)),
-                    ),
             )
             // enable logger
             .wrap(middleware::Logger::default())

@@ -31,7 +31,7 @@ pub async fn kill_process(
     let refresh_res = sys.refresh_process(pid);
     if refresh_res {
         if let Some(process) = sys.process(pid) {
-            return JsonResponse(HttpResult::new(process.kill()));
+            return JsonResponse(HttpResult::<()>::new(process.kill()));
         }
         JsonResponse(HttpResult::new(false))
     } else {
@@ -52,7 +52,7 @@ pub async fn rest_token(
 ) -> impl Responder {
     db.insert(CommunicationToken::token_key(), info.token.as_bytes())
         .unwrap();
-    JsonResponse(HttpResult::new(true))
+    JsonResponse(HttpResult::<()>::new(true))
 }
 
 pub async fn check_token(_token: CommunicationToken) -> impl Responder {
@@ -74,7 +74,7 @@ pub async fn view_token(db: web::Data<Db>) -> impl Responder {
 pub async fn clear_token(db: web::Data<Db>) -> impl Responder {
     warn!("Local Event: clear_token");
     db.remove(CommunicationToken::token_key()).unwrap();
-    JsonResponse(HttpResult::new(true))
+    JsonResponse(HttpResult::<()>::new(true))
 }
 
 // /local/token/rest
@@ -82,5 +82,5 @@ pub async fn rest_token_local(db: web::Data<Db>, info: web::Json<TokenInfo>) -> 
     warn!("Local Event: rest_token");
     db.insert(CommunicationToken::token_key(), info.token.as_bytes())
         .unwrap();
-    JsonResponse(HttpResult::new(true))
+    JsonResponse(HttpResult::<()>::new(true))
 }

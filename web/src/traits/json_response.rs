@@ -5,6 +5,8 @@ use serde::Serialize;
 
 pub trait JsonResponder: Serialize + Sized {}
 
+impl JsonResponder for () {}
+
 #[derive(Serialize)]
 pub struct JsonResponse<T: JsonResponder>(pub T);
 
