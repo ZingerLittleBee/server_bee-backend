@@ -1,7 +1,7 @@
 use crate::traits::json_response::JsonResponder;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default)]
 pub struct ServerConfig {
     token: Option<String>,
     host: Option<String>,
@@ -16,6 +16,26 @@ impl ServerConfig {
             disable_ssl,
         }
     }
+
+    /// Merge the other ServerConfig into self.
+    /// Returns true if any of the fields were changed.
+    pub fn merge(&mut self, other: ServerConfig) -> bool {
+        let mut merged = false;
+        if other.token.is_some() && other.token != self.token {
+            self.token = other.token.clone();
+            merged = true;
+        }
+        if other.host.is_some() && other.host != self.host {
+            self.host = other.host.clone();
+            merged = true;
+        }
+        if other.disable_ssl != self.disable_ssl {
+            self.disable_ssl = other.disable_ssl;
+            merged = true;
+        }
+        merged
+    }
+
     pub fn token(&self) -> Option<String> {
         self.token.clone()
     }

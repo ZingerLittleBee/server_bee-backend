@@ -29,6 +29,14 @@ impl<T: JsonResponder> HttpResult<T> {
         }
     }
 
+    pub fn error(message: String) -> HttpResult<T> {
+        HttpResult {
+            success: false,
+            message: Some(message),
+            data: None,
+        }
+    }
+
     pub fn new_msg(success: bool, message: String) -> HttpResult<T> {
         HttpResult {
             success,

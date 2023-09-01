@@ -11,8 +11,17 @@ impl WebServerConfig {
     pub fn new(port: u16) -> Self {
         WebServerConfig { port }
     }
+
+    pub fn merge(&mut self, other: &WebServerConfig) {
+        self.port = other.port;
+    }
+
     pub fn port(&self) -> u16 {
         self.port
+    }
+
+    pub fn set_port(&mut self, port: u16) {
+        self.port = port;
     }
 }
 

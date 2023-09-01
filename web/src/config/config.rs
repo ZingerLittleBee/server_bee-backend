@@ -1,22 +1,24 @@
 use crate::cli::Args;
 use crate::config::app::AppConfig;
-use crate::config::constant::{APP_TOKEN, DEFAULT_PORT, LOG_PATH, PORT, SERVER_HOST, SERVER_TOKEN};
+use crate::config::constant::{
+    APP_CONFIG, DEFAULT_PORT, LOG_PATH, SERVER_CONFIG, WEB_SERVER_CONFIG,
+};
 use crate::config::server::ServerConfig;
 use crate::config::web_server::WebServerConfig;
+use crate::db::db_wrapper::DbWrapper;
 use anyhow::Result;
 use log::{info, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use sled::Db;
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    db: Db,
+    db: DbWrapper,
     log_path: PathBuf,
     web_server: WebServerConfig,
     server: ServerConfig,
@@ -24,63 +26,59 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(db: Db, args: Args) -> Self {
-        let log_path = args.log_path.unwrap_or_else(|| {
-            db.get(LOG_PATH)
-                .unwrap()
-                .map(|v| String::from_utf8(v.to_vec()).unwrap())
-                .unwrap_or(Config::log_path().to_string_lossy().to_string())
-        });
-        let port = args.port.unwrap_or_else(|| {
-            db.get(PORT)
-                .unwrap()
-                .map(|v| {
-                    String::from_utf8(v.to_vec())
-                        .map(|s| s.parse::<u16>().unwrap())
-                        .unwrap()
-                })
-                .unwrap_or(DEFAULT_PORT)
+    pub fn new(db: DbWrapper, args: Args) -> Self {
+        // merge web server config
+        let mut web_server = match db.get(WEB_SERVER_CONFIG) {
+            Ok(Some(v)) => v,
+            _ => WebServerConfig::new(DEFAULT_PORT),
+        };
+
+        args.port.is_some().then(|| {
+            web_server.set_port(args.port.unwrap());
+            db.set(WEB_SERVER_CONFIG, &web_server);
         });
 
-        let app_token: Option<String>;
-        if args.app_token.is_none() {
-            app_token = db
-                .get(APP_TOKEN)
-                .unwrap()
-                .map(|v| String::from_utf8(v.to_vec()).unwrap());
-        } else {
-            app_token = args.app_token;
-        }
+        // merge server config
+        let mut server = match db.get::<ServerConfig>(SERVER_CONFIG) {
+            Ok(Some(v)) => v,
+            _ => Default::default(),
+        };
 
-        let server_token: Option<String>;
-        if args.server_token.is_none() {
-            server_token = db
-                .get(SERVER_TOKEN)
-                .unwrap()
-                .map(|v| String::from_utf8(v.to_vec()).unwrap());
-        } else {
-            server_token = args.server_token;
-        }
+        server
+            .merge(ServerConfig::new(
+                args.server_token,
+                args.server_host,
+                args.disable_ssl,
+            ))
+            .then(|| {
+                db.set(SERVER_CONFIG, &server);
+            });
 
-        let host: Option<String>;
-        if args.server_host.is_none() {
-            host = db
-                .get(SERVER_HOST)
-                .unwrap()
-                .map(|v| String::from_utf8(v.to_vec()).unwrap());
-        } else {
-            host = args.server_host;
-        }
+        // merge app config
+        let mut app = match db.get::<AppConfig>(APP_CONFIG) {
+            Ok(Some(v)) => v,
+            _ => Default::default(),
+        };
+
+        app.merge(AppConfig::new(args.app_token)).then(|| {
+            db.set(APP_CONFIG, &app);
+        });
+
+        let log_path = args
+            .log_path
+            .unwrap_or_else(|| match db.get::<String>(LOG_PATH) {
+                Ok(Some(v)) => v,
+                _ => Config::log_path().to_str().unwrap().to_string(),
+            });
 
         let config = Config {
             db,
             log_path: PathBuf::from(log_path),
-            web_server: WebServerConfig::new(port),
-            server: ServerConfig::new(server_token, host, args.disable_ssl),
-            app: AppConfig::new(app_token),
+            web_server,
+            server,
+            app,
         };
         config.init_logging();
-        config.persistence();
         config
     }
 
@@ -184,48 +182,26 @@ impl Config {
 
     pub fn set_app_token(&mut self, token: &str) -> Result<()> {
         self.app.set_token(Some(token.to_string()));
-        self.db.insert(APP_TOKEN, token.as_bytes())?;
+        self.db.set::<AppConfig>(APP_CONFIG, &self.app);
         Ok(())
     }
 
     pub fn set_server_token(&mut self, token: &str) -> Result<()> {
         self.server.set_token(Some(token.to_string()));
-        self.db.insert(SERVER_TOKEN, token.as_bytes())?;
+        self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
         Ok(())
     }
 
     pub fn set_server_config(&mut self, config: ServerConfig) -> Result<()> {
-        self.server = config;
-        if let Some(token) = &self.server.token() {
-            self.db.insert(SERVER_TOKEN, token.as_bytes())?;
-        }
-        if let Some(server_host) = &self.server.host() {
-            self.db.insert(SERVER_HOST, server_host.as_bytes())?;
-        }
+        self.server.merge(config).then(|| {
+            self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
+        });
         Ok(())
     }
 
     pub fn set_server_host(&mut self, host: &str) -> Result<()> {
         self.server.set_host(Some(host.to_string()));
-        self.db.insert(SERVER_HOST, host.as_bytes())?;
+        self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
         Ok(())
-    }
-
-    fn persistence(&self) {
-        self.db
-            .insert(PORT, self.web_server.port().to_string().as_bytes())
-            .unwrap();
-        self.db
-            .insert(LOG_PATH, self.log_path.to_str().unwrap().as_bytes())
-            .unwrap();
-        if let Some(token) = &self.app.token() {
-            self.db.insert(APP_TOKEN, token.as_bytes()).unwrap();
-        }
-        if let Some(token) = &self.server.token() {
-            self.db.insert(SERVER_TOKEN, token.as_bytes()).unwrap();
-        }
-        if let Some(server_host) = &self.server.host() {
-            self.db.insert(SERVER_HOST, server_host.as_bytes()).unwrap();
-        }
     }
 }

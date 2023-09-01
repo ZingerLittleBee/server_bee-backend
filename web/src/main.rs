@@ -10,6 +10,7 @@ use crate::handler::http_handler::{
     view_token,
 };
 
+use crate::db::db_wrapper::DbWrapper;
 use crate::report::reporter::Reporter;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
@@ -22,6 +23,7 @@ use sled::Db;
 
 mod cli;
 mod config;
+mod db;
 mod handler;
 mod model;
 mod report;
@@ -51,7 +53,9 @@ fn init_sled_db() -> Db {
 async fn main() -> std::io::Result<()> {
     let args = Args::parse();
 
-    let db = init_sled_db();
+    // let db = init_sled_db();
+
+    let db = DbWrapper::new();
 
     let config = Config::new(db.clone(), args);
 
