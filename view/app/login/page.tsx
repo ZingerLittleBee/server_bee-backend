@@ -47,9 +47,9 @@ export default function LoginPage() {
                        onChange={(e) => setInputValue(e.target.value)}
                        placeholder="Token"/>
                 {showPassword ?
-                    <EyeOff className="absolute right-2 cursor-pointer text-muted-foreground"
+                    <EyeOff className="absolute right-2 cursor-pointer text-muted-foreground" size={20}
                             onClick={() => setShowPassword(false)}/> :
-                    <Eye className="absolute right-2 cursor-pointer  text-muted-foreground"
+                    <Eye className="absolute right-2 cursor-pointer  text-muted-foreground" size={20}
                          onClick={() => setShowPassword(true)}/>}
             </div>
             <div className="flex items-center space-x-2">

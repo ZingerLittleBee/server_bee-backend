@@ -21,13 +21,17 @@ import {
   User,
   X,
   Mail,
-  LogIn, LucideIcon, ArrowDownWideNarrow, ArrowUpNarrowWide, Activity
+  LogIn,
+  LucideIcon,
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  GanttChart,
 } from 'lucide-react'
 
 export type Icon = LucideIcon
 
 export const Icons = {
-  logo: Activity,
+  logo: GanttChart,
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,
