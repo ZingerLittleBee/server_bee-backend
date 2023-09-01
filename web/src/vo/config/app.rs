@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct AppConfigVo {
+    #[serde(skip_serializing_if = "Option::is_none")]
     token: Option<String>,
 }
 
