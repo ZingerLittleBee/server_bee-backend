@@ -10,9 +10,11 @@ import {Input} from "@/components/ui/input"
 
 import {toast} from "@/components/ui/use-toast"
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {useSettings} from "@/hooks/useSettings";
+import {useEffect, useMemo} from "react";
 
 const securityFormSchema = z.object({
-    name: z.string()
+    token: z.string()
 })
 
 type SecurityFormValues = z.infer<typeof securityFormSchema>
@@ -20,10 +22,20 @@ type SecurityFormValues = z.infer<typeof securityFormSchema>
 const defaultValues: Partial<SecurityFormValues> = {}
 
 export function SecurityForm() {
+    const {settings, isLoading} = useSettings()
+
+    const appConfig = useMemo(() => settings?.app, [settings])
+
     const form = useForm<SecurityFormValues>({
         resolver: zodResolver(securityFormSchema),
-        defaultValues,
+        defaultValues: {
+            token: appConfig?.token ?? '',
+        },
     })
+
+    useEffect(() => {
+        form.setValue("token", appConfig?.token ?? '')
+    }, [form, appConfig])
 
     function onSubmit(data: SecurityFormValues) {
         toast({
@@ -41,7 +53,7 @@ export function SecurityForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <FormField
                     control={form.control}
-                    name="name"
+                    name="token"
                     render={({field}) => (
                         <FormItem>
                             <FormLabel>Communication token</FormLabel>

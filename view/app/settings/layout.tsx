@@ -1,14 +1,10 @@
-import {Metadata} from "next"
+"use client"
 
 import {Separator} from "@/components/ui/separator"
 import {SidebarNav} from "./components/sidebar-nav"
 import {ReactNode} from "react"
 import {Italic} from "@tremor/react";
-
-export const metadata: Metadata = {
-  title: "Forms",
-  description: "Advanced form example using react-hook-form and Zod.",
-}
+import {useSettings} from "@/hooks/useSettings";
 
 const sidebarNavItems = [
   {
@@ -38,6 +34,7 @@ interface SettingsLayoutProps {
 }
 
 export default function SettingsLayout({children}: SettingsLayoutProps) {
+
   return (
       <section className="container grid items-center gap-6 pb-8">
         <div className="space-y-6 py-5 pb-16">

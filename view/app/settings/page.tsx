@@ -2,6 +2,8 @@
 
 import {Separator} from "@/components/ui/separator"
 import GeneralForm from "@/app/settings/general-form";
+import {useStore} from "@/store";
+import {useSettings} from "@/hooks/useSettings";
 
 export default function SettingsGeneralPage() {
     return (

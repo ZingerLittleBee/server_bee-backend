@@ -17,6 +17,7 @@ import {Badge, Color} from "@tremor/react";
 import {ElementType, useMemo} from "react";
 import {Cable, HelpCircle, PlugZap, Unplug, Wifi} from "lucide-react";
 import WithAuth from "@/components/with_auth";
+import {useSettings} from "@/hooks/useSettings";
 
 function DashboardPage() {
 

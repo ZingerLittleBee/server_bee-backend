@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/form"
 import {Switch} from "@/components/ui/switch";
 import {Input} from "@/components/ui/input";
+import {useSettings} from "@/hooks/useSettings";
+import {useEffect, useMemo} from "react";
 
 const serverFormSchema = z.object({
     host: z.string().refine(value =>
@@ -27,17 +29,31 @@ const serverFormSchema = z.object({
         {message: 'Invalid domain name or IP address.'}
     ),
     token: z.string(),
-    ssl: z.boolean(),
+    disableSsl: z.boolean(),
 })
 
 type ServerFormValues = z.infer<typeof serverFormSchema>
 
 
 export function ServerForm() {
+    const {settings, isLoading} = useSettings()
+
+    const serverConfig = useMemo(() => settings?.server, [settings])
+
     const form = useForm<ServerFormValues>({
         resolver: zodResolver(serverFormSchema),
-        defaultValues: {},
+        defaultValues: {
+            host: serverConfig?.host ?? '',
+            token: serverConfig?.token ?? '',
+            disableSsl: serverConfig?.disableSsl ?? false,
+        },
     })
+
+    useEffect(() => {
+        form.setValue("host", serverConfig?.host ?? '')
+        form.setValue("token", serverConfig?.token ?? '')
+        form.setValue("disableSsl", serverConfig?.disableSsl ?? false)
+    }, [form, serverConfig])
 
     function onSubmit(data: ServerFormValues) {
         toast({
@@ -87,7 +103,7 @@ export function ServerForm() {
                 />
                 <FormField
                     control={form.control}
-                    name="ssl"
+                    name="disableSsl"
                     render={({field}) => (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                             <div className="space-y-0.5">

@@ -5,6 +5,8 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {Input} from "@/components/ui/input";
 import {toast} from "@/components/ui/use-toast";
+import {useSettings} from "@/hooks/useSettings";
+import {useEffect, useMemo} from "react";
 
 const generalFormSchema = z.object({
     port: z.number({
@@ -25,15 +27,21 @@ function onSubmit(data: GeneralFormValues) {
     })
 }
 
-const defaultValues: Partial<GeneralFormValues> = {
-    port: 9527
-}
-
 export default function GeneralForm() {
+    const {settings, isLoading} = useSettings()
+
+    const webServer = useMemo(() => settings?.webServer, [settings])
+
     const form = useForm<GeneralFormValues>({
         resolver: zodResolver(generalFormSchema),
-        defaultValues
+        defaultValues: {
+            port: webServer?.port ?? '',
+        }
     })
+
+    useEffect(() => {
+        form.setValue("port", webServer?.port)
+    }, [form, webServer])
 
     return (
         <Form {...form}>
@@ -45,7 +53,7 @@ export default function GeneralForm() {
                         <FormItem>
                             <FormLabel>Port</FormLabel>
                             <FormControl>
-                                <Input placeholder="9527" {...field} />
+                                <Input {...field} />
                             </FormControl>
                             <FormDescription>This is app connect port.</FormDescription>
                             <FormMessage/>
