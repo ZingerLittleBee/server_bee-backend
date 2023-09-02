@@ -31,7 +31,7 @@ pub async fn set_server_config(
     let mut server = config.server_config();
     server.merge(server_config.into_inner());
     match config.set_server_config(server) {
-        Ok(_) => JsonResponse(HttpResult::<()>::success(Some(()))),
+        Ok(_) => JsonResponse(HttpResult::success(None)),
         Err(e) => JsonResponse(HttpResult::<()>::error(e.to_string())),
     }
 }
@@ -49,7 +49,7 @@ pub async fn set_app_config(
     let mut app = config.app_config();
     app.merge(app_config.into_inner());
     match config.set_app_config(app) {
-        Ok(_) => JsonResponse(HttpResult::<()>::success(Some(()))),
+        Ok(_) => JsonResponse(HttpResult::success(None)),
         Err(e) => JsonResponse(HttpResult::<()>::error(e.to_string())),
     }
 }
@@ -69,7 +69,7 @@ pub async fn set_web_server_config(
     let mut web_server = config.web_server_config();
     web_server.merge(web_server_config.into_inner());
     match config.set_web_server_config(web_server) {
-        Ok(_) => JsonResponse(HttpResult::<()>::success(Some(()))),
+        Ok(_) => JsonResponse(HttpResult::success(None)),
         Err(e) => JsonResponse(HttpResult::<()>::error(e.to_string())),
     }
 }
