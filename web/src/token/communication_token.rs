@@ -1,30 +1,39 @@
+use crate::config::config::Config;
 use actix_web::web::Data;
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use log::warn;
 use serde::{Deserialize, Serialize};
-use sled::Db;
 use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CommunicationToken(String);
 
 impl CommunicationToken {
-    pub fn is_valid(&self, db: &Data<Db>) -> bool {
-        return if let Some(value) = db.get(CommunicationToken::token_key()).unwrap() {
-            let res = std::str::from_utf8(&value);
-            if let Ok(res) = res {
-                return res == self.0;
+    pub fn is_valid(&self, config: &Data<Arc<RwLock<Config>>>) -> bool {
+        let token = match config.read() {
+            Ok(guard) => guard.app_token(),
+            Err(e) => {
+                warn!("Failed to acquire config read lock: {:?}", e);
+                return false;
             }
-            false
-        } else {
-            db.insert(CommunicationToken::token_key(), self.0.as_bytes())
-                .unwrap();
-            true
         };
-    }
 
-    pub fn token_key() -> &'static str {
-        "communication_token"
+        if token.is_none() || token.clone().unwrap().is_empty() {
+            if !self.0.is_empty() {
+                match config.write() {
+                    Ok(mut guard) => {
+                        let _ = guard.set_app_token(Some(self.0.clone()));
+                    }
+                    Err(e) => {
+                        warn!("Failed to acquire config write lock: {:?}", e);
+                    }
+                }
+            }
+            return true;
+        }
+
+        self.0 == token.unwrap()
     }
 }
 
@@ -33,54 +42,46 @@ impl FromRequest for CommunicationToken {
     type Future = futures_util::future::Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let db = req.app_data::<Data<Db>>().unwrap();
+        let config = match req.app_data::<Data<Arc<RwLock<Config>>>>() {
+            Some(config) => config,
+            None => {
+                warn!("Failed to get config");
+                return futures_util::future::ready(Err(
+                    actix_web::error::ErrorInternalServerError("Failed to get config"),
+                ));
+            }
+        };
 
-        let query_string = req.query_string();
+        // Get token from url query string
         let params: HashMap<String, String> =
-            serde_urlencoded::from_str(query_string).unwrap_or_else(|_| HashMap::new());
-
-        // Get token from Authorization header or from url query string
+            serde_urlencoded::from_str(req.query_string()).unwrap_or_else(|_| HashMap::new());
         let token_from_param = params
             .get("token")
             .map(|value| value.to_owned())
             .unwrap_or_default();
 
-        let token_str = req
+        // Get token from Authorization header
+        let token_from_header = req
             .headers()
             .get("Authorization")
             .map(|value| value.to_str().unwrap_or_default().to_owned())
-            .unwrap_or(token_from_param);
+            .unwrap_or_default();
 
-        if token_str.is_empty() {
-            // If the token is not set, allow all requests
-            if !db.contains_key(CommunicationToken::token_key()).unwrap() {
-                return futures_util::future::ready(Ok(CommunicationToken("".to_owned())));
-            }
+        return if CommunicationToken(token_from_param.clone()).is_valid(config)
+            || CommunicationToken(token_from_header.clone()).is_valid(config)
+        {
+            futures_util::future::ready(Ok(CommunicationToken(token_from_param)))
+        } else {
             warn!(
-                "Token is missing, request from: {}",
+                "Token: {} is invalid, request from: {}",
+                token_from_param,
                 req.connection_info()
                     .realip_remote_addr()
                     .unwrap_or("unknown")
             );
             futures_util::future::ready(Err(actix_web::error::ErrorUnauthorized(
-                "Token is missing",
+                "Token is invalid",
             )))
-        } else {
-            let token = CommunicationToken(token_str.clone());
-            if token.is_valid(db) {
-                futures_util::future::ready(Ok(token))
-            } else {
-                warn!(
-                    "Token: {} is invalid, request from: {}",
-                    token_str,
-                    req.connection_info()
-                        .realip_remote_addr()
-                        .unwrap_or("unknown")
-                );
-                futures_util::future::ready(Err(actix_web::error::ErrorUnauthorized(
-                    "Token is invalid",
-                )))
-            }
-        }
+        };
     }
 }

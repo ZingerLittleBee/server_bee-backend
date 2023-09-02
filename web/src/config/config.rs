@@ -188,8 +188,8 @@ impl Config {
         Ok(())
     }
 
-    pub fn set_app_token(&mut self, token: &str) -> Result<()> {
-        self.app.set_token(Some(token.to_string()));
+    pub fn set_app_token(&mut self, token: Option<String>) -> Result<()> {
+        self.app.set_token(token);
         self.db.set::<AppConfig>(APP_CONFIG, &self.app);
         Ok(())
     }

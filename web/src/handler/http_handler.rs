@@ -1,10 +1,11 @@
+use crate::config::config::Config;
 use crate::handler::result::HttpResult;
 use crate::token::communication_token::CommunicationToken;
 use crate::traits::json_response::JsonResponse;
 use actix_web::{post, web, HttpResponse, Responder};
 use log::warn;
 use serde::{Deserialize, Serialize};
-use sled::Db;
+use std::sync::{Arc, RwLock};
 use sysinfo::{Pid, ProcessExt, System, SystemExt};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
@@ -47,12 +48,10 @@ pub struct TokenInfo {
 #[post("/token/rest")]
 pub async fn rest_token(
     _token: CommunicationToken,
-    db: web::Data<Db>,
+    config: web::Data<Arc<RwLock<Config>>>,
     info: web::Json<TokenInfo>,
 ) -> impl Responder {
-    db.insert(CommunicationToken::token_key(), info.token.as_bytes())
-        .unwrap();
-    JsonResponse(HttpResult::<()>::new(true))
+    rest_token_local(config, info).await
 }
 
 pub async fn check_token(_token: CommunicationToken) -> impl Responder {
@@ -61,26 +60,53 @@ pub async fn check_token(_token: CommunicationToken) -> impl Responder {
 
 /// private api localhost only
 // /local/token/view
-pub async fn view_token(db: web::Data<Db>) -> impl Responder {
+pub async fn view_token(config: web::Data<Arc<RwLock<Config>>>) -> impl Responder {
     warn!("Local Event: view_token");
-    if let Some(value) = db.get(CommunicationToken::token_key()).unwrap() {
-        std::str::from_utf8(&value).unwrap_or_default().to_owned()
-    } else {
-        "".into()
-    }
+    return match config.read() {
+        Ok(guard) => {
+            let token = guard.app_token();
+            token.unwrap_or_default()
+        }
+        Err(e) => {
+            warn!("Failed to acquire config read lock: {:?}", e);
+            "".into()
+        }
+    };
 }
 
 // /local/token/clear
-pub async fn clear_token(db: web::Data<Db>) -> impl Responder {
+pub async fn clear_token(config: web::Data<Arc<RwLock<Config>>>) -> impl Responder {
     warn!("Local Event: clear_token");
-    db.remove(CommunicationToken::token_key()).unwrap();
-    JsonResponse(HttpResult::<()>::new(true))
+
+    let res = match config.write() {
+        Ok(mut guard) => guard.set_app_token(None),
+        Err(e) => {
+            warn!("Failed to acquire config write lock: {:?}", e);
+            Err(anyhow::anyhow!(
+                "Failed to acquire config write lock: {:?}",
+                e
+            ))
+        }
+    };
+    JsonResponse(HttpResult::<()>::new(res.is_ok()))
 }
 
 // /local/token/rest
-pub async fn rest_token_local(db: web::Data<Db>, info: web::Json<TokenInfo>) -> impl Responder {
+pub async fn rest_token_local(
+    config: web::Data<Arc<RwLock<Config>>>,
+    info: web::Json<TokenInfo>,
+) -> impl Responder {
     warn!("Local Event: rest_token");
-    db.insert(CommunicationToken::token_key(), info.token.as_bytes())
-        .unwrap();
-    JsonResponse(HttpResult::<()>::new(true))
+
+    let res = match config.write() {
+        Ok(mut guard) => guard.set_app_token(Some(info.token.clone())),
+        Err(e) => {
+            warn!("Failed to acquire config write lock: {:?}", e);
+            Err(anyhow::anyhow!(
+                "Failed to acquire config write lock: {:?}",
+                e
+            ))
+        }
+    };
+    JsonResponse(HttpResult::<()>::new(res.is_ok()))
 }
