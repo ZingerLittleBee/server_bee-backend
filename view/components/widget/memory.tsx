@@ -73,7 +73,7 @@ export const MemoryWidget = () => {
             <CardContent>
                 <div className="text-2xl font-bold">{`${computedMemoryUsagePercentage(memoryUsage)}%`}</div>
                 <p className="text-xs text-muted-foreground">
-                    {formatToString(memoryUsage?.total)} of total
+                    {memoryUsage?.total ? formatToString(memoryUsage?.total) : 'N/A'} of total
                 </p>
             </CardContent>
             <ResponsiveContainer

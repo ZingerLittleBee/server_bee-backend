@@ -18,12 +18,12 @@ export default function NetworkWidget() {
             <CardContent>
                 <div className="grid md:grid-cols-2 justify-between">
                     <div className="flex flex-col space-y-1 items-start">
-                        <Badge color="violet" icon={ArrowUpCircle}>{formatToString(network?.tx)}</Badge>
-                        <Badge color="green" icon={ArrowDownCircle}>{formatToString(network?.rx)}</Badge>
+                        <Badge color="violet" icon={ArrowUpCircle}>{network?.tx ? formatToString(network?.tx) : 'N/A GB'}</Badge>
+                        <Badge color="green" icon={ArrowDownCircle}>{network?.rx ? formatToString(network?.rx) : 'N/A GB'}</Badge>
                     </div>
                     <div className="flex flex-col space-y-1 items-end">
-                        <Badge icon={Sigma}>{formatToString(network?.ttl_tx)}</Badge>
-                        <Badge icon={Sigma}>{formatToString(network?.ttl_rx)}</Badge>
+                        <Badge icon={Sigma}>{network?.ttl_tx ? formatToString(network?.ttl_tx) : 'N/A GB'}</Badge>
+                        <Badge icon={Sigma}>{network?.ttl_tx ? formatToString(network?.ttl_rx) : 'N/A GB'}</Badge>
                     </div>
                 </div>
             </CardContent>

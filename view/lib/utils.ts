@@ -75,7 +75,7 @@ export const kiBToMaxUnit = (kiB: number | string | undefined, fixed = 1): [stri
 }
 
 export const computedMemoryUsagePercentage = (usage: MemUsage): string => {
-  if (!usage) return '0'
+  if (!usage) return 'N/A'
   return (toGiB(usage.total) !== 0 ? toGiB(usage.used) / toGiB(usage.total) * 100 : 0).toFixed(1)
 }
 

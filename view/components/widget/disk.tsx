@@ -21,20 +21,20 @@ export function DiskWidget() {
                             <Tracker data={[{color: "emerald", tooltip: "Read"}]}
                                      className="flex justify-center items-center w-2 h-3"/>
                             <Badge color="emerald">
-                                {disk ? formatToString(disk?.read) : '0 B'}
+                                {disk?.read ? formatToString(disk?.read) : 'N/A GB'}
                             </Badge>
                         </div>
                         <div className="flex justify-center items-center space-x-2">
                             <Tracker data={[{color: "rose", tooltip: "Write"}]}
                                      className="flex justify-center items-center w-2 h-3"/>
                             <Badge color="rose">
-                                {disk ? formatToString(disk?.write) : '0 B'}
+                                {disk?.write ? formatToString(disk?.write) : 'N/A GB'}
                             </Badge>
                         </div>
                     </div>
                     <div className="flex flex-col space-y-1 items-end">
-                        <Badge icon={Sigma}>{formatToString(disk?.total_read)}</Badge>
-                        <Badge icon={Sigma}>{formatToString(disk?.total_write)}</Badge>
+                        <Badge icon={Sigma}>{disk?.total_read ? formatToString(disk?.total_read) : 'N/A GB'}</Badge>
+                        <Badge icon={Sigma}>{disk?.total_write ? formatToString(disk?.total_write) : 'N/A GB'}</Badge>
                     </div>
                 </div>
             </CardContent>
