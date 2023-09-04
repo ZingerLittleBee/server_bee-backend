@@ -17,6 +17,11 @@ instance.interceptors.response.use(
             title: 'Uh oh! Something went wrong.',
             description: error.toString()
         })
+        if (error.response.status) {
+            if (error.response.status === 401) {
+                window.location.href = '/login'
+            }
+        }
         return Promise.reject(error)
     }
 )

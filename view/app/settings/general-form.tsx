@@ -1,5 +1,4 @@
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {Button} from "@/components/ui/button";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -7,41 +6,58 @@ import {Input} from "@/components/ui/input";
 import {toast} from "@/components/ui/use-toast";
 import {useSettings} from "@/hooks/useSettings";
 import {useEffect, useMemo} from "react";
+import {useToken} from "@/hooks/useToken";
+import {updateGeneralSettings} from "@/requests/settings";
+import {useLoadingBtn} from "@/hooks/useLoadingBtn";
 
 const generalFormSchema = z.object({
-    port: z.number({
-        description: "The port to run the server on."
-    }).min(1).max(65535),
+    port: z.string().refine(value => {
+        const num = parseInt(value, 10);
+        return !isNaN(num) && num >= 0 && num <= 65535;
+    }, {
+        message: 'Port should be a number between 0 and 65535.',
+    })
 })
 
 type GeneralFormValues = z.infer<typeof generalFormSchema>
 
-function onSubmit(data: GeneralFormValues) {
-    toast({
-        title: "You submitted the following values:",
-        description: (
-            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-        ),
-    })
-}
-
 export default function GeneralForm() {
     const {settings, isLoading} = useSettings()
+    const { token } = useToken()
+    const { LoadingBtn, setIsLoading: setIsBtnLoading } = useLoadingBtn()
 
     const webServer = useMemo(() => settings?.webServer, [settings])
 
     const form = useForm<GeneralFormValues>({
         resolver: zodResolver(generalFormSchema),
         defaultValues: {
-            port: webServer?.port ?? '',
+            port: webServer?.port.toString() ?? '',
         }
     })
 
+    async function onSubmit(data: GeneralFormValues) {
+        setIsBtnLoading(true)
+        const res = await updateGeneralSettings({
+            port: parseInt(data.port, 10),
+        }, token.communicationToken)
+        if (res) {
+            toast({
+                title: "Update Successfully",
+            })
+        } else {
+            toast({
+                title: "Update Error",
+                description: "Please check console for more details.",
+                variant: "destructive"
+            })
+        }
+        setIsBtnLoading(false)
+    }
+
     useEffect(() => {
-        form.setValue("port", webServer?.port)
-    }, [form, webServer])
+        if (form.formState.isDirty) return
+        form.setValue("port", webServer?.port.toString() ?? '')
+    }, [webServer])
 
     return (
         <Form {...form}>
@@ -60,7 +76,7 @@ export default function GeneralForm() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit">Update General</Button>
+                <LoadingBtn type="submit">Update General</LoadingBtn>
             </form>
         </Form>
     )

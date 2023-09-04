@@ -4,12 +4,11 @@ import {Separator} from "@/components/ui/separator"
 import {SidebarNav} from "./components/sidebar-nav"
 import {ReactNode} from "react"
 import {Italic} from "@tremor/react";
-import {useSettings} from "@/hooks/useSettings";
 
 const sidebarNavItems = [
   {
     title: "General",
-    href: "/settings/",
+    href: "/settings",
   },
   {
     title: "Security",
@@ -20,12 +19,9 @@ const sidebarNavItems = [
     href: "/settings/server",
   },
   {
-    title: "Notifications",
-    href: "/settings/notifications",
-  },
-  {
     title: "Appearance",
     href: "/settings/appearance",
+    disabled: true,
   },
 ]
 

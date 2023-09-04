@@ -11,6 +11,7 @@ interface SidebarNavProps extends HTMLAttributes<HTMLElement> {
   items: {
     href: string
     title: string
+      disabled?: boolean
   }[]
 }
 
@@ -28,13 +29,14 @@ export function SidebarNav({className, items, ...props}: SidebarNavProps) {
         {items.map((item) => (
             <Link
                 key={item.href}
-                href={item.href}
+                href={item.disabled ? '' :  item.href}
                 className={cn(
                     buttonVariants({variant: "ghost"}),
                     pathname === item.href
                         ? "bg-muted hover:bg-muted"
                         : "hover:bg-transparent hover:underline",
-                    "justify-start"
+                    "justify-start",
+                    item.disabled ? "opacity-50 cursor-not-allowed" : ""
                 )}
             >
               {item.title}

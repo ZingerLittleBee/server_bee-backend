@@ -181,6 +181,7 @@ impl Config {
     }
 
     pub fn set_web_server_config(&mut self, config: WebServerConfig) -> Result<()> {
+        info!("Web Server config change: {:?}", config);
         self.web_server.merge(config).then(|| {
             self.db
                 .set::<WebServerConfig>(WEB_SERVER_CONFIG, &self.web_server);

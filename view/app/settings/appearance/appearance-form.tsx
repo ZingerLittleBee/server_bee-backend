@@ -90,8 +90,8 @@ export function AppearanceForm() {
                                             </div>
                                         </div>
                                         <span className="block w-full p-2 text-center font-normal">
-                      Light
-                    </span>
+                                          Light
+                                        </span>
                                     </FormLabel>
                                 </FormItem>
                                 <FormItem>
@@ -119,8 +119,8 @@ export function AppearanceForm() {
                                             </div>
                                         </div>
                                         <span className="block w-full p-2 text-center font-normal">
-                      Dark
-                    </span>
+                                          Dark
+                                        </span>
                                     </FormLabel>
                                 </FormItem>
                             </RadioGroup>
@@ -128,7 +128,7 @@ export function AppearanceForm() {
                     )}
                 />
 
-                <Button type="submit">Update preferences</Button>
+                <Button type="submit">Update Preferences</Button>
             </form>
         </Form>
     )

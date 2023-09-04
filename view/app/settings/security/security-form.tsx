@@ -4,14 +4,15 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
 import * as z from "zod"
 
-import {Button} from "@/components/ui/button"
-
 import {Input} from "@/components/ui/input"
 
 import {toast} from "@/components/ui/use-toast"
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {useSettings} from "@/hooks/useSettings";
 import {useEffect, useMemo} from "react";
+import {useLoadingBtn} from "@/hooks/useLoadingBtn";
+import {useToken} from "@/hooks/useToken";
+import {updateSecuritySettings} from "@/requests/settings";
 
 const securityFormSchema = z.object({
     token: z.string()
@@ -19,10 +20,10 @@ const securityFormSchema = z.object({
 
 type SecurityFormValues = z.infer<typeof securityFormSchema>
 
-const defaultValues: Partial<SecurityFormValues> = {}
-
 export function SecurityForm() {
     const {settings, isLoading} = useSettings()
+    const { LoadingBtn, setIsLoading: setIsBtnLoading } = useLoadingBtn()
+    const {token} = useToken()
 
     const appConfig = useMemo(() => settings?.app, [settings])
 
@@ -34,18 +35,27 @@ export function SecurityForm() {
     })
 
     useEffect(() => {
+        if (form.formState.isDirty) return
         form.setValue("token", appConfig?.token ?? '')
-    }, [form, appConfig])
+    }, [appConfig])
 
-    function onSubmit(data: SecurityFormValues) {
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-            ),
-        })
+    async function onSubmit(data: SecurityFormValues) {
+        setIsBtnLoading(true)
+        const res = await updateSecuritySettings({
+            token: data.token,
+        }, token.communicationToken)
+        if (res) {
+            toast({
+                title: "Update Successfully",
+            })
+        } else {
+            toast({
+                title: "Update Error",
+                description: "Please check console for more details.",
+                variant: "destructive"
+            })
+        }
+        setIsBtnLoading(false)
     }
 
     return (
@@ -67,7 +77,7 @@ export function SecurityForm() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit">Update security</Button>
+                <LoadingBtn type="submit">Update Security</LoadingBtn>
             </form>
         </Form>
     )
