@@ -6,20 +6,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const toGiB = ([strNum, unit]: [string, string]): number => {
-  if (!strNum || !unit) return 0
+export const toGiB = (data: FormatData | [string, string] | undefined, fixed = 1): number => {
+  if (!data) return 0
+  let [strNum, unit] = data
   if (unit === "B") {
-    return parseInt(strNum) / 1024 / 1024 / 1024
+    return toFixed(parseFloat(strNum) / 1024 / 1024 / 1024, fixed)
   } else if (unit === "KiB") {
-    return parseInt(strNum) / 1024 / 1024
+    return toFixed(parseFloat(strNum) / 1024 / 1024, fixed)
   } else if (unit === "MiB") {
-    return parseInt(strNum) / 1024
+    return toFixed(parseFloat(strNum) / 1024, fixed)
   } else if (unit === "GiB") {
-    return parseInt(strNum)
+    return toFixed(parseFloat(strNum), fixed)
   } else if (unit === "MiB") {
-    return parseInt(strNum) / 1024
+    return toFixed(parseFloat(strNum) / 1024, fixed)
   } else if (unit === "TiB") {
-    return parseInt(strNum) * 1024
+    return toFixed(parseFloat(strNum) * 1024, fixed)
   }
   return 0
 }
@@ -89,4 +90,14 @@ export const formatToString = (data: FormatData | [string, string] | undefined):
     return unit ? `${value} ${newUnit}` : value
   }
   return ''
+}
+
+export const toFixed = (num: number | string | undefined, fixed = 1): number => {
+    if (typeof num === "string") {
+        num = parseFloat(num)
+    }
+    if (!num) {
+        return 0
+    }
+    return parseFloat(num.toFixed(fixed))
 }
