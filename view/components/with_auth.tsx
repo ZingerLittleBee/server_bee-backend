@@ -2,7 +2,6 @@ import {useRouter} from 'next/navigation';
 import React, {ComponentType, useEffect, useState} from 'react';
 import {useToken} from "@/hooks/useToken";
 import {Loader2} from "lucide-react";
-
 export default function WithAuth(WrappedComponent: ComponentType) {
     return (props: any) => {
         const router = useRouter();

@@ -4,8 +4,10 @@ import {Separator} from "@/components/ui/separator"
 import GeneralForm from "@/app/settings/general-form";
 import {useStore} from "@/store";
 import {useSettings} from "@/hooks/useSettings";
+import WithAuth from "@/components/with_auth";
+import DashboardPage from "@/app/page";
 
-export default function SettingsGeneralPage() {
+function SettingsGeneralPage() {
     return (
         <div className="space-y-6">
             <div>
@@ -19,3 +21,5 @@ export default function SettingsGeneralPage() {
         </div>
     )
 }
+
+export default WithAuth(SettingsGeneralPage)

@@ -1,8 +1,11 @@
+"use client"
+
 import {Separator} from "@/components/ui/separator"
 import {ServerForm} from "./server-form"
 import {Bold, Italic} from "@tremor/react";
+import WithAuth from "@/components/with_auth";
 
-export default function SettingsServerPage() {
+export function SettingsServerPage() {
     return (
         <div className="space-y-6">
             <div>
@@ -17,3 +20,5 @@ export default function SettingsServerPage() {
         </div>
     )
 }
+
+export default WithAuth(SettingsServerPage)

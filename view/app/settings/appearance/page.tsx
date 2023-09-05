@@ -1,7 +1,10 @@
+"use client"
+
 import { Separator } from "@/components/ui/separator"
 import { AppearanceForm } from "./appearance-form"
+import WithAuth from "@/components/with_auth";
 
-export default function SettingsAppearancePage() {
+export function SettingsAppearancePage() {
   return (
     <div className="space-y-6">
       <div>
@@ -16,3 +19,5 @@ export default function SettingsAppearancePage() {
     </div>
   )
 }
+
+export default WithAuth(SettingsAppearancePage)

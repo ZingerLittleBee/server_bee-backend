@@ -1,7 +1,10 @@
+"use client"
+
 import {Separator} from "@/components/ui/separator"
 import {SecurityForm} from "./security-form"
+import WithAuth from "@/components/with_auth";
 
-export default function SettingsSecurityPage() {
+export function SettingsSecurityPage() {
     return (
         <div className="space-y-6">
             <div>
@@ -15,3 +18,5 @@ export default function SettingsSecurityPage() {
         </div>
     )
 }
+
+export default WithAuth(SettingsSecurityPage)
