@@ -3,7 +3,7 @@ import React, {ComponentType, useEffect, useState} from 'react';
 import {useToken} from "@/hooks/useToken";
 import {Loader2} from "lucide-react";
 export default function WithAuth(WrappedComponent: ComponentType) {
-    return (props: any) => {
+    return function AuthComponent(props: any) {
         const router = useRouter();
         const [loading, setLoading] = useState(true);
         const {token, isVerified} = useToken()
@@ -23,7 +23,7 @@ export default function WithAuth(WrappedComponent: ComponentType) {
             } else {
                 router.replace('/login');
             }
-        }, [token.communicationToken]);
+        }, [token.communicationToken, isVerified, router]);
 
         if (loading) {
             return (

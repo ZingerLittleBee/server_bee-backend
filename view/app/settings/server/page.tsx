@@ -5,7 +5,7 @@ import {ServerForm} from "./server-form"
 import {Bold, Italic} from "@tremor/react";
 import WithAuth from "@/components/with_auth";
 
-export function SettingsServerPage() {
+function SettingsServerPage() {
     return (
         <div className="space-y-6">
             <div>

@@ -57,7 +57,7 @@ export default function GeneralForm() {
     useEffect(() => {
         if (form.formState.isDirty) return
         form.setValue("port", webServer?.port.toString() ?? '')
-    }, [webServer])
+    }, [form, webServer])
 
     return (
         <Form {...form}>

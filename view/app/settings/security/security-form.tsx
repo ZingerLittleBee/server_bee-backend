@@ -37,7 +37,7 @@ export function SecurityForm() {
     useEffect(() => {
         if (form.formState.isDirty) return
         form.setValue("token", appConfig?.token ?? '')
-    }, [appConfig])
+    }, [form, appConfig])
 
     async function onSubmit(data: SecurityFormValues) {
         setIsBtnLoading(true)

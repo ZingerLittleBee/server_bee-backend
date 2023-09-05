@@ -58,7 +58,7 @@ export function ServerForm() {
         form.setValue("host", serverConfig?.host ?? '')
         form.setValue("token", serverConfig?.token ?? '')
         form.setValue("disableSsl", serverConfig?.disableSsl ?? false)
-    }, [serverConfig])
+    }, [form, serverConfig])
 
     async function onSubmit(data: ServerFormValues) {
         setIsBtnLoading(true)

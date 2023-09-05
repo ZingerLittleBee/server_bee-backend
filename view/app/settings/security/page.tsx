@@ -4,7 +4,7 @@ import {Separator} from "@/components/ui/separator"
 import {SecurityForm} from "./security-form"
 import WithAuth from "@/components/with_auth";
 
-export function SettingsSecurityPage() {
+function SettingsSecurityPage() {
     return (
         <div className="space-y-6">
             <div>
