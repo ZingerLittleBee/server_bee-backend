@@ -4,22 +4,21 @@ use cli::Args;
 use std::sync::{Arc, RwLock};
 
 use crate::config::config::Config;
-use crate::handler::db_handler::{config_test, db_test};
+use crate::handler::db_handler::db_test;
 use crate::handler::http_handler::{
-    check_token, clear_token, index, kill_process, rest_token, rest_token_local, version,
-    view_token,
+    check_token, clear_token, kill_process, rest_token, rest_token_local, version, view_token,
 };
 
 use crate::db::db_wrapper::DbWrapper;
 use crate::report::reporter::Reporter;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
-use crate::token::communication_token::CommunicationToken;
-use actix_web::{guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
-use actix_web_actors::ws;
+use crate::server::echo_ws;
+use actix_web::{guard, middleware, web, App, HttpResponse, HttpServer, Responder};
 use clap::Parser;
 use log::info;
-use sled::Db;
+use mime_guess::from_path;
+use rust_embed::RustEmbed;
 
 mod cli;
 mod config;
@@ -34,19 +33,27 @@ mod token;
 mod traits;
 mod vo;
 
-use self::server::MyWebSocket;
+#[derive(RustEmbed)]
+#[folder = "../view/out"]
+struct Asset;
 
-/// WebSocket handshake and start `MyWebSocket` actor.
-async fn echo_ws(
-    _token: CommunicationToken,
-    req: HttpRequest,
-    stream: web::Payload,
-) -> Result<HttpResponse, Error> {
-    ws::start(MyWebSocket::new(), &req, stream)
+fn handle_embedded_file(path: &str) -> HttpResponse {
+    match Asset::get(path) {
+        Some(content) => HttpResponse::Ok()
+            .content_type(from_path(path).first_or_octet_stream().as_ref())
+            .body(content.data.into_owned()),
+        None => HttpResponse::NotFound().body("404 Not Found"),
+    }
 }
 
-fn init_sled_db() -> Db {
-    sled::open("db").unwrap()
+#[actix_web::get("/")]
+async fn index() -> impl Responder {
+    handle_embedded_file("index.html")
+}
+
+#[actix_web::get("/{file:.*}")]
+async fn files(file: web::Path<String>) -> impl Responder {
+    handle_embedded_file(file.as_ref())
 }
 
 #[actix_web::main]
@@ -79,7 +86,6 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::JsonConfig::default().limit(4096))
             .configure(config_services)
             .configure(local_services)
-            .service(web::resource("/").to(index))
             .service(web::resource("/version").to(version))
             .service(web::resource("/db").to(db_test))
             // .service(web::resource("/config").to(config_test))
@@ -96,6 +102,8 @@ async fn main() -> std::io::Result<()> {
                     .service(web::resource("/token/clear").to(clear_token))
                     .service(web::resource("/token/rest").to(rest_token_local)),
             )
+            .service(index)
+            .service(files)
             // enable logger
             .wrap(middleware::Logger::default())
     })

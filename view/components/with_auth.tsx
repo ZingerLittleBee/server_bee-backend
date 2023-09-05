@@ -1,5 +1,5 @@
 import {useRouter} from 'next/navigation';
-import React, {ComponentType, useEffect, useState} from 'react';
+import React, {ComponentType, useCallback, useEffect, useState} from 'react';
 import {useToken} from "@/hooks/useToken";
 import {Loader2} from "lucide-react";
 export default function WithAuth(WrappedComponent: ComponentType) {
@@ -8,10 +8,14 @@ export default function WithAuth(WrappedComponent: ComponentType) {
         const [loading, setLoading] = useState(true);
         const {token, isVerified} = useToken()
 
+        const isVerifiedCb = useCallback(async () => {
+            return isVerified()
+        }, [token.communicationToken]);
+
         useEffect(() => {
             if (token.communicationToken) {
                 (async () => {
-                    const isValid = await isVerified()
+                    const isValid = await isVerifiedCb()
                     if (!isValid) {
                         setTimeout(() => {
                             router.replace('/login')
@@ -23,7 +27,7 @@ export default function WithAuth(WrappedComponent: ComponentType) {
             } else {
                 router.replace('/login');
             }
-        }, [token.communicationToken, isVerified, router]);
+        }, [token.communicationToken, isVerifiedCb, router]);
 
         if (loading) {
             return (

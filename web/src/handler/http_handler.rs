@@ -13,11 +13,6 @@ pub struct KilledInfo {
     pid: String,
 }
 
-/// To check service state
-pub async fn index() -> impl Responder {
-    HttpResponse::Ok()
-}
-
 pub async fn version() -> impl Responder {
     env!("CARGO_PKG_VERSION")
 }
