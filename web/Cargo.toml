@@ -25,7 +25,7 @@ mime_guess = "2.0.4"
 clap = { version = "4.0.11", features = ["derive"] }
 
 log = "0.4"
-log4rs = "1.2.0"
+log4rs = { version = "1.2.0", features = ["gzip"] }
 
 futures-util = { version = "0.3.17", default-features = false, features = ["std", "sink"] }
 tokio = { version = "1.24.2", features = ["full"] }

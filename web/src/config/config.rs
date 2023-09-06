@@ -9,7 +9,10 @@ use crate::db::db_wrapper::DbWrapper;
 use anyhow::Result;
 use log::{info, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
-use log4rs::append::file::FileAppender;
+use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
+use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
+use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
+use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use std::env;
@@ -68,7 +71,7 @@ impl Config {
             .log_path
             .unwrap_or_else(|| match db.get::<String>(LOG_PATH) {
                 Ok(Some(v)) => v,
-                _ => Config::log_path().to_str().unwrap().to_string(),
+                _ => Config::current_dir().to_str().unwrap().to_string(),
             });
 
         let config = Config {
@@ -94,10 +97,6 @@ impl Config {
         self.app.clone()
     }
 
-    pub fn get_log_path(&self) -> PathBuf {
-        self.log_path.clone()
-    }
-
     pub fn server_port(&self) -> u16 {
         self.web_server.port()
     }
@@ -115,33 +114,51 @@ impl Config {
     }
 
     fn init_logging(&self) {
-        let log_path = self.get_log_path();
-        info!("日志路径: {:?}", log_path);
+        let log_path = self.log_path();
+        let log_file = self.log_file();
+        info!("日志文件路径: {:?}", log_file);
 
         // init logging
         let stdout: ConsoleAppender = ConsoleAppender::builder()
             .encoder(Box::new(PatternEncoder::new(
-                "[{d(%Y-%m-%d %H:%M:%S)} {T} {l}] {m}{n}",
+                "[{d(%Y-%m-%d %H:%M:%S)} {T} {h({l})}] {m}{n}",
             )))
             .build();
 
         // Logging to log file.
-        let logfile = FileAppender::builder()
-            // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
+        // let logfile = FileAppender::builder()
+        //     // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
+        //     .encoder(Box::new(PatternEncoder::new(
+        //         "[{d(%Y-%m-%d %H:%M:%S)} {T} {h({l})}] {m}{n}",
+        //     )))
+        //     .build(log_path)
+        //     .unwrap();
+
+        // rolling log file.
+        let window_roller = FixedWindowRoller::builder()
+            .build(
+                &format!("{}/archive/serverbee.{}.log.gz", log_path.display(), "{}"),
+                5,
+            )
+            .unwrap();
+        let size_trigger = SizeTrigger::new(10_000_000); // 10 MB
+        let compound_policy = CompoundPolicy::new(Box::new(size_trigger), Box::new(window_roller));
+
+        let rolling_logfile = RollingFileAppender::builder()
             .encoder(Box::new(PatternEncoder::new(
                 "[{d(%Y-%m-%d %H:%M:%S)} {T} {h({l})}] {m}{n}",
             )))
-            .build(log_path)
+            .build(log_file, Box::new(compound_policy))
             .unwrap();
 
         let log_config = log4rs::config::Config::builder()
             .appender(Appender::builder().build("stdout", Box::new(stdout)))
-            .appender(Appender::builder().build("logfile", Box::new(logfile)))
+            .appender(Appender::builder().build("logfile", Box::new(rolling_logfile)))
             .build(
                 Root::builder()
                     .appender("stdout")
                     .appender("logfile")
-                    .build(LevelFilter::Debug),
+                    .build(LevelFilter::Info),
             )
             .unwrap();
 
@@ -167,7 +184,7 @@ impl Config {
         d.port()
     }
 
-    pub fn current_dir() -> PathBuf {
+    fn current_dir() -> PathBuf {
         if let Ok(current_exe) = env::current_exe() {
             if let Some(parent) = current_exe.parent() {
                 return parent.to_path_buf();
@@ -176,8 +193,12 @@ impl Config {
         env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
     }
 
-    pub fn log_path() -> PathBuf {
-        Config::current_dir().join("web.log")
+    pub fn log_path(&self) -> PathBuf {
+        self.log_path.clone()
+    }
+
+    pub fn log_file(&self) -> PathBuf {
+        self.log_path().join("web.log")
     }
 
     pub fn set_web_server_config(&mut self, config: WebServerConfig) -> Result<()> {
