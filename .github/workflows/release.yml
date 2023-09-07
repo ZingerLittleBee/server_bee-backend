@@ -78,10 +78,11 @@ jobs:
             suffix: .exe
             target: x86_64-pc-windows-msvc
             args: --no-default-features --features native-tls
-          - host: windows-latest
-            suffix: .exe
-            target: aarch64-pc-windows-msvc
-            args: --no-default-features --features native-tls
+          # https://github.com/briansmith/ring/issues/1614
+#          - host: windows-latest
+#            suffix: .exe
+#            target: aarch64-pc-windows-msvc
+#            args: --no-default-features --features native-tls
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
           - host: ubuntu-latest
