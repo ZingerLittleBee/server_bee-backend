@@ -20,6 +20,11 @@ async fn index() -> impl Responder {
     handle_embedded_file("index.html")
 }
 
+#[get("/login")]
+async fn login() -> impl Responder {
+    handle_embedded_file("login.html")
+}
+
 #[get("/settings")]
 async fn settings() -> impl Responder {
     handle_embedded_file("settings.html")
@@ -48,6 +53,7 @@ async fn txt(name: web::Path<String>) -> impl Responder {
 
 pub fn page_services(cfg: &mut web::ServiceConfig) {
     cfg.service(index)
+        .service(login)
         .service(next_files)
         .service(ico)
         .service(txt)
