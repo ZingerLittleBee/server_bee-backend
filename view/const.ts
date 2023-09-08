@@ -1,1 +1,1 @@
-export const kCommunicationToken = 'communication-token';
+export const kCommunicationToken = "communication-token"

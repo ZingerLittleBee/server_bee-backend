@@ -1,22 +1,24 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { ThemeProviderProps } from "next-themes/dist/types"
-import {useEffect, useState} from "react";
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   // https://github.com/vercel/next.js/discussions/22388#discussioncomment-6609801
-  const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(false)
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    setIsClient(true)
+  }, [])
 
-  return <>
-    {isClient ? (
+  return (
+    <>
+      {isClient ? (
         <NextThemesProvider {...props}>{children}</NextThemesProvider>
-    ) : (
+      ) : (
         <></>
-    )}
-  </>
+      )}
+    </>
+  )
 }

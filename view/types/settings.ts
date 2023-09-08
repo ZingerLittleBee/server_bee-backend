@@ -1,31 +1,33 @@
 export type Settings = {
-    web_server: WebServerConfig
-    app: AppConfig
-    server: ServerConfig
+  web_server: WebServerConfig
+  app: AppConfig
+  server: ServerConfig
 }
 
 export type SettingsVo = {
-    webServer: WebServerConfigVo
-    app: AppConfigVo
-    server: ServerConfigVo
+  webServer: WebServerConfigVo
+  app: AppConfigVo
+  server: ServerConfigVo
 }
 
 export type WebServerConfig = {
-    port: number
+  port: number
 }
 
 export type WebServerConfigVo = WebServerConfig
 
 export type AppConfig = {
-    token?: string
+  token?: string
 }
 
 export type AppConfigVo = AppConfig
 
 export type ServerConfig = {
-    token?: string
-    host?: string
-    disable_ssl: boolean
+  token?: string
+  host?: string
+  disable_ssl: boolean
 }
 
-export type ServerConfigVo = Omit<ServerConfig, 'disable_ssl'> & { disableSsl: boolean }
+export type ServerConfigVo = Omit<ServerConfig, "disable_ssl"> & {
+  disableSsl: boolean
+}

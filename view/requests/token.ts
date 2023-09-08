@@ -1,23 +1,23 @@
-import instance from "@/requests/instance";
+import instance from "@/requests/instance"
 
 export const getToken = async () => {
-    const {data} = await instance.get<string>(
-        '/local/token/view'
-    )
-    return data
+  const { data } = await instance.get<string>("/local/token/view")
+  return data
 }
 
 export const verifyToken = async (token: string) => {
-    try {
-        await instance.post(
-            '/check', {}, {
-                headers: {
-                    "Authorization": token
-                }
-            }
-        )
-        return true
-    } catch {
-        return false
-    }
+  try {
+    await instance.post(
+      "/check",
+      {},
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    )
+    return true
+  } catch {
+    return false
+  }
 }

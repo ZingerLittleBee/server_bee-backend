@@ -1,12 +1,16 @@
-import { type ClassValue, clsx } from "clsx"
+import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import {FormatData, MemUsage} from "@/types/fusion";
+
+import { FormatData, MemUsage } from "@/types/fusion"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const toGiB = (data: FormatData | [string, string] | undefined, fixed = 1): number => {
+export const toGiB = (
+  data: FormatData | [string, string] | undefined,
+  fixed = 1
+): number => {
   if (!data) return 0
   let [strNum, unit] = data
   if (unit === "B") {
@@ -57,7 +61,10 @@ export const toKiB = ([strNum, unit]: [string, string]): number => {
   return 0
 }
 
-export const kiBToMaxUnit = (kiB: number | string | undefined, fixed = 1): [string, string] => {
+export const kiBToMaxUnit = (
+  kiB: number | string | undefined,
+  fixed = 1
+): [string, string] => {
   if (typeof kiB === "string") {
     kiB = parseInt(kiB)
   }
@@ -75,29 +82,38 @@ export const kiBToMaxUnit = (kiB: number | string | undefined, fixed = 1): [stri
 }
 
 export const computedMemoryUsagePercentage = (usage: MemUsage): string => {
-  if (!usage) return 'N/A'
-  return (toGiB(usage.total) !== 0 ? toGiB(usage.used) / toGiB(usage.total) * 100 : 0).toFixed(1)
+  if (!usage) return "N/A"
+  return (
+    toGiB(usage.total) !== 0
+      ? (toGiB(usage.used) / toGiB(usage.total)) * 100
+      : 0
+  ).toFixed(1)
 }
 
-export const formatToString = (data: FormatData | [string, string] | undefined): string => {
+export const formatToString = (
+  data: FormatData | [string, string] | undefined
+): string => {
   if (data) {
     let [value, unit] = data
     let newUnit: string = unit
-    if (unit === 'KiB') newUnit = 'KB'
-    if (unit === 'MiB') newUnit = 'MB'
-    if (unit === 'GiB') newUnit = 'GB'
-    if (unit === 'TiB') newUnit = 'TB'
+    if (unit === "KiB") newUnit = "KB"
+    if (unit === "MiB") newUnit = "MB"
+    if (unit === "GiB") newUnit = "GB"
+    if (unit === "TiB") newUnit = "TB"
     return unit ? `${value} ${newUnit}` : value
   }
-  return ''
+  return ""
 }
 
-export const toFixed = (num: number | string | undefined, fixed = 1): number => {
-    if (typeof num === "string") {
-        num = parseFloat(num)
-    }
-    if (!num) {
-        return 0
-    }
-    return parseFloat(num.toFixed(fixed))
+export const toFixed = (
+  num: number | string | undefined,
+  fixed = 1
+): number => {
+  if (typeof num === "string") {
+    num = parseFloat(num)
+  }
+  if (!num) {
+    return 0
+  }
+  return parseFloat(num.toFixed(fixed))
 }

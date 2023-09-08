@@ -1,8 +1,9 @@
 "use client"
 
 import { Separator } from "@/components/ui/separator"
+import WithAuth from "@/components/with_auth"
+
 import { AppearanceForm } from "./appearance-form"
-import WithAuth from "@/components/with_auth";
 
 function SettingsAppearancePage() {
   return (

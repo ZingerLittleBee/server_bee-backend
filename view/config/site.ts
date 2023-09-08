@@ -1,13 +1,10 @@
-import {
-  kDashboardRoute, kSettingsRoute,
-} from "@/lib/route"
+import { kDashboardRoute, kSettingsRoute } from "@/lib/route"
 
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
   name: "ServerBee",
-  description:
-      "",
+  description: "",
   mainNav: {
     // home: {
     //   title: "Home",

@@ -1,28 +1,32 @@
-import {Settings} from "@/types/settings";
-import {Dispatch} from "react";
+import { Dispatch } from "react"
 
-export const kSetSettings = 'SET_SETTINGS'
+import { Settings } from "@/types/settings"
+
+export const kSetSettings = "SET_SETTINGS"
 
 export type SettingsState = Settings
 
 export interface SettingsAction {
-    type: typeof kSetSettings,
-    payload: Settings
+  type: typeof kSetSettings
+  payload: Settings
 }
 
 export interface SettingsContext {
-    settings: SettingsState,
-    settingsDispatch: Dispatch<SettingsAction>
+  settings: SettingsState
+  settingsDispatch: Dispatch<SettingsAction>
 }
 
-export const settingsReducer = (state: SettingsState, action: SettingsAction): SettingsState => {
-    switch (action.type) {
-        case kSetSettings:
-            return {
-                ...state,
-                ...action.payload
-            }
-        default:
-            return state
-    }
+export const settingsReducer = (
+  state: SettingsState,
+  action: SettingsAction
+): SettingsState => {
+  switch (action.type) {
+    case kSetSettings:
+      return {
+        ...state,
+        ...action.payload,
+      }
+    default:
+      return state
+  }
 }
