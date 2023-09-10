@@ -17,7 +17,7 @@ WORKDIR /usr/src/serverbee
 
 COPY . .
 
-COPY --from=frontend /usr/src/serverbee/out /usr/src/serverbee/view/out
+COPY --from=frontend /usr/src/serverbee/dist /usr/src/serverbee/view/dist
 
 # https://github.com/hound-search/hound/issues/238
 RUN apk add --no-cache musl-dev

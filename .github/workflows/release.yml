@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: view-build-artifacts
-          path: view/out
+          path: view/dist
   build:
     needs:
       - build-view
@@ -100,7 +100,7 @@ jobs:
         if: matrix.package == 'web'
         with:
           name: view-build-artifacts
-          path: view/out
+          path: view/dist
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
