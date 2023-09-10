@@ -1,11 +1,8 @@
 import {
-    Card,
     Text,
     Flex,
-    ProgressBar,
     Icon,
     Title,
-    Divider,
     Bold,
     BarList,
     Color,
@@ -16,6 +13,8 @@ import {formatToString, toGiB} from "@/lib/utils.ts";
 import {useTheme} from "next-themes";
 import {Badge} from "@/components/ui/badge.tsx";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip.tsx";
+import {Card, CardContent, CardHeader} from "@/components/ui/card";
+import {Progress} from "@/components/ui/progress.tsx";
 
 interface Data {
     name: string;
@@ -46,7 +45,7 @@ export default function DiskDetail({detail }: DiskDetailProp) {
             title: detail.device_name,
             value: usedPercentage,
             icon: HardDrive,
-            color: "indigo",
+            color: "slate",
             date: "Today",
             data: [
                 { name: "Total", value: 100 },
@@ -66,33 +65,39 @@ export default function DiskDetail({detail }: DiskDetailProp) {
     }
 
     return (
-        <Card decoration="left" decorationColor={card.color} key={card.title} className="h-fit">
-            <Flex justifyContent="start" className="space-x-4">
-                <Icon variant="light" icon={card.icon} size="sm" color={card.color} />
-                <Title className="truncate">{card.title}</Title>
-            </Flex>
-            <Flex justifyContent="start" className="space-x-3 mt-3">
-                <Badge variant="outline">{detail.disk_type}</Badge>
-                {detail.is_removable && RemoveableView()}
-                {detail.file_system && FileSystemView(detail.file_system)}
-            </Flex>
-            <Flex className="space-x-3 mt-3">
-                <ProgressBar className="mt-0" value={card.value} color={card.color} />
-                <Title>{card.value}%</Title>
-            </Flex>
-            <Divider />
-            <Text>
-                Last Inspection: <Bold>{card.date}</Bold>
-            </Text>
-            <BarList
-                key={card.title}
-                data={card.data}
-                className="mt-2"
-                // @ts-ignore
-                // https://github.com/tremorlabs/tremor/issues/612
-                color={theme === "dark" ? `${card.color}-500 ` : card.color}
-                valueFormatter={dataFormatter}
-            />
+        <Card key={card.title} className="h-fit">
+            <CardHeader className="space-y-2">
+                <Flex justifyContent="start" className="space-x-4">
+                    <Icon variant="light" icon={card.icon} size="sm" color={card.color} />
+                    <Title className="truncate">{card.title}</Title>
+                </Flex>
+                <Flex justifyContent="start" className="space-x-3 mt-3">
+                    <Badge variant="outline">{detail.disk_type}</Badge>
+                    {detail.is_removable && RemoveableView()}
+                    {detail.file_system && FileSystemView(detail.file_system)}
+                </Flex>
+            </CardHeader>
+            <CardContent>
+                <Flex className="space-x-3">
+                    <Progress
+                        value={card.value}
+                        className="col-span-2 my-2"
+                    />
+                    <Title>{card.value}%</Title>
+                </Flex>
+                <Text className="mt-6">
+                    Last Inspection: <Bold>{card.date}</Bold>
+                </Text>
+                <BarList
+                    key={card.title}
+                    data={card.data}
+                    className="mt-2"
+                    // @ts-ignore
+                    // https://github.com/tremorlabs/tremor/issues/612
+                    color={theme === "dark" ? `${card.color}-500 ` : card.color}
+                    valueFormatter={dataFormatter}
+                />
+            </CardContent>
         </Card>
     );
 }

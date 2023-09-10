@@ -1,7 +1,7 @@
-import DiskSelector from "@/components/tab/disk/selector.tsx";
 import DiskDetail from "@/components/tab/disk/detail.tsx";
 import {useStore} from "@/store";
-import {useMemo, useState} from "react";
+import {useMemo, useState} from "react"
+import Selector from "@/components/tab/selector.tsx"
 
 export default function DiskTabView() {
     const { fusion } = useStore()
@@ -25,7 +25,7 @@ export default function DiskTabView() {
     const detail  = data?.find(d => d.disk.id === value)?.disk.detail
 
     return <div className="space-y-4">
-        {groups && <DiskSelector groups={groups} value={value} setValue={setValue} />}
+        {groups && <Selector subject="disk" groups={groups} value={value} setValue={setValue} />}
         {detail && <DiskDetail detail={detail} />}
     </div>
 }

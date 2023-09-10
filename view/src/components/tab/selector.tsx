@@ -1,17 +1,18 @@
-import {cn} from "@/lib/utils.ts";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
-import {Button} from "@/components/ui/button.tsx";
-import {Check, ChevronsUpDown} from "lucide-react";
-import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command.tsx";
-import {useState} from "react";
+import { Button } from "@/components/ui/button.tsx";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
+import { cn } from "@/lib/utils.ts";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
-export type DiskSelectorProp = {
+export type SelectorProp = {
+    subject: string
     groups: { value: string, label: string }[]
     value: string
     setValue: (value: string) => void
 }
 
-export default function DiskSelector({ groups = [], value, setValue }: DiskSelectorProp) {
+export default function Selector({ subject, groups = [], value, setValue }: SelectorProp) {
     const [open, setOpen] = useState(false)
 
     return (
@@ -25,14 +26,14 @@ export default function DiskSelector({ groups = [], value, setValue }: DiskSelec
                 >
                     {value
                         ? groups.find((group) => group.value === value)?.label
-                        : "Select disk..."}
+                        : `Select ${subject}...`}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[300px] p-0">
                 <Command>
-                    <CommandInput placeholder="Search disk..." />
-                    <CommandEmpty>No disk found.</CommandEmpty>
+                    <CommandInput placeholder={`Search ${subject}...`} />
+                    <CommandEmpty>No ${subject} found.</CommandEmpty>
                     <CommandGroup>
                         {groups.map((group) => (
                             <CommandItem
