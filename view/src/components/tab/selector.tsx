@@ -1,18 +1,34 @@
-import { Button } from "@/components/ui/button.tsx";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
-import { cn } from "@/lib/utils.ts";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { useState } from 'react'
+import { Check, ChevronsUpDown } from 'lucide-react'
+
+import { cn } from '@/lib/utils.ts'
+import { Button } from '@/components/ui/button.tsx'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+} from '@/components/ui/command.tsx'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover.tsx'
 
 export type SelectorProp = {
     subject: string
-    groups: { value: string, label: string }[]
+    groups: { value: string; label: string }[]
     value: string
     setValue: (value: string) => void
 }
 
-export default function Selector({ subject, groups = [], value, setValue }: SelectorProp) {
+export default function Selector({
+    subject,
+    groups = [],
+    value,
+    setValue,
+}: SelectorProp) {
     const [open, setOpen] = useState(false)
 
     return (
@@ -40,14 +56,20 @@ export default function Selector({ subject, groups = [], value, setValue }: Sele
                                 key={group.value}
                                 value={group.value}
                                 onSelect={(currentValue) => {
-                                    setValue(currentValue === value ? "" : currentValue)
+                                    setValue(
+                                        currentValue === value
+                                            ? ''
+                                            : currentValue
+                                    )
                                     setOpen(false)
                                 }}
                             >
                                 <Check
                                     className={cn(
-                                        "mr-2 h-4 w-4",
-                                        value === group.value ? "opacity-100" : "opacity-0"
+                                        'mr-2 h-4 w-4',
+                                        value === group.value
+                                            ? 'opacity-100'
+                                            : 'opacity-0'
                                     )}
                                 />
                                 {group.label}

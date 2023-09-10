@@ -1,5 +1,5 @@
-export const kHomeRoute = "/"
+export const kHomeRoute = '/'
 
-export const kDashboardRoute = "/dashboard"
+export const kDashboardRoute = '/dashboard'
 
-export const kSettingsRoute = "/settings"
+export const kSettingsRoute = '/settings'

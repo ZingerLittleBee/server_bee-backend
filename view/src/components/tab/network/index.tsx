@@ -1,5 +1,3 @@
-
 export default function NetworkTabView() {
-    return <>NetworkTabView
-    </>
+    return <>NetworkTabView</>
 }
