@@ -12,13 +12,13 @@ import dayjs, { unix } from "dayjs"
 import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 
-import { DiskIO } from "@/types/fusion"
-import { formatToString } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { STooltip } from "@/components/s-tooltip"
+import { DiskIO } from "@/types/fusion.ts"
+import { formatToString } from "@/lib/utils.ts"
+import { Badge } from "@/components/ui/badge.tsx"
+import { Card, CardContent, CardHeader } from "@/components/ui/card.tsx"
+import { STooltip } from "@/components/s-tooltip.tsx"
 
-import { ScrollArea } from "../ui/scroll-area"
+import { ScrollArea } from "../../ui/scroll-area.tsx"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)

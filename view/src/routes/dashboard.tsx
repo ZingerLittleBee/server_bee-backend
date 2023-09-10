@@ -7,8 +7,8 @@ import { ElementType, useMemo } from "react"
 
 import { CpuActivity } from "@/components/activity/cpu"
 import { NetworkActivity } from "@/components/activity/network"
-import ProcessDetail from "@/components/process/detail"
-import ProcessList from "@/components/process/list/page"
+import ProcessDetail from "@/components/tab/process/detail"
+import ProcessList from "@/components/tab/process/list/page"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import CpuWidget from "@/components/widget/cpu"
@@ -18,6 +18,8 @@ import NetworkWidget from "@/components/widget/network"
 import { OsWidget } from "@/components/widget/os"
 import useWebsocket from "@/hooks/useWebsocket"
 import WithAuth from "@/components/with_auth"
+import DiskTabView from "@/components/tab/disk";
+import NetworkTabView from "@/components/tab/network";
 
 function DashboardPage() {
   const { requestProcess, status } = useWebsocket()
@@ -57,6 +59,7 @@ function DashboardPage() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="process">Process</TabsTrigger>
+          <TabsTrigger value="detail">Disk & Network</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <OsWidget />
@@ -89,6 +92,12 @@ function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <div className="col-span-3">{<ProcessList />}</div>
             <div className="col-span-4">{<ProcessDetail />}</div>
+          </div>
+        </TabsContent>
+        <TabsContent value="detail" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <div className="col-span-3">{<DiskTabView />}</div>
+            <div className="col-span-4">{<NetworkTabView />}</div>
           </div>
         </TabsContent>
       </Tabs>

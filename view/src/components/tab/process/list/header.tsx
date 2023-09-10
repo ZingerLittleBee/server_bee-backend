@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useDebounceFn } from "ahooks"
 
-import useWebsocket from "@/hooks/useWebsocket"
-import { Icons } from "@/components/icons"
+import useWebsocket from "@/hooks/useWebsocket.ts"
+import { Icons } from "@/components/icons.tsx"
 
 export function ProcessListHeader() {
   const { sortUp, sortDown } = useWebsocket()

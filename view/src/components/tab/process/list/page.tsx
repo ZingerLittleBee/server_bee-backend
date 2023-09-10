@@ -3,13 +3,13 @@ import { useStore } from "@/store"
 import { clsx } from "clsx"
 import { Virtuoso } from "react-virtuoso"
 
-import { SimpleProcess } from "@/types/fusion"
-import { formatToString } from "@/lib/utils"
-import useWebsocket from "@/hooks/useWebsocket"
-import { Card, CardContent } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { ProcessListHeader } from "@/components/process/list/header"
-import { STooltip } from "@/components/s-tooltip"
+import { SimpleProcess } from "@/types/fusion.ts"
+import { formatToString } from "@/lib/utils.ts"
+import useWebsocket from "@/hooks/useWebsocket.ts"
+import { Card, CardContent } from "@/components/ui/card.tsx"
+import { ScrollArea } from "@/components/ui/scroll-area.tsx"
+import { ProcessListHeader } from "@/components/tab/process/list/header.tsx"
+import { STooltip } from "@/components/s-tooltip.tsx"
 
 export default function ProcessList() {
   const { fusion } = useStore()

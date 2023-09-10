@@ -213,7 +213,7 @@ The response is as follows:
 pnpm -C view install
 pnpm -C view build
 ```
-The build product is in the `view/out` directory
+The build product is in the `view/dist` directory
 
 ## 2. Build web, deploy module source code
 > Need to install rust
