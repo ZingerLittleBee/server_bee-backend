@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react'
 import { useStore } from '@/store'
-import { Card, Text } from '@tremor/react'
+import { Bold, Flex, Text } from '@tremor/react'
 import { unix } from 'dayjs'
 import {
     Area,
@@ -11,6 +11,8 @@ import {
     XAxis,
     YAxis,
 } from 'recharts'
+
+import { Card } from '@/components/ui/card.tsx'
 
 export function CpuActivity() {
     const { history } = useStore()
@@ -31,16 +33,16 @@ export function CpuActivity() {
     }) => {
         if (active) {
             const time = unix(payload?.[0].payload.time).format('hh:mm:ss')
-
             return (
-                <Card
-                    className="min-w-[150px] px-4 py-2"
-                    decoration="bottom"
-                    decorationColor="indigo"
-                >
-                    <Text>{time}</Text>
-                    <div className="text-2xl font-bold">
-                        {`${payload?.[0].value}`}%
+                <Card className="min-w-[150px] py-1">
+                    <Text className="mx-4">{time}</Text>
+                    <div className="my-1 w-full border bg-muted"></div>
+                    <div className="mx-4 flex flex-row items-center space-x-2">
+                        <div className="h-2 w-2 rounded-full bg-[#8884d8]"></div>
+                        <Flex alignItems="center">
+                            <Text>Usage</Text>
+                            <Bold>{`${payload?.[0].value}`}%</Bold>
+                        </Flex>
                     </div>
                 </Card>
             )

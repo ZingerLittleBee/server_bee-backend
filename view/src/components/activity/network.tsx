@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react'
 import { useStore } from '@/store'
-import { Card, Text } from '@tremor/react'
+import { Bold, Flex, Text } from '@tremor/react'
 import { unix } from 'dayjs'
 import {
     Legend,
@@ -14,6 +14,7 @@ import {
 } from 'recharts'
 
 import { formatToString, kiBToMaxUnit } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
 
 export function NetworkActivity() {
     const { history } = useStore()
@@ -109,15 +110,22 @@ const CustomTooltip: FC<TooltipProps<string, number>> = ({
         const rx = formatToString(kiBToMaxUnit(payload?.[1].value))
 
         return (
-            <Card
-                className="min-w-[150px] px-4 py-2"
-                decoration="bottom"
-                decorationColor="indigo"
-            >
-                <Text>{time}</Text>
-                <div className="flex flex-col items-start justify-center text-xl font-bold">
-                    <p style={{ color: '#8b5cf6' }}>tx: {tx}</p>
-                    <p style={{ color: '#22c55e' }}>rx: {rx}</p>
+            <Card className="min-w-[150px] py-1">
+                <Text className="mx-4">{time}</Text>
+                <div className="my-1 w-full border bg-muted"></div>
+                <div className="mx-4 flex flex-row items-center space-x-2">
+                    <div className="h-2 w-2 rounded-full bg-[#8b5cf6]"></div>
+                    <Flex alignItems="center">
+                        <Text>TX</Text>
+                        <Bold>{tx}</Bold>
+                    </Flex>
+                </div>
+                <div className="mx-4 flex flex-row items-center space-x-2">
+                    <div className="h-2 w-2 rounded-full bg-[#22c55e]"></div>
+                    <Flex alignItems="center">
+                        <Text>RX</Text>
+                        <Bold>{rx}</Bold>
+                    </Flex>
                 </div>
             </Card>
         )
