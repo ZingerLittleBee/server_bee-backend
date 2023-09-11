@@ -1,6 +1,7 @@
 import { Bold, Italic } from '@tremor/react'
 
 import { Separator } from '@/components/ui/separator'
+import WithAuth from '@/components/with_auth.tsx'
 
 import { ServerForm } from './server-form'
 
@@ -23,4 +24,4 @@ function SettingsServerPage() {
     )
 }
 
-export default SettingsServerPage
+export default WithAuth(SettingsServerPage)

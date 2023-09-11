@@ -107,5 +107,4 @@ function DashboardPage() {
     )
 }
 
-const DashboardPageWithAuth = WithAuth(DashboardPage)
-export default DashboardPageWithAuth
+export default WithAuth(DashboardPage)

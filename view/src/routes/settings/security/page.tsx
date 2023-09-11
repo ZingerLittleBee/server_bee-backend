@@ -1,4 +1,5 @@
 import { Separator } from '@/components/ui/separator'
+import WithAuth from '@/components/with_auth.tsx'
 
 import { SecurityForm } from './security-form'
 
@@ -17,4 +18,4 @@ function SettingsSecurityPage() {
     )
 }
 
-export default SettingsSecurityPage
+export default WithAuth(SettingsSecurityPage)
