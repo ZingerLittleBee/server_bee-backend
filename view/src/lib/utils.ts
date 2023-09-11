@@ -79,6 +79,24 @@ export const kiBToMaxUnit = (
     }
 }
 
+export const miBToMaxUnit = (
+    miB: number | string | undefined,
+    fixed = 1
+): [string, string] => {
+    if (typeof miB === 'string') {
+        miB = parseInt(miB)
+    }
+    if (!miB) {
+        return ['0', '']
+    } else if (miB < 1024) {
+        return [miB.toFixed(fixed), 'MB']
+    } else if (miB < 1024 * 1024) {
+        return [(miB / 1024).toFixed(fixed), 'GB']
+    } else {
+        return [(miB / 1024 / 1024).toFixed(fixed), 'TB']
+    }
+}
+
 export const computedMemoryUsagePercentage = (usage: MemUsage): string => {
     if (!usage) return 'N/A'
     return (

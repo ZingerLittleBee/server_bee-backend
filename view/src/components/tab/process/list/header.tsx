@@ -37,7 +37,7 @@ export function ProcessListHeader() {
                 {sort[1] && <Icons.ascende size={16} />}
             </p>
             <p
-                className="flex col-span-3 truncate items-center space-x-1 cursor-pointer"
+                className="col-span-3 flex cursor-pointer items-center space-x-1 truncate"
                 onClick={() => sortRun('name', [2, 3])}
             >
                 <span className="select-none">Name</span>
@@ -45,7 +45,7 @@ export function ProcessListHeader() {
                 {sort[3] && <Icons.ascende size={16} />}
             </p>
             <p
-                className="flex col-span-1 truncate items-center space-x-1 cursor-pointer"
+                className="col-span-1 flex cursor-pointer items-center space-x-1 truncate"
                 onClick={() => sortRun('cpu', [4, 5])}
             >
                 <span className="select-none">CPU</span>
@@ -53,7 +53,7 @@ export function ProcessListHeader() {
                 {sort[5] && <Icons.ascende size={16} />}
             </p>
             <p
-                className="flex col-span-1 truncate items-center space-x-1 cursor-pointer"
+                className="col-span-1 flex cursor-pointer items-center space-x-1 truncate"
                 onClick={() => sortRun('mem', [6, 7])}
             >
                 <span className="select-none">Mem</span>
