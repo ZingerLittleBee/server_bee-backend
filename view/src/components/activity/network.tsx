@@ -40,6 +40,8 @@ export function NetworkActivity() {
                     left: 0,
                     bottom: 5,
                 }}
+                key={`network-${chartData.length}`}
+                syncId="activityId"
             >
                 <XAxis
                     dataKey="name"
@@ -47,7 +49,10 @@ export function NetworkActivity() {
                     tick={{ fontSize: 14 }}
                 />
                 <YAxis domain={[0, 'dataMax']} tick={<CustomizedYAxisTick />} />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip
+                    content={<CustomTooltip />}
+                    isAnimationActive={false}
+                />
                 <Legend align="right" verticalAlign="top" />
                 <Line
                     isAnimationActive={false}

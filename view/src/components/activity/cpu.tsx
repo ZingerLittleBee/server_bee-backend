@@ -60,6 +60,8 @@ export function CpuActivity() {
                     left: 0,
                     bottom: 0,
                 }}
+                key={`cpu-${chartData.length}`}
+                syncId="activityId"
             >
                 <XAxis
                     dataKey="name"
@@ -74,7 +76,10 @@ export function CpuActivity() {
                         tick !== 0 ? tick.toString() : ''
                     }
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip
+                    content={<CustomTooltip />}
+                    isAnimationActive={false}
+                />
                 <Area
                     isAnimationActive={false}
                     type="monotone"
