@@ -15,6 +15,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover.tsx'
+import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 
 export type SelectorProp = {
     subject: string
@@ -51,30 +52,32 @@ export default function Selector({
                     <CommandInput placeholder={`Search ${subject}...`} />
                     <CommandEmpty>No ${subject} found.</CommandEmpty>
                     <CommandGroup>
-                        {groups.map((group) => (
-                            <CommandItem
-                                key={group.value}
-                                value={group.value}
-                                onSelect={(currentValue) => {
-                                    setValue(
-                                        currentValue === value
-                                            ? ''
-                                            : currentValue
-                                    )
-                                    setOpen(false)
-                                }}
-                            >
-                                <Check
-                                    className={cn(
-                                        'mr-2 h-4 w-4',
-                                        value === group.value
-                                            ? 'opacity-100'
-                                            : 'opacity-0'
-                                    )}
-                                />
-                                {group.label}
-                            </CommandItem>
-                        ))}
+                        <ScrollArea viewportClassName="max-h-72">
+                            {groups.map((group) => (
+                                <CommandItem
+                                    key={group.value}
+                                    value={group.value}
+                                    onSelect={(currentValue) => {
+                                        setValue(
+                                            currentValue === value
+                                                ? ''
+                                                : currentValue
+                                        )
+                                        setOpen(false)
+                                    }}
+                                >
+                                    <Check
+                                        className={cn(
+                                            'mr-2 h-4 w-4',
+                                            value === group.value
+                                                ? 'opacity-100'
+                                                : 'opacity-0'
+                                        )}
+                                    />
+                                    {group.label}
+                                </CommandItem>
+                            ))}
+                        </ScrollArea>
                     </CommandGroup>
                 </Command>
             </PopoverContent>

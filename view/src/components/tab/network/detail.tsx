@@ -47,9 +47,14 @@ const valueFormatter = (num: number) => formatToString(miBToMaxUnit(num))
 export type NetworkDetailProps = {
     title: string
     packet: FormatData[]
+    className?: string
 }
 
-export default function NetworkDetail({ title, packet }: NetworkDetailProps) {
+export default function NetworkDetail({
+    title,
+    packet,
+    className,
+}: NetworkDetailProps) {
     const data = useMemo(() => {
         return orders.map(([name, order]) => ({
             name: name,
@@ -62,42 +67,38 @@ export default function NetworkDetail({ title, packet }: NetworkDetailProps) {
         limitNum = Number.MAX_SAFE_INTEGER,
     }: {
         limitNum?: number
-    }) => {
-        return (
-            <>
-                <Flex>
-                    <Text className="truncate">
-                        <Bold>Asset</Bold>
-                    </Text>
-                    <Text>
-                        <Bold>Traffic</Bold>
-                    </Text>
-                </Flex>
-                <List>
-                    {data
-                        ?.filter((_, index) => index <= limitNum)
-                        .map(({ name, label }, index) => (
-                            <ListItem key={`${name}-${index}`}>
-                                <Text className="truncate">{name}</Text>
-                                <div>
-                                    <Flex
-                                        justifyContent="end"
-                                        className="space-x-4"
-                                    >
-                                        <Text className="truncate">
-                                            {label}
-                                        </Text>
-                                    </Flex>
-                                </div>
-                            </ListItem>
-                        ))}
-                </List>
-            </>
-        )
-    }
+    }) => (
+        <>
+            <Flex>
+                <Text className="truncate">
+                    <Bold>Asset</Bold>
+                </Text>
+                <Text>
+                    <Bold>Traffic</Bold>
+                </Text>
+            </Flex>
+            <List>
+                {data
+                    ?.filter((_, index) => index <= limitNum)
+                    .map(({ name, label }, index) => (
+                        <ListItem key={`${name}-${index}`}>
+                            <Text className="truncate">{name}</Text>
+                            <div>
+                                <Flex
+                                    justifyContent="end"
+                                    className="space-x-4"
+                                >
+                                    <Text className="truncate">{label}</Text>
+                                </Flex>
+                            </div>
+                        </ListItem>
+                    ))}
+            </List>
+        </>
+    )
 
     return (
-        <Card>
+        <Card className={className}>
             <CardHeader className="space-y-2">
                 <Flex justifyContent="start" className="space-x-4">
                     <Icon
@@ -125,7 +126,7 @@ export default function NetworkDetail({ title, packet }: NetworkDetailProps) {
                     </Flex>
                     <Col numColSpan={1} numColSpanLg={2}>
                         <DataListView limitNum={3} />
-                        <Flex justifyContent="center">
+                        <Flex justifyContent="center" className="mt-4">
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <Button variant="outline">
