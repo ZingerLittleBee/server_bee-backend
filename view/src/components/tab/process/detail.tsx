@@ -1,13 +1,6 @@
 import { useMemo } from 'react'
 import { useStore } from '@/store'
-import {
-    Bold,
-    Col,
-    Grid,
-    Italic,
-    Text,
-    Card as TremorCard,
-} from '@tremor/react'
+import { Bold, Italic, Text, Card as TremorCard } from '@tremor/react'
 import dayjs, { unix } from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -76,102 +69,90 @@ export default function ProcessDetail() {
                     {process?.status && <Badge>{process?.status}</Badge>}
                 </CardHeader>
                 <CardContent>
-                    <Grid
-                        numItems={3}
-                        numItemsSm={2}
-                        numItemsLg={3}
-                        className="gap-6"
-                    >
+                    <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                         {data
                             .filter((d) => d.metric != undefined)
                             .map((item) => (
-                                <TremorCard key={item.title}>
+                                <TremorCard
+                                    key={item.title}
+                                    className="col-span-1"
+                                >
                                     <Text>{item.title}</Text>
                                     <Bold>{item.metric}</Bold>
                                 </TremorCard>
                             ))}
                         {process?.disk && (
-                            <Col numColSpan={3}>
-                                <TremorCard>
-                                    <Text>Disk</Text>
-                                    <div className="flex justify-between">
-                                        {process?.disk &&
-                                            [
-                                                'read',
-                                                'write',
-                                                'total_read',
-                                                'total_write',
-                                            ].map((key, index) => {
-                                                return (
-                                                    <div
-                                                        key={`${key}-${index}`}
-                                                    >
-                                                        <Text>{key}</Text>
-                                                        <Bold>
-                                                            {formatToString(
-                                                                process?.disk[
-                                                                    key as keyof DiskIO
-                                                                ]
-                                                            )}
-                                                        </Bold>
-                                                    </div>
-                                                )
-                                            })}
-                                    </div>
-                                </TremorCard>
-                            </Col>
-                        )}
-                        {process?.exe && (
-                            <Col numColSpan={3}>
-                                <TremorCard>
-                                    <Text>Executable</Text>
-                                    <STooltip content={process?.exe}>
-                                        <p className="truncate font-bold">
-                                            {process?.exe}
-                                        </p>
-                                    </STooltip>
-                                </TremorCard>
-                            </Col>
-                        )}
-                        {process?.cmd?.length > 0 && (
-                            <Col numColSpan={3}>
-                                <TremorCard>
-                                    <Text>Command</Text>
-                                    {process?.cmd.map((cmd, index) => (
-                                        <STooltip
-                                            key={`${cmd}-${index}`}
-                                            content={cmd}
-                                        >
-                                            <p className="truncate font-bold">
-                                                {cmd}
-                                            </p>
-                                        </STooltip>
-                                    ))}
-                                </TremorCard>
-                            </Col>
-                        )}
-                        {process?.environ?.length > 0 && (
-                            <Col numColSpan={3}>
-                                <TremorCard>
-                                    <Text>Environ</Text>
-                                    <ScrollArea className="h-64">
-                                        {process?.environ.map((env, index) => {
+                            <TremorCard className="col-span-full">
+                                <Text>Disk</Text>
+                                <div className="flex justify-between">
+                                    {process?.disk &&
+                                        [
+                                            'read',
+                                            'write',
+                                            'total_read',
+                                            'total_write',
+                                        ].map((key, index) => {
                                             return (
-                                                <STooltip
-                                                    key={`${env}-${index}`}
-                                                    content={env}
-                                                >
-                                                    <p className="truncate font-bold">
-                                                        {env}
-                                                    </p>
-                                                </STooltip>
+                                                <div key={`${key}-${index}`}>
+                                                    <Text>{key}</Text>
+                                                    <Bold>
+                                                        {formatToString(
+                                                            process?.disk[
+                                                                key as keyof DiskIO
+                                                            ]
+                                                        )}
+                                                    </Bold>
+                                                </div>
                                             )
                                         })}
-                                    </ScrollArea>
-                                </TremorCard>
-                            </Col>
+                                </div>
+                            </TremorCard>
                         )}
-                    </Grid>
+                        {process?.exe && (
+                            <TremorCard className="col-span-full">
+                                <Text>Executable</Text>
+                                <STooltip content={process?.exe}>
+                                    <p className="truncate font-bold">
+                                        {process?.exe}
+                                    </p>
+                                </STooltip>
+                            </TremorCard>
+                        )}
+                        {process?.cmd?.length > 0 && (
+                            <TremorCard className="col-span-full">
+                                <Text>Command</Text>
+                                {process?.cmd.map((cmd, index) => (
+                                    <STooltip
+                                        key={`${cmd}-${index}`}
+                                        content={cmd}
+                                    >
+                                        <p className="truncate font-bold">
+                                            {cmd}
+                                        </p>
+                                    </STooltip>
+                                ))}
+                            </TremorCard>
+                        )}
+                        {process?.environ?.length > 0 && (
+                            <TremorCard className="col-span-full">
+                                <Text>Environ</Text>
+                                <ScrollArea className="h-64">
+                                    {process?.environ.map((env, index) => {
+                                        return (
+                                            <STooltip
+                                                key={`${env}-${index}`}
+                                                content={env}
+                                            >
+                                                <p className="truncate font-bold">
+                                                    {env}
+                                                </p>
+                                            </STooltip>
+                                        )
+                                    })}
+                                </ScrollArea>
+                            </TremorCard>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         </ScrollArea>

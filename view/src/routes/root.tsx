@@ -9,7 +9,7 @@ export default function Root() {
         <>
             <div className="relative flex h-full min-h-screen flex-col">
                 <SiteHeader />
-                <div className="container h-[calc(100vh-65px)] items-center space-x-4 pt-4 sm:justify-between sm:space-x-0">
+                <div className="container h-[calc(100vh-65px)] items-center pt-4">
                     <Outlet />
                 </div>
                 <Toaster />

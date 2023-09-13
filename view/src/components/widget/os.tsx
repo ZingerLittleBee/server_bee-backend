@@ -2,6 +2,7 @@ import { useStore } from '@/store'
 import { unix } from 'dayjs'
 import { Timer, UserSquare } from 'lucide-react'
 
+import { cn } from '@/lib/utils.ts'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
     Tooltip,
@@ -11,12 +12,17 @@ import {
 } from '@/components/ui/tooltip'
 import { Icons } from '@/components/icons'
 
-export const OsWidget = () => {
+export const OsWidget = ({ className }: { className?: string }) => {
     const { fusion } = useStore()
     const os = fusion?.os
 
     return (
-        <div className="my-1 flex justify-between space-x-4">
+        <div
+            className={cn(
+                'my-1 flex flex-col justify-between space-y-2 sm:flex-row sm:space-y-0',
+                className
+            )}
+        >
             <div className="flex space-x-4">
                 <TooltipProvider>
                     <Tooltip>
@@ -56,7 +62,7 @@ export const OsWidget = () => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild className="">
-                        <div className="flex items-center justify-end space-x-2 text-sm text-muted-foreground">
+                        <div className="flex items-center justify-start space-x-2 text-sm text-muted-foreground sm:justify-end">
                             <Timer size={16} />
                             {os?.boot_time ? (
                                 <p>

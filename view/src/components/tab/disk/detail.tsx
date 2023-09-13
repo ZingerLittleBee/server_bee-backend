@@ -3,7 +3,6 @@ import {
     Flex,
     Icon,
     Title,
-    Bold,
     BarList,
     Color,
 } from "@tremor/react";
@@ -85,8 +84,8 @@ export default function DiskDetail({detail }: DiskDetailProp) {
                     />
                     <Title>{card.value}%</Title>
                 </Flex>
-                <Text className="mt-6">
-                    Last Inspection: <Bold>{card.date}</Bold>
+                <Text className="mt-6 ml-1">
+                    Usage
                 </Text>
                 <BarList
                     key={card.title}

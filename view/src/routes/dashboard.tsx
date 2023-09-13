@@ -45,7 +45,7 @@ function DashboardPage() {
         <>
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">
-                    {os?.name}
+                    {os?.name ?? 'Unknown'}
                 </h2>
                 <Badge size="md" icon={statusText[0]} color={statusText[1]}>
                     {statusText[2]}
@@ -53,7 +53,7 @@ function DashboardPage() {
             </div>
             <Tabs
                 defaultValue="overview"
-                className="space-y-4"
+                className="mt-3 space-y-4"
                 onValueChange={(value) =>
                     value === 'process' && requestProcess()
                 }
@@ -64,14 +64,14 @@ function DashboardPage() {
                     <TabsTrigger value="detail">Disk & Network</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="space-y-4">
-                    <OsWidget />
+                    <OsWidget className="ml-1" />
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <CpuWidget />
                         <MemoryWidget />
                         <NetworkWidget />
                         <DiskWidget />
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 lg:grid-cols-7 lg:gap-x-4">
                         <Card className="col-span-3">
                             <CardHeader>
                                 <CardTitle>CPU Activity</CardTitle>
@@ -91,13 +91,13 @@ function DashboardPage() {
                     </div>
                 </TabsContent>
                 <TabsContent value="process" className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 lg:grid-cols-7 lg:gap-x-4">
                         <div className="col-span-3">{<ProcessList />}</div>
                         <div className="col-span-4">{<ProcessDetail />}</div>
                     </div>
                 </TabsContent>
                 <TabsContent value="detail" className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 lg:grid-cols-7 lg:gap-x-4">
                         <div className="col-span-3">{<DiskTabView />}</div>
                         <div className="col-span-4">{<NetworkTabView />}</div>
                     </div>

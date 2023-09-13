@@ -16,7 +16,7 @@ export default function NetworkWidget() {
                 <p className="text-sm text-muted-foreground">Total</p>
             </CardHeader>
             <CardContent>
-                <div className="grid justify-between md:grid-cols-2">
+                <div className="grid grid-cols-2 justify-between">
                     <div className="flex flex-col items-start space-y-1">
                         <Badge color="violet" icon={ArrowUpCircle}>
                             {network?.tx ? formatToString(network?.tx) : 'N/A'}
