@@ -55,9 +55,9 @@ export function CpuActivity() {
             <AreaChart
                 data={chartData}
                 margin={{
-                    top: 10,
-                    right: 30,
-                    left: 0,
+                    top: 0,
+                    right: 0,
+                    left: -25,
                     bottom: 0,
                 }}
                 key={`cpu-${chartData.length}`}

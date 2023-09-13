@@ -4,4 +4,5 @@ export interface NavItem {
     hide?: boolean
     disabled?: boolean
     external?: boolean
+    cls?: string
 }

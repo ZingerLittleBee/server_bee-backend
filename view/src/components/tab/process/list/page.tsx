@@ -33,10 +33,13 @@ export default function ProcessList() {
         <Card>
             <ProcessListHeader />
             <CardContent className="p-0">
-                <ScrollArea className="h-[calc(100vh-65px-1rem-36px-40px-16px-36px-20px)] w-full">
+                <ScrollArea
+                    className="w-full"
+                    viewportClassName="max-h-[629px]"
+                >
                     <Virtuoso
                         useWindowScroll
-                        style={{ height: '400px' }}
+                        style={{ height: '629px' }}
                         data={processes ?? []}
                         className="rounded-none p-0"
                         itemContent={(_, process) => {

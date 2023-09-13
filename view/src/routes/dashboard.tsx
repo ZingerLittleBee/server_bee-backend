@@ -76,7 +76,7 @@ function DashboardPage() {
                             <CardHeader>
                                 <CardTitle>CPU Activity</CardTitle>
                             </CardHeader>
-                            <CardContent className="pl-2">
+                            <CardContent className="px-2 pb-4">
                                 <CpuActivity />
                             </CardContent>
                         </Card>
@@ -84,7 +84,7 @@ function DashboardPage() {
                             <CardHeader>
                                 <CardTitle>Network Activity</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="px-2 pb-4">
                                 <NetworkActivity />
                             </CardContent>
                         </Card>

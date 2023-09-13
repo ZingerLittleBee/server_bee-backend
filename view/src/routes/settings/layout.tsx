@@ -18,11 +18,11 @@ const sidebarNavItems = [
         title: 'Server',
         href: '/settings/server',
     },
-    {
-        title: 'Appearance',
-        href: '/settings/appearance',
-        disabled: true,
-    },
+    // {
+    //     title: 'Appearance',
+    //     href: '/settings/appearance',
+    //     disabled: true,
+    // },
 ]
 
 export default function SettingsLayout() {

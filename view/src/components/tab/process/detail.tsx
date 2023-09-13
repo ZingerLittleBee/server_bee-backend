@@ -4,6 +4,7 @@ import { Bold, Italic, Text, Card as TremorCard } from '@tremor/react'
 import dayjs, { unix } from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { CornerLeftUp, CornerUpLeft } from 'lucide-react'
 
 import { DiskIO } from '@/types/fusion.ts'
 import { formatToString } from '@/lib/utils.ts'
@@ -62,7 +63,10 @@ export default function ProcessDetail() {
     }, [process])
 
     return process ? (
-        <ScrollArea className="h-[calc(100vh-65px-1rem-36px-40px-16px-20px)] w-full rounded-lg border">
+        <ScrollArea
+            className="w-full rounded-lg border"
+            viewportClassName="max-h-[665px]"
+        >
             <Card className="h-full border-none shadow-none">
                 <CardHeader className="sticky top-0 z-[100] mb-6 flex flex-row items-center justify-between space-x-2 space-y-0 rounded-t-lg bg-muted px-6 py-1">
                     <p className="text-lg font-bold">{process?.name}</p>
@@ -164,20 +168,8 @@ export default function ProcessDetail() {
 const NoDataView = () => {
     return (
         <div className="flex h-full items-center space-x-2">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="h-6 w-6 animate-bounce "
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                />
-            </svg>
+            <CornerUpLeft className="hidden h-6 w-6 lg:block lg:animate-bounce" />
+            <CornerLeftUp className="block h-6 w-6 animate-bounce lg:hidden" />
 
             <Text>Click</Text>
             <Italic>PID</Italic>

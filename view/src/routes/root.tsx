@@ -9,7 +9,7 @@ export default function Root() {
         <>
             <div className="relative flex h-full min-h-screen flex-col">
                 <SiteHeader />
-                <div className="container h-[calc(100vh-65px)] items-center pt-4">
+                <div className="container h-full items-center py-4">
                     <Outlet />
                 </div>
                 <Toaster />
@@ -18,3 +18,4 @@ export default function Root() {
         </>
     )
 }
+// h-[calc(100vh-65px)]

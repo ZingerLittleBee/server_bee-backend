@@ -6,13 +6,10 @@ export const siteConfig = {
     name: 'ServerBee',
     description: '',
     mainNav: {
-        // home: {
-        //   title: "Home",
-        //   href: "/",
-        // },
         dashboard: {
             title: 'Dashboard',
             href: kDashboardRoute,
+            cls: 'hidden sm:flex',
         },
         client: {
             title: 'Settings',
