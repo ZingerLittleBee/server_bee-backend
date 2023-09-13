@@ -20,10 +20,10 @@ export function DiskWidget() {
                     <div className="flex flex-col items-start space-y-1">
                         <div className="flex items-center justify-center space-x-2">
                             <Tracker
-                                data={[{ color: 'emerald', tooltip: 'Read' }]}
+                                data={[{ color: 'cyan', tooltip: 'Read' }]}
                                 className="flex h-3 w-2 items-center justify-center"
                             />
-                            <Badge color="emerald">
+                            <Badge color="cyan" className="dark:bg-cyan-300">
                                 {disk?.read
                                     ? formatToString(disk?.read)
                                     : 'N/A'}
@@ -31,10 +31,13 @@ export function DiskWidget() {
                         </div>
                         <div className="flex items-center justify-center space-x-2">
                             <Tracker
-                                data={[{ color: 'rose', tooltip: 'Write' }]}
+                                data={[{ color: 'fuchsia', tooltip: 'Write' }]}
                                 className="flex h-3 w-2 items-center justify-center"
                             />
-                            <Badge color="rose">
+                            <Badge
+                                color="fuchsia"
+                                className="dark:bg-fuchsia-300"
+                            >
                                 {disk?.write
                                     ? formatToString(disk?.write)
                                     : 'N/A'}

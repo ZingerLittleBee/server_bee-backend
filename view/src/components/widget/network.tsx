@@ -18,10 +18,18 @@ export default function NetworkWidget() {
             <CardContent>
                 <div className="grid grid-cols-2 justify-between">
                     <div className="flex flex-col items-start space-y-1">
-                        <Badge color="violet" icon={ArrowUpCircle}>
+                        <Badge
+                            color="violet"
+                            className="dark:bg-violet-300"
+                            icon={ArrowUpCircle}
+                        >
                             {network?.tx ? formatToString(network?.tx) : 'N/A'}
                         </Badge>
-                        <Badge color="green" icon={ArrowDownCircle}>
+                        <Badge
+                            color="green"
+                            className="dark:bg-green-300"
+                            icon={ArrowDownCircle}
+                        >
                             {network?.rx ? formatToString(network?.rx) : 'N/A'}
                         </Badge>
                     </div>
