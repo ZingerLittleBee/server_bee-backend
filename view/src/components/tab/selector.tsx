@@ -39,7 +39,7 @@ export default function Selector({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-[300px] justify-between"
+                    className="w-full justify-between sm:w-[300px]"
                 >
                     {value
                         ? groups.find((group) => group.value === value)?.label
@@ -47,7 +47,7 @@ export default function Selector({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
+            <PopoverContent className="w-[calc(100vw-4rem)]  p-0 sm:w-[300px]">
                 <Command>
                     <CommandInput placeholder={`Search ${subject}...`} />
                     <CommandEmpty>No ${subject} found.</CommandEmpty>

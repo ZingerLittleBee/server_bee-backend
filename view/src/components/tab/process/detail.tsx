@@ -10,9 +10,8 @@ import { DiskIO } from '@/types/fusion.ts'
 import { formatToString } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge.tsx'
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx'
+import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 import { STooltip } from '@/components/s-tooltip.tsx'
-
-import { ScrollArea } from '../../ui/scroll-area.tsx'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -63,17 +62,21 @@ export default function ProcessDetail() {
     }, [process])
 
     return process ? (
-        <ScrollArea
-            className="w-full rounded-lg border"
-            viewportClassName="max-h-[665px]"
-        >
-            <Card className="h-full border-none shadow-none">
-                <CardHeader className="sticky top-0 z-[100] mb-6 flex flex-row items-center justify-between space-x-2 space-y-0 rounded-t-lg bg-muted px-6 py-1">
-                    <p className="text-lg font-bold">{process?.name}</p>
+        <Card className="h-full w-full border shadow-none">
+            <CardHeader className="sticky top-0 z-[100] w-full rounded-t-lg bg-muted px-6 py-1.5">
+                <div className="flex flex-row flex-wrap items-center justify-between">
+                    <p className="w-fit max-w-full break-words text-lg font-bold">
+                        {process?.name}
+                    </p>
                     {process?.status && <Badge>{process?.status}</Badge>}
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+                </div>
+            </CardHeader>
+            <CardContent className="p-0">
+                <ScrollArea
+                    className="w-full rounded-lg px-5"
+                    viewportClassName="max-h-[629px]"
+                >
+                    <div className="my-4 grid grid-cols-2 gap-6 px-1 sm:grid-cols-3">
                         {data
                             .filter((d) => d.metric != undefined)
                             .map((item) => (
@@ -157,9 +160,9 @@ export default function ProcessDetail() {
                             </TremorCard>
                         )}
                     </div>
-                </CardContent>
-            </Card>
-        </ScrollArea>
+                </ScrollArea>
+            </CardContent>
+        </Card>
     ) : (
         <NoDataView />
     )

@@ -37,7 +37,7 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="mx-auto flex h-full w-full flex-col items-center justify-center space-y-6 sm:max-w-[300px]">
+        <div className="absolute left-1/2 top-1/2 mx-auto flex h-full w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-6 px-6 sm:max-w-[300px] sm:px-0">
             <div className="relative flex w-full items-center">
                 <Input
                     type={showPassword ? 'text' : 'password'}
