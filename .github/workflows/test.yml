@@ -1,0 +1,28 @@
+name: Test CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+      - '**/*.gitignore'
+      - examples/**
+      - .github/**
+      - view/**
+      - snapshots/**
+  pull_request:
+    branches: [main]
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Rust Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl https://sh.rustup.rs -sSf | sudo sh -s -- -y
+      - run: sudo apt-get -y update && sudo apt-get -y install libpcap-dev telnet
+      - uses: actions/checkout@v4
+      - run: sudo ~/.cargo/bin/cargo test

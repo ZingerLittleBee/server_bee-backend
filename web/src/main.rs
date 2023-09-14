@@ -25,6 +25,7 @@ mod report;
 mod route;
 mod server;
 mod system_info;
+mod test;
 mod token;
 mod traits;
 mod vo;

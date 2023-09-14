@@ -1,4 +1,0 @@
-POST http://localhost:9527/client/token/view
-
-###
-GET http://localhost:9527/client/config
