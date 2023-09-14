@@ -21,6 +21,7 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 ## Dashboard for web
 ![overview](./snapshots/overview.png)
 ![process](./snapshots/process.png)
+![disk&network](./snapshots/disk&network.png)
 ![settings](./snapshots/settings.png)
 
 ## Interactive install
