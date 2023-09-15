@@ -45,11 +45,17 @@ async fn css(name: web::Path<String>) -> impl Responder {
     handle_embedded_file(format!("{}.css", name.into_inner()).as_str())
 }
 
+#[get("/{name:.*}.svg")]
+async fn svg(name: web::Path<String>) -> impl Responder {
+    handle_embedded_file(format!("{}.svg", name.into_inner()).as_str())
+}
+
 pub fn page_services(cfg: &mut web::ServiceConfig) {
     cfg.service(index)
         .service(login)
         .service(dashboard)
         .service(js)
         .service(css)
+        .service(svg)
         .service(settings_tail);
 }
