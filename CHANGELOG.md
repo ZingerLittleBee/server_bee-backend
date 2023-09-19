@@ -8,6 +8,10 @@
 - Refactor the config struct
 - Refactor the local api
 
+## `1.2.6` (2023-06-11)
+### Bug Fixes
+- Linux daemon template
+
 ## `1.2.5` (2023-06-07)
 ### Features
 - Local Api
