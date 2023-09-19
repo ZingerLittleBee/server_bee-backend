@@ -64,7 +64,7 @@ mod system_info_test {
 
     #[test]
     fn test_get_disk_io() {
-        let system_info = SystemInfo::new();
+        let mut system_info = SystemInfo::new();
         let disk_io = system_info.get_disk_io();
         assert!(disk_io.total_read >= disk_io.read);
         assert!(disk_io.total_write >= disk_io.write);
