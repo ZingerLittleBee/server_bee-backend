@@ -47,3 +47,26 @@ impl NetworkDetail {
             .collect()
     }
 }
+
+#[derive(Deserialize, Serialize, Default, Debug)]
+pub struct NetworkInfo {
+    pub name: String,
+    // pub ip: String,
+    pub mac: String,
+    pub rx: u64,
+    pub tx: u64,
+}
+
+impl NetworkInfo {
+    pub fn from_networks(net: &Networks) -> Vec<NetworkInfo> {
+        net.iter()
+            .map(|net| NetworkInfo {
+                name: net.0.to_string(),
+                mac: net.1.mac_address().to_string(),
+                rx: net.1.total_received(),
+                tx: net.1.total_transmitted(),
+            })
+            .collect()
+    }
+
+}

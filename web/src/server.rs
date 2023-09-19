@@ -1,7 +1,9 @@
 use std::time::{Duration, Instant};
 
 use crate::system_info::SystemInfo;
+use crate::token::communication_token::CommunicationToken;
 use actix::prelude::*;
+use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use log::warn;
 
@@ -51,7 +53,7 @@ impl SortBy {
 #[derive(Copy, Clone, Debug)]
 pub struct Sort {
     pub order: SortOrder,
-    pub by: SortBy
+    pub by: SortBy,
 }
 
 pub struct MyWebSocket {
@@ -59,7 +61,7 @@ pub struct MyWebSocket {
     sys: SystemInfo,
     signal: Signal,
     pid: Option<String>,
-    sort: Option<Sort>
+    sort: Option<Sort>,
 }
 
 impl MyWebSocket {
@@ -69,7 +71,7 @@ impl MyWebSocket {
             sys: SystemInfo::new(),
             signal: Signal::Less,
             pid: None,
-            sort: None
+            sort: None,
         }
     }
 
@@ -93,13 +95,11 @@ impl MyWebSocket {
 
     fn task(&self, ctx: &mut <Self as Actor>::Context) {
         ctx.run_interval(TASK_INTERVAL, |act, ctx| {
-            ctx.text(
-                match act.signal {
-                    Signal::More => act.sys.get_full_fusion(),
-                    Signal::Less => act.sys.get_less_fusion(),
-                    Signal::Process => act.sys.get_process_fusion(act.pid.clone(), act.sort),
-                }
-            )
+            ctx.text(match act.signal {
+                Signal::More => act.sys.get_full_fusion(),
+                Signal::Less => act.sys.get_less_fusion(),
+                Signal::Process => act.sys.get_process_fusion(act.pid.clone(), act.sort),
+            })
         });
     }
 }
@@ -135,30 +135,32 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                             // handle process
                             self.pid = None;
                             self.sort = None;
-                        },
+                        }
                         Some("/process") => {
                             let param = command.next();
                             self.signal = Signal::Process;
                             self.pid = param.map(|s| s.to_string());
-                        },
+                        }
                         Some("/close_detail") => {
                             self.pid = None;
-                        },
+                        }
                         Some("/up") => {
                             let param = command.next();
                             let sort = param.map(|sort_by| Sort {
-                                    order: SortOrder::Up,
-                                    by: SortBy::from(sort_by.to_lowercase().as_str())});
+                                order: SortOrder::Up,
+                                by: SortBy::from(sort_by.to_lowercase().as_str()),
+                            });
                             self.sort = sort;
-                        },
+                        }
                         Some("/down") => {
                             let param = command.next();
                             let sort = param.map(|sort_by| Sort {
                                 order: SortOrder::Down,
-                                by: SortBy::from(sort_by.to_lowercase().as_str())});
+                                by: SortBy::from(sort_by.to_lowercase().as_str()),
+                            });
                             self.sort = sort;
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -170,4 +172,13 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
             _ => ctx.stop(),
         }
     }
+}
+
+/// WebSocket handshake and start `MyWebSocket` actor.
+pub async fn echo_ws(
+    _token: CommunicationToken,
+    req: HttpRequest,
+    stream: web::Payload,
+) -> Result<HttpResponse, Error> {
+    ws::start(MyWebSocket::new(), &req, stream)
 }

@@ -4,24 +4,28 @@ use std::str::FromStr;
 #[cfg(not(target_os = "windows"))]
 use systemstat::{Platform, System as Systemstat};
 
+use crate::model::component::ComponentTemperature;
+use crate::model::device_info::DeviceInfo;
 use crate::model::disk::{DiskDetail, DiskIO};
-use crate::model::network::{NetworkDetail, NetworkIO};
+use crate::model::network::{NetworkDetail, NetworkIO, NetworkInfo};
 use crate::model::overview::{OsOverview, Overview};
 use crate::model::process::Process;
 use crate::model::realtime_status::RealtimeStatus;
+use crate::model::simple_process::SimpleProcess;
 use crate::model::usage::Usage;
 use crate::model::user::User;
 use crate::model::{
     cpu::{CpuInfo, CpuUsage},
     memory::MemoryUsage,
 };
+use crate::server::{Sort, SortBy, SortOrder};
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
-use crate::model::component::ComponentTemperature;
-use sysinfo::{CpuExt, DiskExt, DiskKind, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt};
-use crate::model::simple_process::SimpleProcess;
-use crate::server::{Sort, SortBy, SortOrder};
+use crate::vo::process::ProcessVo;
 use crate::vo::simple_process::SimpleProcessVo;
+use sysinfo::{
+    CpuExt, DiskExt, DiskKind, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt,
+};
 
 pub struct SystemInfo {
     sys: System,
@@ -133,7 +137,11 @@ impl SystemInfo {
     pub fn get_load_avg(&mut self) -> Vec<f64> {
         let load_avg = self.sys.load_average();
         let core_num = self.sys.cpus().len() as f64;
-        vec![load_avg.one / core_num, load_avg.five / core_num, load_avg.fifteen / core_num]
+        vec![
+            load_avg.one / core_num,
+            load_avg.five / core_num,
+            load_avg.fifteen / core_num,
+        ]
     }
 
     #[cfg(target_os = "linux")]
@@ -163,8 +171,8 @@ impl SystemInfo {
             };
             let mut sector_size = String::new();
             match file.read_to_string(&mut sector_size) {
-                Ok(_) => {},
-                Err(_) => continue
+                Ok(_) => {}
+                Err(_) => continue,
             }
             map.insert(
                 path.file_name().unwrap().to_str().unwrap().to_string(),
@@ -244,7 +252,15 @@ impl SystemInfo {
         NetworkDetail::new_list(self.sys.networks())
     }
 
+    pub fn get_network_info(&mut self) -> Vec<NetworkInfo> {
+        NetworkInfo::from_networks(self.sys.networks())
+    }
+
     pub fn get_process(&mut self) -> Vec<SimpleProcess> {
+        self.sys.processes().iter().map(|x| x.1.into()).collect()
+    }
+
+    pub fn get_full_process(&mut self) -> Vec<Process> {
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
@@ -252,7 +268,7 @@ impl SystemInfo {
         self.sys.process(pid.parse().unwrap()).map(|x| x.into())
     }
 
-    pub fn get_temperature(&mut self) -> Vec<ComponentTemperature>  {
+    pub fn get_temperature(&mut self) -> Vec<ComponentTemperature> {
         self.sys.components().iter().map(|x| x.into()).collect()
     }
 
@@ -311,6 +327,37 @@ impl SystemInfo {
         Fusion::new_less(self.get_overview().convert())
     }
 
+    pub fn get_fusion_with_full_process(&mut self) -> Fusion {
+        self.sys.refresh_all();
+
+        let processes_vo: Vec<ProcessVo> = self
+            .get_full_process()
+            .iter()
+            .map(|x| x.convert())
+            .collect();
+
+        Fusion::new_full_process(
+            self.get_overview().convert(),
+            Option::from(self.get_os_overview().convert()),
+            Option::from(self.get_realtime_status().convert()),
+            Option::from(processes_vo),
+        )
+    }
+
+    pub fn get_fusion_with_simple_process(&mut self) -> Fusion {
+        self.sys.refresh_all();
+
+        let processes_vo: Vec<SimpleProcessVo> =
+            self.get_process().iter().map(|x| x.convert()).collect();
+
+        Fusion::new_simple_process(
+            self.get_overview().convert(),
+            Option::from(self.get_os_overview().convert()),
+            Option::from(self.get_realtime_status().convert()),
+            Option::from(processes_vo),
+        )
+    }
+
     pub fn get_process_fusion(&mut self, pid: Option<String>, sort: Option<Sort>) -> Fusion {
         self.sys.refresh_all();
         let mut processes: Vec<SimpleProcess> = self.get_process();
@@ -328,68 +375,78 @@ impl SystemInfo {
         let processes_vo: Vec<SimpleProcessVo> = processes.iter().map(|x| x.convert()).collect();
 
         let current_process = p.as_mut().map(|x| {
-            let mut process_vo =  x.convert();
+            let mut process_vo = x.convert();
 
-            let mut children: Vec<u32> = processes.iter().filter(|y| y.parent_id.is_some() && y.parent_id.unwrap() == x.pid).map(|x| x.pid).collect();
+            let mut children: Vec<u32> = processes
+                .iter()
+                .filter(|y| y.parent_id.is_some() && y.parent_id.unwrap() == x.pid)
+                .map(|x| x.pid)
+                .collect();
             children.sort();
             process_vo.children = Some(children.iter().map(|c| c.to_string()).collect());
 
             // user_id to username
-            process_vo.user = if let Some(user_id)  = &x.user_id {
+            process_vo.user = if let Some(user_id) = &x.user_id {
                 if let Ok(uid) = Uid::from_str(user_id) {
                     self.sys.get_user_by_id(&uid).map(|x| x.name().to_string())
-                } else { None }
-            } else { None };
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
             process_vo
         });
-        Fusion::new_process(self.get_overview().convert(),
-                            Some(processes_vo), current_process)
+        Fusion::new_process(
+            self.get_overview().convert(),
+            Some(processes_vo),
+            current_process,
+        )
     }
 
     fn sort_process(processes: &mut [SimpleProcess], sort: Sort) {
         match sort.by {
-            SortBy::Pid => {
-
-                match sort.order {
-                    SortOrder::Up => {
-                        processes.sort_by(|a, b| a.pid.partial_cmp(&b.pid).unwrap());
-                    },
-                    SortOrder::Down => {
-                        processes.sort_by(|a, b| b.pid.partial_cmp(&a.pid).unwrap());
-                    },
+            SortBy::Pid => match sort.order {
+                SortOrder::Up => {
+                    processes.sort_by(|a, b| a.pid.partial_cmp(&b.pid).unwrap());
                 }
-
-            },
-            SortBy::Name => {
-                match sort.order {
-                    SortOrder::Up => {
-                        processes.sort_by(|a, b| a.name.partial_cmp(&b.name).unwrap());
-                    },
-                    SortOrder::Down => {
-                        processes.sort_by(|a, b| b.name.partial_cmp(&a.name).unwrap());
-                    },
+                SortOrder::Down => {
+                    processes.sort_by(|a, b| b.pid.partial_cmp(&a.pid).unwrap());
                 }
             },
-            SortBy::Cpu => {
-                match sort.order {
-                    SortOrder::Up => {
-                        processes.sort_by(|a, b| a.cpu_usage.partial_cmp(&b.cpu_usage).unwrap());
-                    },
-                    SortOrder::Down => {
-                        processes.sort_by(|a, b| b.cpu_usage.partial_cmp(&a.cpu_usage).unwrap());
-                    },
+            SortBy::Name => match sort.order {
+                SortOrder::Up => {
+                    processes.sort_by(|a, b| a.name.partial_cmp(&b.name).unwrap());
+                }
+                SortOrder::Down => {
+                    processes.sort_by(|a, b| b.name.partial_cmp(&a.name).unwrap());
                 }
             },
-            SortBy::Memory => {
-                match sort.order {
-                    SortOrder::Up => {
-                        processes.sort_by(|a, b| a.memory.partial_cmp(&b.memory).unwrap());
-                    },
-                    SortOrder::Down => {
-                        processes.sort_by(|a, b| b.memory.partial_cmp(&a.memory).unwrap());
-                    },
+            SortBy::Cpu => match sort.order {
+                SortOrder::Up => {
+                    processes.sort_by(|a, b| a.cpu_usage.partial_cmp(&b.cpu_usage).unwrap());
+                }
+                SortOrder::Down => {
+                    processes.sort_by(|a, b| b.cpu_usage.partial_cmp(&a.cpu_usage).unwrap());
+                }
+            },
+            SortBy::Memory => match sort.order {
+                SortOrder::Up => {
+                    processes.sort_by(|a, b| a.memory.partial_cmp(&b.memory).unwrap());
+                }
+                SortOrder::Down => {
+                    processes.sort_by(|a, b| b.memory.partial_cmp(&a.memory).unwrap());
                 }
             },
         }
+    }
+
+    pub fn get_device_info(&mut self) -> DeviceInfo {
+        let os_overview = self.get_os_overview();
+        let network_info = self.get_network_info();
+        let disk_detail = self.get_disk_detail();
+        let memory_info = self.get_mem_usage();
+        let version = env!("CARGO_PKG_VERSION").to_string();
+        DeviceInfo::new(os_overview, memory_info, network_info, disk_detail, version)
     }
 }

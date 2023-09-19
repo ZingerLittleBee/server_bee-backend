@@ -18,6 +18,13 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 - module `web` provide data from server
 - module `deploy` provide **AutoLaunch**、**AutoUpdate**、**DownloadWebModule**
 
+## Dashboard for web
+![overview](./snapshots/overview.png)
+![process](./snapshots/process.png)
+![disk&network](./snapshots/disk&network.png)
+![settings](./snapshots/settings.png)
+
+## Interactive install
 ![interactive install](./snapshots/interactive.gif)
 
 # Features
@@ -115,24 +122,124 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -p 8081 -a false -u true
 ```
 
-# Auth
+# Configuration related API
 The following interfaces can only be accessed from `localhost`
-## View Token
+
+## View all configurations
 ```bash
-curl http://localhost:9527/local/token/view
+curl http://localhost:9527/local/config
+```
+The response is as follows:
+```json
+{
+    "success": true,
+    "data": {
+        "web_server": {
+            "port": 9527
+        },
+        "server": {
+            "token": "token",
+            "host": "serverhub.app",
+            "disable_ssl": false
+        },
+        "app": {
+            "token": "token"
+        }
+    }
+}
 ```
 
-## Rest Token
+## View `web_server` config
+> Related configuration of web server, including port number
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"token": "youNewToken"}' http://127.0.0.1:9527/local/token/rest
+curl http://localhost:9527/local/config/web_server
+```
+The response is as follows:
+```json
+{
+  "success": true,
+  "data": {
+    "port": 9527
+  }
+}
 ```
 
-## Clear Token
+## Update the `web_server` configuration
 ```bash
-curl http://localhost:9527/local/token/clear
+curl -X POST -H "Content-Type: application/json" -d '{"port": 9527}' http://127.0.0.1:9527/local/config/web_server
+```
+The response is as follows:
+```json
+{
+  "success": true
+}
+```
+
+## View `app` config
+> App-related configurations, including communication keys
+```bash
+curl http://localhost:9527/local/config/app
+```
+The response is as follows:
+```json
+{
+  "success": true,
+  "data": {
+    "token": "token"
+  }
+}
+```
+
+## Update `app` config
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"token": "newToken"}' http://localhost:9527/local/config/app
+```
+The response is as follows:
+```json
+{
+  "success": true
+}
+```
+
+## View `server` config
+> Server related configuration, including communication key, server address, whether to disable SSL
+```bash
+curl http://localhost:9527/local/config/server
+```
+The response is as follows:
+```json
+{
+  "success": true,
+  "data": {
+    "token": "token",
+    "host": "serverhub.app",
+    "disable_ssl": false
+  }
+}
+```
+
+## Update `server` config
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"token": "newToken", "host": "serverhub.app", "disable_ssl": false}' http://127.0.0.1:9527/local/config/server
+```
+The response is as follows:
+```json
+{
+  "success": true
+}
 ```
 
 # Compile from source
+## 1. Build the front-end source code
+> Need to install nodejs, pnpm
+```shell
+pnpm -C view install
+pnpm -C view build
+```
+The build product is in the `view/dist` directory
+
+## 2. Build web, deploy module source code
+> Need to install rust
 ```bash
 cargo build --release
 ```

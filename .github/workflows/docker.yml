@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64
           # can not compile linux/arm64 in Github Action
           #
           # Manually compile
@@ -37,8 +37,8 @@ jobs:
           # 3. Create manifest
           # `docker manifest create zingerbee/serverbee-web zingerbee/amd64-serverbee-web zingerbee/arm64-serverbee-web`
           # 4. Set manifest
-          # - `docker manifest annotate zingerbee/serverbee-web zingerbee/amd64-serverbee-web --os linux --arch amd64`
-          # - `docker manifest annotate zingerbee/serverbee-web zingerbee/arm64-serverbee-web --os linux --arch arm64`
+          # - `docker manifest annotate zingerbee/serverbee-web:latest zingerbee/amd64-serverbee-web:latest --os linux --arch amd64`
+          # - `docker manifest annotate zingerbee/serverbee-web:latest zingerbee/arm64-serverbee-web:latest --os linux --arch arm64`
           # (Optional) Inspect manifest
           # `docker manifest inspect zingerbee/serverbee-web`
           # 5. Push manifest
@@ -46,4 +46,5 @@ jobs:
           file: ./docker/Dockerfile
           push: true
           # `zingerbee/arm64-serverbee-web:latest` need manually compile and publish
-          tags: zingerbee/amd64-serverbee-web:latest
+          tags: zingerbee/serverbee-web:latest
+          # tags: zingerbee/amd64-serverbee-web:latest

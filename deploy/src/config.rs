@@ -57,7 +57,11 @@ impl Config {
     }
 
     pub fn get_version(&self) -> String {
-        self.version.clone()
+        if self.version.starts_with('v') {
+            self.version.clone()
+        } else {
+            format!("v{}", self.version)
+        }
     }
 
     pub fn get_port(&self) -> u16 {
@@ -157,9 +161,9 @@ impl Config {
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let version = format!("v{}", self.get_version());
-
-        Path::new(BASE_URL).join(version).join(self.get_filename())
+        Path::new(BASE_URL)
+            .join(self.get_version())
+            .join(self.get_filename())
     }
 
     pub fn set_auto_launch(&mut self, enable: bool) {
@@ -201,6 +205,23 @@ impl Config {
 
     pub fn deploy_log_path() -> PathBuf {
         Config::current_dir().join("deploy.log")
+    }
+
+    async fn get_latest_version_from_status(include_pre: Option<bool>) -> Result<String> {
+        let can_pre = include_pre.unwrap_or(false);
+        let client = reqwest::Client::new();
+        let response = client
+            .get(format!(
+                "https://status.serverbee.app/api/{}",
+                if can_pre { "pre-version" } else { "version" }
+            ))
+            // .header(header::AUTHORIZATION, format!("token {}", token))
+            .header(header::USER_AGENT, "reqwest")
+            .send()
+            .await?
+            .error_for_status()?;
+
+        Ok(response.text().await?)
     }
 
     async fn get_latest_version_from_github() -> Result<String> {
@@ -246,6 +267,17 @@ impl Config {
     }
 
     pub async fn get_latest_version() -> Result<String> {
+        match Config::get_latest_version_from_status(Some(false)).await {
+            Ok(version) => {
+                if !version.is_empty() {
+                    return Ok(version);
+                }
+            }
+            Err(e) => {
+                warn!("从 status 获取最新版本失败: {}, 尝试从 github 获取", e);
+            }
+        }
+
         match Config::get_latest_version_from_github().await {
             Ok(version) => {
                 if !version.is_empty() {
@@ -264,7 +296,7 @@ impl Config {
         } else {
             warn!("从 jsdelivr 获取最新版本失败, 将使用 cargo.toml 中的版本");
         }
-
+        warn!("使用 cargo.toml 中的版本: {}", env!("CARGO_PKG_VERSION"));
         Ok(env!("CARGO_PKG_VERSION").into())
     }
 
