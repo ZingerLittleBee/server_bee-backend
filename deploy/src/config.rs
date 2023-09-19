@@ -57,7 +57,7 @@ impl Config {
     }
 
     pub fn get_version(&self) -> String {
-        if self.version.starts_with("v") {
+        if self.version.starts_with('v') {
             self.version.clone()
         } else {
             format!("v{}", self.version)
