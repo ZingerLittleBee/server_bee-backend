@@ -20,6 +20,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::{fs, io};
 
+#[macro_use]
+extern crate rust_i18n;
+
+i18n!("locales");
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
@@ -29,6 +34,8 @@ async fn main() -> Result<()> {
     if config.get_interactive() || args.interactive {
         config.set_interactive(true);
         interactive_install(&mut config);
+    } else {
+        rust_i18n::set_locale(config.get_locale().as_str());
     }
 
     Config::init_logging();
@@ -38,7 +45,7 @@ async fn main() -> Result<()> {
     }
 
     let latest_version = Config::get_latest_version().await?;
-    info!("最新版本: {}", latest_version);
+    info!("{}: {}", t!("latest_version"), latest_version);
     config.set_version(latest_version);
 
     if !Path::new(config.web_bin_path().as_path().to_str().unwrap()).exists() {
@@ -52,15 +59,18 @@ async fn main() -> Result<()> {
 
         config.download_bin().await?;
 
-        info!("文件 {} 下载成功, 正在解压", web_file_path.display());
+        info!(
+            "{}",
+            t!("download_and_unzip", path = web_file_path.display())
+        );
 
         let tokio_file = tokio::fs::File::open(web_file_path).await?;
         let std_file = tokio_file.into_std().await;
 
         unzip(std_file, config.web_bin_dir());
-        info!("文件解压完毕");
+        info!("{}", t!("unzip_success"));
     } else {
-        info!("文件已存在, 跳过下载");
+        info!("{}", t!("skip_download"));
     }
 
     config.set_auto_launch(args.auto_launch.unwrap_or_else(|| config.get_auto_launch()));
@@ -78,20 +88,20 @@ async fn main() -> Result<()> {
     #[cfg(target_os = "linux")]
     if config.get_auto_launch() {
         use std::env::current_exe;
-        println!("安装完成之后，请执行如下命令，以便开机自启动");
+        println!("{}", t!("auto_launch_tips"));
 
         println!("############################################");
 
         match current_exe() {
             Ok(p) => println!("{}", daemon_content(p.display().to_string())),
-            Err(_) => println!("{}", daemon_content("serverbee-deploy的全路径".into())),
+            Err(_) => println!("{}", daemon_content(t!("deploy_full_path"))),
         }
 
         println!("systemctl enable serverbee-deploy.service");
 
         println!("############################################");
     }
-    println!("安装结束, 按任意键退出...");
+    println!("{}", t!("install_finish"));
 
     Ok(())
 }
@@ -117,13 +127,16 @@ fn unzip(file: File, out_dir: PathBuf) {
         }
 
         if (*file.name()).ends_with('/') {
-            info!("文件提取到: \"{}\"", outpath.display());
+            info!("{}", t!("file_extracted", path = outpath.display()));
             fs::create_dir_all(&outpath).unwrap();
         } else {
             info!(
-                "文件提取到: \"{}\" ({} bytes)",
-                outpath.display(),
-                file.size()
+                "{}",
+                t!(
+                    "file_extracted_with_size",
+                    path = outpath.display(),
+                    size = file.size()
+                ),
             );
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
@@ -148,32 +161,48 @@ fn unzip(file: File, out_dir: PathBuf) {
 
 #[cfg(windows)]
 fn start_process(bin_full_path: &str, port: u16) {
-    info!("文件全路径: {}", bin_full_path);
+    info!("{}: {}", t!("full_path"), bin_full_path);
 
     Command::new("powershell")
         .args(["/C", bin_full_path])
         .args(["-p", port.to_string().as_str()])
         .spawn()
-        .expect("运行 serverbee-web.exe 失败, 请尝试手动运行");
+        .expect(t!("run_fail", path = "serverbee-web.exe").as_str());
 
-    info!("serverbee-web 启动成功");
+    info!("{}", t!("run_success"));
 }
 
 #[cfg(not(windows))]
 fn start_process(bin_full_path: &str, port: u16) {
-    info!("文件全路径: {}", bin_full_path);
+    info!("{}: {}", t!("full_path"), bin_full_path);
 
     Command::new(bin_full_path)
         .arg("-p")
         .arg(port.to_string())
         .spawn()
-        .unwrap_or_else(|_| panic!("运行 {} 失败, 请尝试手动运行", bin_full_path));
+        .unwrap_or_else(|_| panic!("{}", t!("run_fail", path = bin_full_path)));
 
-    info!("serverbee-web 启动成功");
+    info!("{}", t!("run_success"));
 }
 
 fn interactive_install(config: &mut Config) {
-    let port_ans = Text::new("请输入端口号? (默认使用 9527)")
+    let locales_options = vec!["English", "中文"];
+
+    let locales_ans = Select::new(t!("locale_question").as_str(), locales_options.clone())
+        .with_help_message(t!("action_tips").as_str())
+        .prompt();
+
+    match locales_ans {
+        Ok(choice) => match choice {
+            "English" => config.set_locale("en".to_string()),
+            "中文" => config.set_locale("zh".to_string()),
+            _ => panic!("{}", t!("error_and_retry")),
+        },
+        Err(_) => panic!("{}", t!("error_and_retry")),
+    }
+    rust_i18n::set_locale(config.get_locale().as_str());
+
+    let port_ans = Text::new(t!("port_question").as_str())
         .with_validator(|s: &str| {
             let port;
             if let Ok(p) = s.parse::<u16>() {
@@ -181,12 +210,12 @@ fn interactive_install(config: &mut Config) {
             } else if s.is_empty() {
                 port = 9527
             } else {
-                return Ok(Validation::Invalid(ErrorMessage::from("端口号输入有误")));
+                return Ok(Validation::Invalid(ErrorMessage::from(t!("port_invalid"))));
             }
             if !is_free(port) {
-                return Ok(Validation::Invalid(ErrorMessage::from(format!(
-                    "端口: {} 已被占用, 请更换其他端口",
-                    port
+                return Ok(Validation::Invalid(ErrorMessage::from(t!(
+                    "port_in_use",
+                    port = port
                 ))));
             }
             Ok(Validation::Valid)
@@ -195,13 +224,13 @@ fn interactive_install(config: &mut Config) {
 
     match port_ans {
         Ok(port) => config.set_port(Port::new(port.parse::<u16>().unwrap_or(9527))),
-        Err(_) => panic!("出现错误，请重试"),
+        Err(_) => panic!("{}", t!("error_and_retry")),
     }
 
-    let auto_launch_options = vec!["是", "否"];
+    let auto_launch_options = vec![t!("yes"), t!("no")];
 
-    let auto_launch_ans = Select::new("是否开机自启", auto_launch_options.clone())
-        .with_help_message("↑↓ 移动, 回车确定 ✅, 输入以筛选")
+    let auto_launch_ans = Select::new(t!("launch_question").as_str(), auto_launch_options.clone())
+        .with_help_message(t!("action_tips").as_str())
         .prompt();
 
     match auto_launch_ans {
@@ -212,29 +241,30 @@ fn interactive_install(config: &mut Config) {
                 config.set_auto_launch(false)
             }
         }
-        Err(_) => panic!("出现错误，请重试"),
+        Err(_) => panic!("{}", t!("error_and_retry")),
     }
 
     println!("==============================");
-    println!("请确认如下设置");
+    println!("{}", t!("confirm_config"));
     println!(" ");
-    println!("端口号: {}", config.get_port());
+    println!("{}: {}", t!("port"), config.get_port());
     println!(
-        "开机自启: {}",
+        "{}: {}",
+        t!("auto_launch"),
         if config.get_auto_launch() {
-            auto_launch_options[0]
+            auto_launch_options[0].clone()
         } else {
-            auto_launch_options[1]
+            auto_launch_options[1].clone()
         }
     );
 
     println!(" ");
-    println!("按任意键以继续安装, 取消安装请输入 Ctrl+C");
+    println!("{}", t!("install_confirm"));
 
     stdin()
         .read_line(&mut String::new())
         .expect("error: unable to read user input");
-    println!("确认完毕, 开始安装");
+    println!("{}", t!("start_install"));
     println!("==============================");
 }
 

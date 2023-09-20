@@ -1,19 +1,23 @@
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 
-/// ServerBee 的后端配置项
+/// Backend configuration of ServerBee.
+/// ServerBee 的后端配置项。
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    /// 端口号, 默认 9527
+    /// Port, default is 9527.
+    /// 端口号，默认 9527。
     #[clap(short, long)]
     pub port: Option<u16>,
 
-    /// 是否开机自启, 默认自启
+    /// Auto-start on boot? default Auto-start.
+    /// 是否开机自启，默认自启。
     #[clap(short, long)]
     pub auto_launch: Option<bool>,
 
-    /// 交互式安装
+    /// Interactive installation.
+    /// 交互式安装。
     #[clap(short, long, default_value = "false")]
     pub interactive: bool,
 }
