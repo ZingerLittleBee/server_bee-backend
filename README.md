@@ -94,6 +94,13 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 3. double-click to run serverbee-deploy.exe
 
 ## More settings
+### Allow downloading of pre-release versions
+> By default, only stable versions will be downloaded
+>
+> If you want to download pre-release versions, you can use the --pre-release parameter
+```bash
+./serverbee-deploy --pre-release
+```
 
 ### Interactive install
 ```bash

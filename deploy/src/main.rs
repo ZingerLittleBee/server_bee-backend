@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
         config.set_port(Port::new(args.port.unwrap()));
     }
 
-    let latest_version = Config::get_latest_version().await?;
+    let latest_version = Config::get_latest_version(args.pre_version).await?;
     info!("{}: {}", t!("latest_version"), latest_version);
     config.set_version(latest_version);
 

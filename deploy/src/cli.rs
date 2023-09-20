@@ -20,6 +20,11 @@ pub struct Args {
     /// 交互式安装。
     #[clap(short, long, default_value = "false")]
     pub interactive: bool,
+
+    /// Allow downloading of pre-release versions.
+    /// 允许下载预发布版本。
+    #[clap(long)]
+    pub pre_version: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

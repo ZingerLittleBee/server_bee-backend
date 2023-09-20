@@ -275,8 +275,8 @@ impl Config {
         Ok("".into())
     }
 
-    pub async fn get_latest_version() -> Result<String> {
-        match Config::get_latest_version_from_status(Some(false)).await {
+    pub async fn get_latest_version(pre_version: bool) -> Result<String> {
+        match Config::get_latest_version_from_status(Some(pre_version)).await {
             Ok(version) => {
                 if !version.is_empty() {
                     return Ok(version);
