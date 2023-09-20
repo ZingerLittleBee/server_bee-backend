@@ -1,8 +1,13 @@
 ## `2.0.0` (2023-09-07)
 ### Features
+#### Web
 - Dashboard for web
 - Config for web
 - Data report
+
+#### Deploy
+- i18n
+- Option of download Pre-release
 
 ### Refactor
 - Refactor the config struct
