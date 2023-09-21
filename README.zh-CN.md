@@ -18,16 +18,7 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 - `web` 模块提供来自机器的数据
 - `deploy` 模块提供 **开机启动**、**自动更新**、**下载 Web 模块** 的功能
 
-## Web 仪表盘
-![overview](./snapshots/overview.png)
-![process](./snapshots/process.png)
-![settings](./snapshots/settings.png)
-
-## 交互式安装
-![interactive install](./snapshots/interactive.gif)
-
-# 特点
-
+## 特点
 - CPU 负载
 - 平均负载
 - 内存使用情况
@@ -40,6 +31,15 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 - 进程详细信息
 - 杀死进程
 - 进程所属子进程
+
+## Web 仪表盘
+![overview](https://assets.serverbee.app/snapshots/overview.png)
+![process](https://assets.serverbee.app/snapshots/process.png)
+![disk&network](https://assets.serverbee.app/snapshots/disk&network.png)
+![settings](https://assets.serverbee.app/snapshots/settings.png)
+
+## 交互式安装
+![interactive install](https://assets.serverbee.app/snapshots/interactive.gif)
 
 # 如何使用
 
