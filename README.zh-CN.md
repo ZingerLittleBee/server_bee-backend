@@ -92,6 +92,13 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 3. 双击启动 serverbee-deploy.exe
 
 ## 更多配置
+### 允许下载预发布版本
+> 默认情况下，只会下载稳定版本
+>
+> 如果你想下载预发布版本，可以使用 `--pre-release` 参数
+```bash
+./serverbee-deploy --pre-release
+```
 
 ### 交互式安装
 ```bash
