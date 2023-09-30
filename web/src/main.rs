@@ -21,6 +21,7 @@ mod config;
 mod db;
 mod handler;
 mod model;
+mod pty;
 mod report;
 mod route;
 mod server;
