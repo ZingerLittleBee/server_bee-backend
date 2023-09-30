@@ -11,6 +11,7 @@ use crate::report::reporter::Reporter;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
 use crate::route::page_route::page_services;
+use crate::route::pty_route::pty_service;
 use crate::server::echo_ws;
 use actix_web::{middleware, web, App, HttpServer};
 use clap::Parser;
@@ -29,6 +30,7 @@ mod system_info;
 mod test;
 mod token;
 mod traits;
+mod utils;
 mod vo;
 
 #[actix_web::main]
@@ -64,6 +66,7 @@ async fn main() -> std::io::Result<()> {
             .service(rest_token)
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
+            .configure(pty_service)
             .configure(page_services)
             // enable logger
             .wrap(middleware::Logger::default())
