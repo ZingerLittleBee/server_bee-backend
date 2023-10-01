@@ -1,5 +1,7 @@
+use crate::config::config::Config;
 use crate::pty::pty_manager::{PtyManager, PtyMessage};
 use crate::pty::shell_type::{ShellType, ShellTypeExt};
+use crate::utils::common_util::get_terminal_time_format;
 use crate::utils::pty_util::{makeword, MAGIC_FLAG};
 use actix::fut::ActorFutureExt;
 use actix::{Actor, AsyncContext, Running, StreamHandler, WrapFuture};
@@ -8,29 +10,33 @@ use actix_web_actors::ws;
 use log::{debug, error, warn};
 use nix::libc;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 
-struct MyWs {
+struct PtyWs {
     pty_manager: Arc<Mutex<PtyManager>>,
+    config: Arc<RwLock<Config>>,
 }
 
-impl MyWs {
-    pub fn new(shell_type: ShellType) -> Self {
+impl PtyWs {
+    pub fn new(shell_type: ShellType, config: Arc<RwLock<Config>>) -> Self {
         let pty_manager = PtyManager::new(shell_type);
         let pty_manager = Arc::new(Mutex::new(pty_manager));
 
-        Self { pty_manager }
+        Self {
+            pty_manager,
+            config,
+        }
     }
 }
 
-impl Actor for MyWs {
+impl Actor for PtyWs {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
         match self.pty_manager.lock() {
             Ok(pty_manager) => ctx.binary(pty_manager.history()),
             Err(e) => {
-                error!("Error getting pty_manager lock: {}", e);
+                error!("Error getting pty manager lock: {}", e);
             }
         }
     }
@@ -41,7 +47,7 @@ impl Actor for MyWs {
     }
 }
 
-impl StreamHandler<PtyMessage> for MyWs {
+impl StreamHandler<PtyMessage> for PtyWs {
     fn handle(&mut self, msg: PtyMessage, ctx: &mut Self::Context) {
         match msg {
             PtyMessage::Buffer(data) => {
@@ -67,7 +73,7 @@ async fn write_all(pty_manager_lock: Arc<Mutex<PtyManager>>, data: Vec<u8>) {
 }
 
 /// Handler for ws::Message message
-impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for PtyWs {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
             Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
@@ -115,6 +121,38 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
     fn started(&mut self, ctx: &mut Self::Context) {
         // ctx.binary(self.history.clone());
 
+        let last_login = match self.config.try_read() {
+            Ok(config) => get_terminal_time_format(config.last_login()),
+            Err(_) => "Unknown".to_string(),
+        };
+
+        match self.config.try_write() {
+            Ok(mut config) => match config.set_last_login_now() {
+                Ok(_) => {}
+                Err(e) => {
+                    error!("Error setting last login: {}", e);
+                }
+            },
+            Err(e) => {
+                error!("Error getting config lock: {}", e);
+            }
+        }
+
+        ctx.text(format!("Last login: {}\r\n", last_login));
+        ctx.text("  _____                            ____\r\n");
+        ctx.text(" / ____|                          |  _ \\\r\n");
+        ctx.text("| (___   ___ _ ____   _____ _ __  | |_) | ___  ___\r\n");
+        ctx.text(" \\___ \\ / _ \\ '__\\ \\ / / _ \\ '__| |  _ < / _ \\/ _ \\\r\n");
+        ctx.text(" ____) |  __/ |   \\ V /  __/ |    | |_) |  __/  __/\r\n");
+        ctx.text("|_____/ \\___|_|    \\_/ \\___|_|    |____/ \\___|\\___|\r\n");
+        ctx.text(format!("Version: {}\r\n", env!("CARGO_PKG_VERSION")));
+
+        ctx.text("\r\n");
+
+        ctx.text("Website: https://serverbee.app\r\n");
+        ctx.text("Documentation: https://docs.serverbee.app\r\n");
+        ctx.text("Enjoy your journey!\r\n");
+
         let pty_manager = self.pty_manager.clone();
         let fut = async move {
             let rx = match pty_manager.lock() {
@@ -142,17 +180,21 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
     }
 }
 
-async fn index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+async fn pty_index(
+    req: HttpRequest,
+    stream: web::Payload,
+    config: web::Data<Arc<RwLock<Config>>>,
+) -> Result<HttpResponse, Error> {
     let params: HashMap<String, String> =
         serde_urlencoded::from_str(req.query_string()).unwrap_or_else(|_| HashMap::new());
     let shell = params
         .get("shell")
         .map(|value| value.to_shell_type())
         .unwrap_or(ShellType::Bash);
-    let resp = ws::start(MyWs::new(shell), &req, stream);
+    let resp = ws::start(PtyWs::new(shell, config.as_ref().clone()), &req, stream);
     resp
 }
 
 pub fn pty_service(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::resource("/pty").route(web::get().to(index)));
+    cfg.service(web::resource("/pty").route(web::get().to(pty_index)));
 }

@@ -2,7 +2,7 @@
 #terminal {
     .terminal, .xterm {
         .xterm-viewport {
-            @apply rounded-md overflow-auto;
+            @apply overflow-hidden;
         }
     }
 }

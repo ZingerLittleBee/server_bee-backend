@@ -1,11 +1,12 @@
 use crate::cli::Args;
 use crate::config::app::AppConfig;
 use crate::config::constant::{
-    APP_CONFIG, DEFAULT_PORT, LOG_PATH, SERVER_CONFIG, WEB_SERVER_CONFIG,
+    APP_CONFIG, DEFAULT_PORT, LAST_LOGIN, LOG_PATH, SERVER_CONFIG, WEB_SERVER_CONFIG,
 };
 use crate::config::server::ServerConfig;
 use crate::config::web_server::WebServerConfig;
 use crate::db::db_wrapper::DbWrapper;
+use crate::utils::common_util::get_now_timestamp;
 use anyhow::Result;
 use log::{info, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
@@ -26,6 +27,7 @@ pub struct Config {
     web_server: WebServerConfig,
     server: ServerConfig,
     app: AppConfig,
+    last_login: u64,
 }
 
 impl Config {
@@ -74,12 +76,22 @@ impl Config {
                 _ => Config::current_dir().to_str().unwrap().to_string(),
             });
 
+        let last_login = match db.get::<u64>(LAST_LOGIN) {
+            Ok(Some(v)) => v,
+            _ => {
+                let now = get_now_timestamp();
+                db.set(LAST_LOGIN, &now);
+                now
+            }
+        };
+
         let config = Config {
             db,
             log_path: PathBuf::from(log_path),
             web_server,
             server,
             app,
+            last_login,
         };
         config.init_logging();
         config
@@ -111,6 +123,10 @@ impl Config {
 
     pub fn server_host(&self) -> Option<String> {
         self.server.host()
+    }
+
+    pub fn last_login(&self) -> u64 {
+        self.last_login
     }
 
     fn init_logging(&self) {
@@ -240,5 +256,16 @@ impl Config {
             self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
         });
         Ok(())
+    }
+
+    pub fn set_last_login(&mut self, last_login: u64) -> Result<()> {
+        self.last_login = last_login;
+        self.db.set::<u64>(LAST_LOGIN, &self.last_login);
+        Ok(())
+    }
+
+    pub fn set_last_login_now(&mut self) -> Result<()> {
+        let now = get_now_timestamp();
+        self.set_last_login(now)
     }
 }

@@ -30,6 +30,8 @@ export default function TerminalPage() {
             lineHeight: 1,
             theme: {
                 background: '#141729',
+                selectionBackground: '#01CC74',
+                selectionForeground: '#1f563c',
                 // foreground: '#01CC74',
             },
             fontFamily: 'FiraCode Nerd Font Mono',
@@ -64,6 +66,9 @@ export default function TerminalPage() {
         }
 
         webSocket.onclose = (reason) => {
+            terminalRef.current?.write(
+                '\r\nConnection closed. Please press Enter try reconnect \r\n'
+            )
             console.log('WebSocket closed', reason)
         }
 
@@ -74,13 +79,19 @@ export default function TerminalPage() {
     }, [])
 
     return (
-        <div className="flex h-full flex-col space-y-2">
+        <div className="flex h-full flex-col">
             <SearchWidget
                 onSearch={(content: string) =>
                     searchAddonRef.current?.findNext(content)
                 }
             />
-            <div id="terminal" ref={terminalDivRef} className=""></div>
+            <div className="mt-2 h-[600px] rounded-lg bg-[#141729] p-2">
+                <div
+                    id="terminal"
+                    ref={terminalDivRef}
+                    className="h-full"
+                ></div>
+            </div>
         </div>
     )
 }
