@@ -22,6 +22,7 @@ import { TokenContext, tokenReducer } from '@/store/token'
 import { kSetWs, kSetWsStatus, WsContext, wsReducer, WsState } from '@/store/ws'
 
 import { Fusion } from '@/types/fusion.ts'
+import { wsBaseUrl } from '@/lib/utils.ts'
 
 type StoreContextProps = FusionContext &
     TokenContext &
@@ -53,13 +54,9 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (token.communicationToken) {
             wsDispatch({ type: kSetWsStatus, payload: WebSocket.CONNECTING })
-            const loc = window.location
-            let protocol = 'ws://'
-            if (loc.protocol === 'https:') {
-                protocol = 'wss://'
-            }
+
             const instance = new WebSocket(
-                `${protocol}${loc.host}/ws?token=${token.communicationToken}`
+                `${wsBaseUrl()}/ws?token=${token.communicationToken}`
             )
 
             wsDispatch({ type: kSetWs, payload: instance })

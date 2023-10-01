@@ -133,3 +133,8 @@ export const toFixed = (
     }
     return parseFloat(num.toFixed(fixed))
 }
+
+export const wsBaseUrl = (): string => {
+    const { protocol, host } = window.location
+    return `${protocol === 'https:' ? 'wss' : 'ws'}://${host}`
+}
