@@ -2,18 +2,23 @@ import { useEffect, useRef } from 'react'
 import { Terminal } from 'xterm'
 import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'
+import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 
 import './index.css'
 import 'xterm/css/xterm.css'
 
+import SearchWidget from '@/routes/terminal/search.tsx'
+
 import { wsBaseUrl } from '@/lib/utils.ts'
 
 export default function TerminalPage() {
-    const terminalRef = useRef(null)
+    const terminalDivRef = useRef(null)
+    const terminalRef = useRef<Terminal | null>(null)
+    const searchAddonRef = useRef<SearchAddon | null>(null)
 
     useEffect(() => {
-        if (!terminalRef.current) return
+        if (!terminalDivRef.current) return
         const webSocket = new WebSocket(`${wsBaseUrl()}/pty?shell=zsh`)
         webSocket.binaryType = 'arraybuffer'
         const terminal = new Terminal({
@@ -29,6 +34,7 @@ export default function TerminalPage() {
             },
             fontFamily: 'FiraCode Nerd Font Mono',
         })
+        terminalRef.current = terminal
 
         terminal.onResize(({ cols, rows }) => {
             console.log('resize', cols, rows)
@@ -45,13 +51,16 @@ export default function TerminalPage() {
         })
 
         webSocket.onopen = () => {
-            terminal.open(terminalRef.current!)
+            terminal.open(terminalDivRef.current!)
             const attachAddon = new AttachAddon(webSocket)
             const fitAddon = new FitAddon()
+            const searchAddon = new SearchAddon()
             terminal.loadAddon(fitAddon)
             terminal.loadAddon(attachAddon)
             terminal.loadAddon(new WebLinksAddon())
+            terminal.loadAddon(searchAddon)
             fitAddon.fit()
+            searchAddonRef.current = searchAddon
         }
 
         webSocket.onclose = (reason) => {
@@ -64,5 +73,14 @@ export default function TerminalPage() {
         }
     }, [])
 
-    return <div id="terminal" ref={terminalRef} className="h-full"></div>
+    return (
+        <div className="flex h-full flex-col space-y-2">
+            <SearchWidget
+                onSearch={(content: string) =>
+                    searchAddonRef.current?.findNext(content)
+                }
+            />
+            <div id="terminal" ref={terminalDivRef} className=""></div>
+        </div>
+    )
 }
