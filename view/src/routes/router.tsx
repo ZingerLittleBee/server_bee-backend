@@ -6,6 +6,7 @@ import SettingsLayout from '@/routes/settings/layout.tsx'
 import GeneralPage from '@/routes/settings/page.tsx'
 import SettingsSecurityPage from '@/routes/settings/security/page.tsx'
 import SettingsServerPage from '@/routes/settings/server/page.tsx'
+import SettingsTerminalPage from '@/routes/settings/terminal/page.tsx'
 import TerminalPage from '@/routes/terminal'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
                     {
                         path: '/settings/server',
                         element: <SettingsServerPage />,
+                    },
+                    {
+                        path: '/settings/terminal',
+                        element: <SettingsTerminalPage />,
                     },
                 ],
             },
