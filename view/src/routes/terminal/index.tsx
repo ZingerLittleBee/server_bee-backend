@@ -11,8 +11,10 @@ import 'xterm/css/xterm.css'
 import SearchWidget from '@/routes/terminal/search.tsx'
 
 import { wsBaseUrl } from '@/lib/utils.ts'
+import { useTerminalSettings } from '@/hooks/useTerminalSettings.tsx'
 
 export default function TerminalPage() {
+    const { terminalSettings } = useTerminalSettings()
     const terminalDivRef = useRef(null)
     const terminalRef = useRef<Terminal | null>(null)
     const searchAddonRef = useRef<SearchAddon | null>(null)
@@ -22,24 +24,24 @@ export default function TerminalPage() {
         const webSocket = new WebSocket(`${wsBaseUrl()}/pty?shell=zsh`)
         webSocket.binaryType = 'arraybuffer'
         const terminal = new Terminal({
-            cursorBlink: true,
-            cursorStyle: 'block',
-            fontSize: 14,
-            fontWeight: 'normal',
-            fontWeightBold: 'bold',
-            lineHeight: 1,
+            cursorBlink: terminalSettings?.cursorBlink,
+            cursorStyle: terminalSettings?.cursorStyle as
+                | 'block'
+                | 'underline'
+                | 'bar'
+                | undefined,
+            fontSize: terminalSettings?.fontSize,
             theme: {
-                background: '#141729',
-                selectionBackground: '#01CC74',
-                selectionForeground: '#1f563c',
-                foreground: '#FFFFFF',
+                background: terminalSettings?.background,
+                foreground: terminalSettings?.foreground,
+                selectionBackground: terminalSettings?.selectionBackground,
+                selectionForeground: terminalSettings?.selectionForeground,
             },
             fontFamily: 'FiraCode Nerd Font Mono',
         })
         terminalRef.current = terminal
 
         terminal.onResize(({ cols, rows }) => {
-            console.log('resize', cols, rows)
             webSocket.send(
                 new Uint8Array([
                     0x37,
@@ -76,7 +78,15 @@ export default function TerminalPage() {
             webSocket.close()
             terminal.dispose()
         }
-    }, [])
+    }, [
+        terminalSettings?.background,
+        terminalSettings?.cursorBlink,
+        terminalSettings?.cursorStyle,
+        terminalSettings?.fontSize,
+        terminalSettings?.foreground,
+        terminalSettings?.selectionBackground,
+        terminalSettings?.selectionForeground,
+    ])
 
     return (
         <div className="flex h-full flex-col">
@@ -85,7 +95,10 @@ export default function TerminalPage() {
                     searchAddonRef.current?.findNext(content)
                 }
             />
-            <div className="mt-2 h-[600px] rounded-lg bg-[#141729] p-2">
+            <div
+                className="mt-2 h-[600px] rounded-lg p-2"
+                style={{ backgroundColor: terminalSettings?.background }}
+            >
                 <div
                     id="terminal"
                     ref={terminalDivRef}

@@ -36,7 +36,8 @@ import { toast } from '@/components/ui/use-toast.ts'
 import './index.css'
 
 export function TerminalForm() {
-    const { terminalSettings, setTerminalSettings } = useTerminalSettings()
+    const { terminalSettings, setTerminalSettings, restoreDefault } =
+        useTerminalSettings()
     const { LoadingBtn, setIsLoading: setIsBtnLoading } = useLoadingBtn()
 
     const form = useForm<TerminalFormValues>({
@@ -51,7 +52,6 @@ export function TerminalForm() {
     useEffect(() => {
         if (!terminalDivRef.current) return
         const terminal = new Terminal({
-            rows: 10,
             cursorBlink: form.getValues('cursorBlink'),
             cursorStyle: form.getValues('cursorStyle') as
                 | 'block'
@@ -119,12 +119,16 @@ export function TerminalForm() {
     }
 
     return (
-        <div className="relative space-y-8">
+        <div className="relative w-full space-y-8">
             <div
                 className="sticky top-[65px] z-[100] w-full rounded-lg p-2"
                 style={{ backgroundColor: form.getValues('background') }}
             >
-                <div id="terminal-preview" ref={terminalDivRef}></div>
+                <div
+                    id="terminal-preview"
+                    ref={terminalDivRef}
+                    className="h-[150px] w-[calc(100vw-64px-1rem)] lg:w-full"
+                ></div>
             </div>
             <Form {...form}>
                 <form
@@ -136,7 +140,7 @@ export function TerminalForm() {
                         name="fontSize"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Font Size</FormLabel>
                                     <FormControl>
                                         <div className="flex space-x-2">
@@ -239,7 +243,7 @@ export function TerminalForm() {
                         name="background"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Background</FormLabel>
                                     <FormControl>
                                         <div className="flex space-x-2">
@@ -293,7 +297,7 @@ export function TerminalForm() {
                         name="foreground"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Foreground</FormLabel>
                                     <FormControl>
                                         <div className="flex space-x-2">
@@ -347,7 +351,7 @@ export function TerminalForm() {
                         name="selectionBackground"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Selection Background</FormLabel>
                                     <FormControl>
                                         <div className="flex space-x-2">
@@ -401,7 +405,7 @@ export function TerminalForm() {
                         name="selectionForeground"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Selection Foreground</FormLabel>
                                     <FormControl>
                                         <div className="flex space-x-2">
@@ -496,7 +500,23 @@ export function TerminalForm() {
                             )}
                         />
                     </div>
-                    <LoadingBtn type="submit">Update Terminal</LoadingBtn>
+                    <div className="flex space-x-4">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => {
+                                restoreDefault()
+                                form.setValue(
+                                    'fontSize',
+                                    terminalSettings?.fontSize ?? 14
+                                )
+                                form.trigger()
+                            }}
+                        >
+                            Rest
+                        </Button>
+                        <LoadingBtn type="submit">Update Terminal</LoadingBtn>
+                    </div>
                 </form>
             </Form>
         </div>
