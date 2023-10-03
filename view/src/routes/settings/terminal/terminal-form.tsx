@@ -1,12 +1,18 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useRef } from 'react'
+import {
+    cursorStyleOptions,
+    terminalFormSchema,
+    TerminalFormValues,
+} from '@/routes/settings/terminal/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { MinusCircle, PlusCircle } from 'lucide-react'
+import { MinusCircle, Palette, PlusCircle } from 'lucide-react'
 import { HexColorPicker } from 'react-colorful'
 import { useForm } from 'react-hook-form'
-import * as z from 'zod'
+import { Terminal } from 'xterm'
+import { FitAddon } from 'xterm-addon-fit'
 
 import { useLoadingBtn } from '@/hooks/useLoadingBtn'
-import { useSettings } from '@/hooks/useSettings'
+import { useTerminalSettings } from '@/hooks/useTerminalSettings.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import {
     Form,
@@ -23,423 +29,476 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover.tsx'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select.tsx'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.tsx'
 import { Switch } from '@/components/ui/switch.tsx'
+import { toast } from '@/components/ui/use-toast.ts'
 
-const cursorStyleOptions = ['block', 'underline', 'bar']
-const fontWeightOptions = [
-    'normal',
-    'bold',
-    '100',
-    '200',
-    '300',
-    '400',
-    '500',
-    '600',
-    '700',
-    '800',
-    '900',
-]
-
-const terminalFormSchema = z.object({
-    copyOnSelect: z.boolean().optional(),
-    cursorBlink: z.boolean().optional(),
-    cursorStyle: z.enum(cursorStyleOptions as [string, ...string[]]).optional(),
-    fontSize: z.number().min(12).max(20),
-    fontFamily: z.string().optional(),
-    fontWeight: z.enum(fontWeightOptions as [string, ...string[]]).optional(),
-    background: z.string().optional(),
-    foreground: z.string().optional(),
-    selectionBackground: z.string().optional(),
-    selectionForeground: z.string().optional(),
-})
-
-type TerminalFormValues = z.infer<typeof terminalFormSchema>
+import './index.css'
 
 export function TerminalForm() {
-    const { settings } = useSettings()
+    const { terminalSettings, setTerminalSettings } = useTerminalSettings()
     const { LoadingBtn, setIsLoading: setIsBtnLoading } = useLoadingBtn()
-
-    const appConfig = useMemo(() => settings?.app, [settings])
 
     const form = useForm<TerminalFormValues>({
         resolver: zodResolver(terminalFormSchema),
         defaultValues: {
-            fontSize: 14,
+            ...terminalSettings,
         },
     })
 
+    const terminalDivRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (!terminalDivRef.current) return
+        const terminal = new Terminal({
+            rows: 10,
+            cursorBlink: form.getValues('cursorBlink'),
+            cursorStyle: form.getValues('cursorStyle') as
+                | 'block'
+                | 'underline'
+                | 'bar'
+                | undefined,
+            fontSize: form.getValues('fontSize'),
+            theme: {
+                background: form.getValues('background'),
+                selectionBackground: form.getValues('selectionBackground'),
+                selectionForeground: form.getValues('selectionForeground'),
+                foreground: form.getValues('foreground'),
+            },
+            fontFamily: form.getValues('fontFamily'),
+        })
+        terminal.open(terminalDivRef.current!)
+        const fitAddon = new FitAddon()
+        terminal.loadAddon(fitAddon)
+        fitAddon.fit()
+        terminal.writeln('Hello from ServerBee $ ')
+        terminal.writeln('This is selected line')
+        terminal.write('Hello from ServerBee $ ')
+        terminal.select(0, 1, 21)
+        return () => {
+            terminal.clear()
+            terminal.dispose()
+        }
+    }, [form, form.formState])
+
     useEffect(() => {
         if (form.formState.isDirty) return
-    }, [form, appConfig])
+        form.setValue('copyOnSelect', terminalSettings?.copyOnSelect ?? true)
+        form.setValue('cursorBlink', terminalSettings?.cursorBlink ?? true)
+        form.setValue('cursorStyle', terminalSettings?.cursorStyle ?? 'block')
+        form.setValue('fontSize', terminalSettings?.fontSize ?? 14)
+        form.setValue('fontFamily', terminalSettings?.fontFamily ?? '')
+        form.setValue('background', terminalSettings?.background ?? '#141729')
+        form.setValue('foreground', terminalSettings?.foreground ?? '#FFFFFF')
+        form.setValue(
+            'selectionBackground',
+            terminalSettings?.selectionBackground ?? '#01CC74'
+        )
+        form.setValue(
+            'selectionForeground',
+            terminalSettings?.selectionForeground ?? '#1f563c'
+        )
+    }, [form, terminalSettings])
 
-    async function onSubmit(data: TerminalFormValues) {
+    function onSubmit(data: TerminalFormValues) {
         setIsBtnLoading(true)
-        // const res = await updateSecuritySettings(
-        //     {
-        //         token: data.token,
-        //     },
-        //     token.communicationToken
-        // )
-        // if (res) {
-        //     toast({
-        //         title: 'Update Successfully',
-        //     })
-        // } else {
-        //     toast({
-        //         title: 'Update Error',
-        //         description: 'Please check console for more details.',
-        //         variant: 'destructive',
-        //     })
-        // }
+        try {
+            setTerminalSettings(data)
+            toast({
+                title: 'Update Successfully',
+            })
+        } catch (e) {
+            console.error(e)
+            toast({
+                title: 'Update Error',
+                description: 'Please check console for more details.',
+                variant: 'destructive',
+            })
+        }
         setIsBtnLoading(false)
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="space-y-2">
+        <div className="relative space-y-8">
+            <div
+                className="sticky top-[65px] z-[100] w-full rounded-lg p-2"
+                style={{ backgroundColor: form.getValues('background') }}
+            >
+                <div id="terminal-preview" ref={terminalDivRef}></div>
+            </div>
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-8"
+                >
                     <FormField
                         control={form.control}
-                        name="copyOnSelect"
+                        name="fontSize"
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Copy On Select
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Enable copy on select or not.
-                                    </FormDescription>
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Font Size</FormLabel>
+                                    <FormControl>
+                                        <div className="flex space-x-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                type="button"
+                                                onClick={() => {
+                                                    form.setValue(
+                                                        'fontSize',
+                                                        form.getValues(
+                                                            'fontSize'
+                                                        ) - 1
+                                                    )
+                                                    form.trigger()
+                                                }}
+                                            >
+                                                <MinusCircle className="stroke-slate-500 dark:stroke-slate-300" />
+                                            </Button>
+                                            <Input
+                                                placeholder="Your token"
+                                                {...field}
+                                                className="w-[60px] text-center"
+                                            />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                type="button"
+                                                onClick={() => {
+                                                    form.setValue(
+                                                        'fontSize',
+                                                        form.getValues(
+                                                            'fontSize'
+                                                        ) + 1
+                                                    )
+                                                    form.trigger()
+                                                }}
+                                            >
+                                                <PlusCircle className="stroke-slate-500 dark:stroke-slate-300" />
+                                            </Button>
+                                        </div>
+                                    </FormControl>
                                 </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
                     <FormField
                         control={form.control}
-                        name="cursorBlink"
+                        name="cursorStyle"
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
-                                        Cursor Blink
-                                    </FormLabel>
-                                    <FormDescription>
-                                        Enable cursor blink or not.
-                                    </FormDescription>
-                                </div>
+                            <FormItem className="space-y-3">
+                                <FormLabel>Cursor Style</FormLabel>
                                 <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex flex-col space-y-1"
+                                    >
+                                        {cursorStyleOptions.map((option) => (
+                                            <FormItem
+                                                key={option}
+                                                className="flex items-center space-x-3 space-y-0"
+                                            >
+                                                <FormControl>
+                                                    <RadioGroupItem
+                                                        value={option}
+                                                    />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                    {option}
+                                                </FormLabel>
+                                            </FormItem>
+                                        ))}
+                                    </RadioGroup>
                                 </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
-                </div>
-                <FormField
-                    control={form.control}
-                    name="cursorStyle"
-                    render={({ field }) => (
-                        <FormItem className="w-[200px]">
-                            <FormLabel>Cursor Style</FormLabel>
-                            <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                            >
+                    <FormField
+                        control={form.control}
+                        name="fontFamily"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Font Family</FormLabel>
                                 <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a cursor style" />
-                                    </SelectTrigger>
+                                    <Input
+                                        placeholder="Your font family"
+                                        {...field}
+                                    />
                                 </FormControl>
-                                <SelectContent>
-                                    {cursorStyleOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                            {option}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="fontSize"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Font Size</FormLabel>
-                            <FormControl>
-                                <div className="flex space-x-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() =>
-                                            form.setValue(
-                                                'fontSize',
-                                                form.getValues('fontSize') - 1
-                                            )
-                                        }
-                                    >
-                                        <MinusCircle />
-                                    </Button>
-                                    <Input
-                                        placeholder="Your token"
-                                        {...field}
-                                        className="w-[60px] text-center"
-                                    />
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() =>
-                                            form.setValue(
-                                                'fontSize',
-                                                form.getValues('fontSize') + 1
-                                            )
-                                        }
-                                    >
-                                        <PlusCircle />
-                                    </Button>
-                                </div>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="fontFamily"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Font Family</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Your font family"
-                                    {...field}
-                                    className="w-[200px]"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="fontWeight"
-                    render={({ field }) => (
-                        <FormItem className="w-[200px]">
-                            <FormLabel>Font Weight</FormLabel>
-                            <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a font weight" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {fontWeightOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                            {option}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="background"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Background</FormLabel>
-                            <FormControl>
-                                <div className="flex space-x-2">
-                                    <Input
-                                        placeholder="background"
-                                        {...field}
-                                        style={{
-                                            backgroundColor:
-                                                form.getValues('background'),
-                                        }}
-                                        className="w-[200px]"
-                                    />
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="secondary">
-                                                Picker
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-fit">
-                                            <HexColorPicker
-                                                color={form.getValues(
-                                                    'background'
-                                                )}
-                                                onChange={(color) =>
-                                                    form.setValue(
-                                                        'background',
-                                                        color
-                                                    )
-                                                }
+                    <FormField
+                        control={form.control}
+                        name="background"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Background</FormLabel>
+                                    <FormControl>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                placeholder="background"
+                                                {...field}
+                                                style={{
+                                                    color: form.getValues(
+                                                        'foreground'
+                                                    ),
+                                                    backgroundColor:
+                                                        form.getValues(
+                                                            'background'
+                                                        ),
+                                                }}
+                                                className="w-[200px]"
                                             />
-                                        </PopoverContent>
-                                    </Popover>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="icon"
+                                                    >
+                                                        <Palette />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-fit">
+                                                    <HexColorPicker
+                                                        color={form.getValues(
+                                                            'background'
+                                                        )}
+                                                        onChange={(color) => {
+                                                            form.setValue(
+                                                                'background',
+                                                                color
+                                                            )
+                                                            form.trigger()
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </FormControl>
                                 </div>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="foreground"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Foreground</FormLabel>
-                            <FormControl>
-                                <div className="flex space-x-2">
-                                    <Input
-                                        placeholder="foreground"
-                                        {...field}
-                                        style={{
-                                            color: form.getValues('foreground'),
-                                        }}
-                                        className="w-[200px]"
-                                    />
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="secondary">
-                                                Picker
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-fit">
-                                            <HexColorPicker
-                                                color={form.getValues(
-                                                    'foreground'
-                                                )}
-                                                onChange={(color) =>
-                                                    form.setValue(
-                                                        'foreground',
-                                                        color
-                                                    )
-                                                }
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="foreground"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Foreground</FormLabel>
+                                    <FormControl>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                placeholder="foreground"
+                                                {...field}
+                                                style={{
+                                                    color: form.getValues(
+                                                        'foreground'
+                                                    ),
+                                                    backgroundColor:
+                                                        form.getValues(
+                                                            'background'
+                                                        ),
+                                                }}
+                                                className="w-[200px]"
                                             />
-                                        </PopoverContent>
-                                    </Popover>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="icon"
+                                                    >
+                                                        <Palette />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-fit">
+                                                    <HexColorPicker
+                                                        color={form.getValues(
+                                                            'foreground'
+                                                        )}
+                                                        onChange={(color) => {
+                                                            form.setValue(
+                                                                'foreground',
+                                                                color
+                                                            )
+                                                            form.trigger()
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </FormControl>
                                 </div>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="selectionBackground"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Background</FormLabel>
-                            <FormControl>
-                                <div className="flex space-x-2">
-                                    <Input
-                                        placeholder="selection background"
-                                        {...field}
-                                        style={{
-                                            backgroundColor: form.getValues(
-                                                'selectionBackground'
-                                            ),
-                                        }}
-                                        className="w-[200px]"
-                                    />
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="secondary">
-                                                Picker
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-fit">
-                                            <HexColorPicker
-                                                color={form.getValues(
-                                                    'foreground'
-                                                )}
-                                                onChange={(color) =>
-                                                    form.setValue(
-                                                        'selectionBackground',
-                                                        color
-                                                    )
-                                                }
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="selectionBackground"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Selection Background</FormLabel>
+                                    <FormControl>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                placeholder="selection background"
+                                                {...field}
+                                                style={{
+                                                    color: form.getValues(
+                                                        'selectionForeground'
+                                                    ),
+                                                    backgroundColor:
+                                                        form.getValues(
+                                                            'selectionBackground'
+                                                        ),
+                                                }}
+                                                className="w-[200px]"
                                             />
-                                        </PopoverContent>
-                                    </Popover>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="icon"
+                                                    >
+                                                        <Palette />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-fit">
+                                                    <HexColorPicker
+                                                        color={form.getValues(
+                                                            'foreground'
+                                                        )}
+                                                        onChange={(color) => {
+                                                            form.setValue(
+                                                                'selectionBackground',
+                                                                color
+                                                            )
+                                                            form.trigger()
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </FormControl>
                                 </div>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="selectionForeground"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Foreground</FormLabel>
-                            <FormControl>
-                                <div className="flex space-x-2">
-                                    <Input
-                                        placeholder="selection foreground"
-                                        {...field}
-                                        style={{
-                                            color: form.getValues(
-                                                'selectionForeground'
-                                            ),
-                                        }}
-                                        className="w-[200px]"
-                                    />
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="secondary">
-                                                Picker
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-fit">
-                                            <HexColorPicker
-                                                color={form.getValues(
-                                                    'foreground'
-                                                )}
-                                                onChange={(color) =>
-                                                    form.setValue(
-                                                        'selectionForeground',
-                                                        color
-                                                    )
-                                                }
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="selectionForeground"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Selection Foreground</FormLabel>
+                                    <FormControl>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                placeholder="selection foreground"
+                                                {...field}
+                                                style={{
+                                                    color: form.getValues(
+                                                        'selectionForeground'
+                                                    ),
+                                                    backgroundColor:
+                                                        form.getValues(
+                                                            'selectionBackground'
+                                                        ),
+                                                }}
+                                                className="w-[200px]"
                                             />
-                                        </PopoverContent>
-                                    </Popover>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="icon"
+                                                    >
+                                                        <Palette />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-fit">
+                                                    <HexColorPicker
+                                                        color={form.getValues(
+                                                            'foreground'
+                                                        )}
+                                                        onChange={(color) => {
+                                                            form.setValue(
+                                                                'selectionForeground',
+                                                                color
+                                                            )
+                                                            form.trigger()
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </FormControl>
                                 </div>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <LoadingBtn type="submit">Update Terminal</LoadingBtn>
-            </form>
-        </Form>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="space-y-2">
+                        <FormField
+                            control={form.control}
+                            name="copyOnSelect"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className="text-base">
+                                            Copy On Select
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Enable copy on select or not.
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="cursorBlink"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className="text-base">
+                                            Cursor Blink
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Enable cursor blink or not.
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <LoadingBtn type="submit">Update Terminal</LoadingBtn>
+                </form>
+            </Form>
+        </div>
     )
 }

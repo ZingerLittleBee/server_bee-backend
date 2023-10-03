@@ -32,7 +32,7 @@ export default function TerminalPage() {
                 background: '#141729',
                 selectionBackground: '#01CC74',
                 selectionForeground: '#1f563c',
-                // foreground: '#01CC74',
+                foreground: '#FFFFFF',
             },
             fontFamily: 'FiraCode Nerd Font Mono',
         })
