@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use crate::pty::shell_type::ShellType;
 use anyhow::Context;
 use atty::Stream;
-use log::info;
+use log::{error, info};
 use nix::libc;
 use nix::pty::openpty;
 use nix::unistd::{fork, ForkResult};
@@ -34,8 +34,15 @@ impl PtyManager {
     pub fn new(shell: ShellType) -> Self {
         let pty = match openpty(None, None) {
             Ok(pty) => pty,
-            Err(e) => panic!("open pty failed: {}", e),
+            Err(e) => {
+                error!(
+                    "open pty failed: {}, maybe hit the system maximum allowed pty num",
+                    e
+                );
+                panic!("open pty failed")
+            }
         };
+
         let master = pty.master;
         let slave = pty.slave;
 

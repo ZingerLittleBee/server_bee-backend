@@ -35,7 +35,9 @@ import { toast } from '@/components/ui/use-toast.ts'
 
 import './index.css'
 
-export function TerminalForm() {
+import { cn } from '@/lib/utils.ts'
+
+export function TerminalForm({ className }: { className?: string }) {
     const { terminalSettings, setTerminalSettings, restoreDefault } =
         useTerminalSettings()
     const { LoadingBtn, setIsLoading: setIsBtnLoading } = useLoadingBtn()
@@ -121,7 +123,10 @@ export function TerminalForm() {
     return (
         <div className="relative w-full space-y-8">
             <div
-                className="sticky top-[65px] z-[100] w-full rounded-lg p-2"
+                className={cn(
+                    'sticky top-[65px] z-[100] w-full rounded-lg p-2',
+                    className
+                )}
                 style={{ backgroundColor: form.getValues('background') }}
             >
                 <div
@@ -143,7 +148,10 @@ export function TerminalForm() {
                                 <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Font Size</FormLabel>
                                     <FormControl>
-                                        <div className="flex space-x-2">
+                                        <div
+                                            className="flex space-x-2"
+                                            style={{ marginTop: 0 }}
+                                        >
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -192,7 +200,7 @@ export function TerminalForm() {
                         control={form.control}
                         name="cursorStyle"
                         render={({ field }) => (
-                            <FormItem className="space-y-3">
+                            <FormItem className="space-y-2">
                                 <FormLabel>Cursor Style</FormLabel>
                                 <FormControl>
                                     <RadioGroup
@@ -246,7 +254,10 @@ export function TerminalForm() {
                                 <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Background</FormLabel>
                                     <FormControl>
-                                        <div className="flex space-x-2">
+                                        <div
+                                            className="flex space-x-2"
+                                            style={{ marginTop: 0 }}
+                                        >
                                             <Input
                                                 placeholder="background"
                                                 {...field}
@@ -300,7 +311,10 @@ export function TerminalForm() {
                                 <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Foreground</FormLabel>
                                     <FormControl>
-                                        <div className="flex space-x-2">
+                                        <div
+                                            className="flex space-x-2"
+                                            style={{ marginTop: 0 }}
+                                        >
                                             <Input
                                                 placeholder="foreground"
                                                 {...field}
@@ -354,7 +368,10 @@ export function TerminalForm() {
                                 <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Selection Background</FormLabel>
                                     <FormControl>
-                                        <div className="flex space-x-2">
+                                        <div
+                                            className="flex space-x-2"
+                                            style={{ marginTop: 0 }}
+                                        >
                                             <Input
                                                 placeholder="selection background"
                                                 {...field}
@@ -408,7 +425,10 @@ export function TerminalForm() {
                                 <div className="flex flex-col justify-start space-y-2 md:flex-row md:items-center md:justify-between">
                                     <FormLabel>Selection Foreground</FormLabel>
                                     <FormControl>
-                                        <div className="flex space-x-2">
+                                        <div
+                                            className="flex space-x-2"
+                                            style={{ marginTop: 0 }}
+                                        >
                                             <Input
                                                 placeholder="selection foreground"
                                                 {...field}

@@ -8,10 +8,21 @@ import { WebLinksAddon } from 'xterm-addon-web-links'
 import './index.css'
 import 'xterm/css/xterm.css'
 
+import { TerminalForm } from '@/routes/settings/terminal/terminal-form.tsx'
 import SearchWidget from '@/routes/terminal/search.tsx'
+import { Cog } from 'lucide-react'
 
 import { wsBaseUrl } from '@/lib/utils.ts'
 import { useTerminalSettings } from '@/hooks/useTerminalSettings.tsx'
+import { Button } from '@/components/ui/button.tsx'
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet.tsx'
 
 export default function TerminalPage() {
     const { terminalSettings } = useTerminalSettings()
@@ -54,6 +65,12 @@ export default function TerminalPage() {
             )
         })
 
+        if (terminalSettings?.copyOnSelect) {
+            terminal.onSelectionChange(() => {
+                navigator.clipboard.writeText(terminal.getSelection())
+            })
+        }
+
         webSocket.onopen = () => {
             terminal.open(terminalDivRef.current!)
             const attachAddon = new AttachAddon(webSocket)
@@ -80,6 +97,7 @@ export default function TerminalPage() {
         }
     }, [
         terminalSettings?.background,
+        terminalSettings?.copyOnSelect,
         terminalSettings?.cursorBlink,
         terminalSettings?.cursorStyle,
         terminalSettings?.fontSize,
@@ -90,11 +108,29 @@ export default function TerminalPage() {
 
     return (
         <div className="flex h-full flex-col">
-            <SearchWidget
-                onSearch={(content: string) =>
-                    searchAddonRef.current?.findNext(content)
-                }
-            />
+            <div className="flex flex-row items-center justify-between">
+                <SearchWidget
+                    onSearch={(content: string) =>
+                        searchAddonRef.current?.findNext(content)
+                    }
+                />
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="secondary" size="icon">
+                            <Cog />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent className="overflow-auto">
+                        <SheetHeader>
+                            <SheetTitle>Terminal</SheetTitle>
+                            <SheetDescription>
+                                Update your terminal settings.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <TerminalForm className="top-0" />
+                    </SheetContent>
+                </Sheet>
+            </div>
             <div
                 className="mt-2 h-[600px] rounded-lg p-2"
                 style={{ backgroundColor: terminalSettings?.background }}

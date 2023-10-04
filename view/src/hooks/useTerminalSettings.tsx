@@ -5,6 +5,7 @@ const defaultTerminalSettings: TerminalFormValues = {
     copyOnSelect: true,
     fontSize: 14,
     fontFamily: 'FiraCode Nerd Font Mono',
+    cursorStyle: 'block',
     cursorBlink: true,
     foreground: '#FFFFFF',
     background: '#141729',
