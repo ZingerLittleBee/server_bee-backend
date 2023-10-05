@@ -34,6 +34,11 @@ jobs:
           pnpm -C view install
           pnpm -C view build
 
+      - name: Move view dist to target
+        run: |
+          mkdir -p target/package/view
+          mv view/dist target/package/view/
+
       - name: Publish to crate 🎉
         run: cargo publish -p serverbee-web --token ${CRATES_TOKEN}
         env:
