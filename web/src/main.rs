@@ -11,6 +11,7 @@ use crate::report::reporter::Reporter;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
 use crate::route::page_route::page_services;
+#[cfg(not(target_os = "windows"))]
 use crate::route::pty_route::pty_service;
 use crate::server::echo_ws;
 use actix_web::{middleware, web, App, HttpServer};
@@ -22,6 +23,7 @@ mod config;
 mod db;
 mod handler;
 mod model;
+
 mod pty;
 mod report;
 mod route;
@@ -54,7 +56,7 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
-        App::new()
+        let app =  App::new()
             .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
             .configure(config_services)
@@ -66,10 +68,14 @@ async fn main() -> std::io::Result<()> {
             .service(rest_token)
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
-            .configure(pty_service)
             .configure(page_services)
             // enable logger
-            .wrap(middleware::Logger::default())
+            .wrap(middleware::Logger::default());
+
+        #[cfg(not(target_os = "windows"))]
+        app.configure(pty_service);
+
+        app
     })
     .workers(2)
     .bind(("0.0.0.0", port))?
