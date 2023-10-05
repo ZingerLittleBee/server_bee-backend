@@ -56,7 +56,7 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
-        let app =  App::new()
+        let mut app = App::new()
             .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
             .configure(config_services)
@@ -73,7 +73,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default());
 
         #[cfg(not(target_os = "windows"))]
-        app.configure(pty_service);
+        {
+            app = app.configure(pty_service);
+        }
 
         app
     })
