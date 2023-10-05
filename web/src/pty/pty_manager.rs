@@ -10,7 +10,6 @@ use nix::unistd::{fork, ForkResult};
 use std::os::fd::RawFd;
 use std::os::unix::prelude::{CommandExt, FromRawFd};
 use std::process::{Command, Stdio};
-use std::thread;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc::{Receiver, Sender};
@@ -19,10 +18,21 @@ use tokio::sync::mpsc::{Receiver, Sender};
 pub struct PtyManager {
     pty_in: File,
     pty_out: File,
-    master: RawFd,
     slave: RawFd,
     history: Vec<u8>,
     stop_read_tx: Option<Sender<()>>,
+    child_pid: Option<i32>,
+}
+
+impl Drop for PtyManager {
+    fn drop(&mut self) {
+        if let Some(pid) = self.child_pid {
+            unsafe { libc::kill(pid, libc::SIGKILL) };
+        }
+        if let Some(tx) = &self.stop_read_tx {
+            tx.try_send(()).unwrap();
+        }
+    }
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -49,14 +59,12 @@ impl PtyManager {
         let mut builder = Command::new(shell.to_str());
         builder.arg("-l");
 
+        let mut child_pid: Option<i32> = None;
+
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child: pid, .. }) => {
-                thread::spawn(move || {
-                    let mut status = 0;
-                    unsafe { libc::waitpid(i32::from(pid), &mut status, 0) };
-                    log::warn!("child process exit!");
-                    std::process::exit(0);
-                });
+                info!("child pid: {}", pid);
+                child_pid = Some(pid.as_raw());
             }
             Ok(ForkResult::Child) => {
                 unsafe { ioctl_rs::ioctl(master, ioctl_rs::TIOCNOTTY) };
@@ -69,17 +77,17 @@ impl PtyManager {
                     .stderr(unsafe { Stdio::from_raw_fd(slave) })
                     .exec();
             }
-            Err(_) => println!("Fork failed"),
+            Err(_) => error!("Fork failed"),
         }
 
         let pty_in = unsafe { File::from_raw_fd(master) };
         let pty_out = unsafe { File::from_raw_fd(master) };
 
         Self {
-            master,
             slave,
             pty_in,
             pty_out,
+            child_pid,
             history: Vec::new(),
             stop_read_tx: None,
         }
@@ -116,9 +124,6 @@ impl PtyManager {
                     size = pty_out.read(&mut buf) => {
                         match size {
                             Ok(size) => {
-                                if size == 0 {
-                                    std::process::exit(0);
-                                }
 
                                 let message = PtyMessage::Buffer(buf[..size].to_vec());
                                 history.append(&mut buf[..size].to_vec());
