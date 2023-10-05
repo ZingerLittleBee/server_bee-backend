@@ -5,7 +5,7 @@ import {
     useEffect,
     useReducer,
 } from 'react'
-import { kCommunicationToken } from '@/const'
+import { kCommunicationToken, kTerminalSettings } from '@/const'
 import {
     FusionContext,
     fusionReducer,
@@ -18,17 +18,24 @@ import {
     settingsReducer,
     SettingsState,
 } from '@/store/settings'
+import {
+    defaultTerminalSettings,
+    TerminalContext,
+    terminalReducer,
+} from '@/store/terminal.ts'
 import { TokenContext, tokenReducer } from '@/store/token'
 import { kSetWs, kSetWsStatus, WsContext, wsReducer, WsState } from '@/store/ws'
 
 import { Fusion } from '@/types/fusion.ts'
+import { TerminalSettings } from '@/types/settings.ts'
 import { wsBaseUrl } from '@/lib/utils.ts'
 
 type StoreContextProps = FusionContext &
     TokenContext &
     HistoryContext &
     WsContext &
-    SettingsContext
+    SettingsContext &
+    TerminalContext
 
 const StoreContext = createContext<StoreContextProps>({} as StoreContextProps)
 
@@ -50,6 +57,20 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     )
 
     const [ws, wsDispatch] = useReducer(wsReducer, {} as WsState)
+
+    let terminalSettings: TerminalSettings | null = null
+    try {
+        const s = localStorage.getItem(kTerminalSettings)
+        if (s) {
+            terminalSettings = JSON.parse(s) as TerminalSettings
+        }
+    } catch {
+        /* empty */
+    }
+
+    const [terminal, terminalDispatch] = useReducer(terminalReducer, {
+        ...(terminalSettings ?? defaultTerminalSettings),
+    })
 
     useEffect(() => {
         if (token.communicationToken) {
@@ -100,6 +121,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
                 wsDispatch,
                 settings,
                 settingsDispatch,
+                terminal,
+                terminalDispatch,
             }}
         >
             {children}

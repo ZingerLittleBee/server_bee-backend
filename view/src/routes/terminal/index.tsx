@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Terminal } from 'xterm'
 import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'
@@ -29,6 +29,7 @@ export default function TerminalPage() {
     const terminalDivRef = useRef(null)
     const terminalRef = useRef<Terminal | null>(null)
     const searchAddonRef = useRef<SearchAddon | null>(null)
+    const [open, setOpen] = useState(false)
 
     useEffect(() => {
         if (!terminalDivRef.current) return
@@ -96,6 +97,7 @@ export default function TerminalPage() {
             terminal.dispose()
         }
     }, [
+        terminalSettings,
         terminalSettings?.background,
         terminalSettings?.copyOnSelect,
         terminalSettings?.cursorBlink,
@@ -114,7 +116,7 @@ export default function TerminalPage() {
                         searchAddonRef.current?.findNext(content)
                     }
                 />
-                <Sheet>
+                <Sheet open={open} onOpenChange={(open) => setOpen(open)}>
                     <SheetTrigger asChild>
                         <Button variant="secondary" size="icon">
                             <Cog />
@@ -127,7 +129,10 @@ export default function TerminalPage() {
                                 Update your terminal settings.
                             </SheetDescription>
                         </SheetHeader>
-                        <TerminalForm className="top-0" />
+                        <TerminalForm
+                            className="top-0"
+                            onSubmit={() => setOpen(false)}
+                        />
                     </SheetContent>
                 </Sheet>
             </div>

@@ -37,7 +37,13 @@ import './index.css'
 
 import { cn } from '@/lib/utils.ts'
 
-export function TerminalForm({ className }: { className?: string }) {
+export function TerminalForm({
+    className,
+    onSubmit: onSubmitFn,
+}: {
+    className?: string
+    onSubmit?: () => void
+}) {
     const { terminalSettings, setTerminalSettings, restoreDefault } =
         useTerminalSettings()
     const { LoadingBtn, setIsLoading: setIsBtnLoading } = useLoadingBtn()
@@ -87,18 +93,18 @@ export function TerminalForm({ className }: { className?: string }) {
         if (form.formState.isDirty) return
         form.setValue('copyOnSelect', terminalSettings?.copyOnSelect ?? true)
         form.setValue('cursorBlink', terminalSettings?.cursorBlink ?? true)
-        form.setValue('cursorStyle', terminalSettings?.cursorStyle ?? 'block')
+        form.setValue('cursorStyle', terminalSettings?.cursorStyle)
         form.setValue('fontSize', terminalSettings?.fontSize ?? 14)
-        form.setValue('fontFamily', terminalSettings?.fontFamily ?? '')
-        form.setValue('background', terminalSettings?.background ?? '#141729')
-        form.setValue('foreground', terminalSettings?.foreground ?? '#FFFFFF')
+        form.setValue('fontFamily', terminalSettings?.fontFamily)
+        form.setValue('background', terminalSettings?.background)
+        form.setValue('foreground', terminalSettings?.foreground)
         form.setValue(
             'selectionBackground',
-            terminalSettings?.selectionBackground ?? '#01CC74'
+            terminalSettings?.selectionBackground
         )
         form.setValue(
             'selectionForeground',
-            terminalSettings?.selectionForeground ?? '#1f563c'
+            terminalSettings?.selectionForeground
         )
     }, [form, terminalSettings])
 
@@ -118,6 +124,7 @@ export function TerminalForm({ className }: { className?: string }) {
             })
         }
         setIsBtnLoading(false)
+        onSubmitFn?.()
     }
 
     return (

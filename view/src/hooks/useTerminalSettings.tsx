@@ -1,32 +1,27 @@
-import { TerminalFormValues } from '@/routes/settings/terminal/schema.ts'
-import { useLocalStorageState } from 'ahooks'
+import { useStore } from '@/store'
+import { kRestoreTerminal, kSetTerminal } from '@/store/terminal.ts'
 
-const defaultTerminalSettings: TerminalFormValues = {
-    copyOnSelect: true,
-    fontSize: 14,
-    fontFamily: 'FiraCode Nerd Font Mono',
-    cursorStyle: 'block',
-    cursorBlink: true,
-    foreground: '#FFFFFF',
-    background: '#141729',
-    selectionBackground: '#01CC74',
-    selectionForeground: '#1f563c',
-}
+import { TerminalSettings } from '@/types/settings.ts'
 
 export const useTerminalSettings = () => {
-    const [value, setValue] = useLocalStorageState<
-        TerminalFormValues | undefined
-    >('terminal-settings', {
-        defaultValue: defaultTerminalSettings,
-    })
+    const { terminal, terminalDispatch } = useStore()
+
+    const setTerminalSettings = (value: TerminalSettings) => {
+        terminalDispatch({
+            type: kSetTerminal,
+            payload: value,
+        })
+    }
 
     const restoreDefault = () => {
-        setValue(defaultTerminalSettings)
+        terminalDispatch({
+            type: kRestoreTerminal,
+        })
     }
 
     return {
-        terminalSettings: value,
-        setTerminalSettings: setValue,
+        terminalSettings: terminal,
+        setTerminalSettings,
         restoreDefault,
     }
 }
