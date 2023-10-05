@@ -57,6 +57,15 @@ export function TerminalForm({
 
     const terminalDivRef = useRef<HTMLDivElement>(null)
 
+    const cursorBlink = form.getValues('cursorBlink')
+    const cursorStyle = form.getValues('cursorStyle')
+    const fontSize = form.getValues('fontSize')
+    const background = form.getValues('background')
+    const foreground = form.getValues('foreground')
+    const selectionBackground = form.getValues('selectionBackground')
+    const selectionForeground = form.getValues('selectionForeground')
+    const fontFamily = form.getValues('fontFamily')
+
     useEffect(() => {
         if (!terminalDivRef.current) return
         const terminal = new Terminal({
@@ -87,7 +96,17 @@ export function TerminalForm({
             terminal.clear()
             terminal.dispose()
         }
-    }, [form, form.formState])
+    }, [
+        form,
+        cursorBlink,
+        cursorStyle,
+        fontSize,
+        background,
+        selectionBackground,
+        selectionForeground,
+        foreground,
+        fontFamily,
+    ])
 
     useEffect(() => {
         if (form.formState.isDirty) return
