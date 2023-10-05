@@ -36,6 +36,7 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 ![overview](https://assets.serverbee.app/snapshots/overview.png)
 ![process](https://assets.serverbee.app/snapshots/process.png)
 ![disk&network](https://assets.serverbee.app/snapshots/disk&network.png)
+![terminal](https://assets.serverbee.app/snapshots/terminal.png)
 ![settings](https://assets.serverbee.app/snapshots/settings.png)
 
 ## 交互式安装
