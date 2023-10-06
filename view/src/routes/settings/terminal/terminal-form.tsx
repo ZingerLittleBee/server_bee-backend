@@ -112,6 +112,7 @@ export function TerminalForm({
         if (form.formState.isDirty) return
         form.setValue('copyOnSelect', terminalSettings?.copyOnSelect ?? true)
         form.setValue('cursorBlink', terminalSettings?.cursorBlink ?? true)
+        form.setValue('shell', terminalSettings?.shell)
         form.setValue('cursorStyle', terminalSettings?.cursorStyle)
         form.setValue('fontSize', terminalSettings?.fontSize ?? 14)
         form.setValue('fontFamily', terminalSettings?.fontFamily)
@@ -257,6 +258,25 @@ export function TerminalForm({
                     />
                     <FormField
                         control={form.control}
+                        name="shell"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Shell</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="default system shell"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    shell name or path
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
                         name="fontFamily"
                         render={({ field }) => (
                             <FormItem>
@@ -271,7 +291,6 @@ export function TerminalForm({
                             </FormItem>
                         )}
                     />
-
                     <FormField
                         control={form.control}
                         name="background"

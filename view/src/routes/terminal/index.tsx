@@ -33,7 +33,10 @@ export default function TerminalPage() {
 
     useEffect(() => {
         if (!terminalDivRef.current) return
-        const webSocket = new WebSocket(`${wsBaseUrl()}/pty?shell=zsh`)
+        const url = terminalSettings.shell
+            ? `${wsBaseUrl()}/pty?shell=${terminalSettings.shell}`
+            : `${wsBaseUrl()}/pty`
+        const webSocket = new WebSocket(url)
         webSocket.binaryType = 'arraybuffer'
         const terminal = new Terminal({
             cursorBlink: terminalSettings?.cursorBlink,
@@ -87,7 +90,7 @@ export default function TerminalPage() {
 
         webSocket.onclose = (reason) => {
             terminalRef.current?.write(
-                '\r\nConnection closed. Please press Enter try reconnect \r\n'
+                '\r\nConnection closed. Please \x1b[33mPress Enter\x1b[0m or \x1b[33mRefresh the Page\x1b[0m to attempt reconnection. \r\n'
             )
             console.log('WebSocket closed', reason)
         }

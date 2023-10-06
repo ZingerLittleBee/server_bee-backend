@@ -33,6 +33,7 @@ export type ServerConfigVo = Omit<ServerConfig, 'disable_ssl'> & {
 }
 
 export type TerminalSettings = {
+    shell?: string
     copyOnSelect?: boolean
     fontSize?: number
     fontFamily?: string

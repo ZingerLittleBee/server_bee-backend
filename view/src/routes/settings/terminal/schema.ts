@@ -5,6 +5,7 @@ export const cursorStyleOptions = ['block', 'underline', 'bar']
 export const terminalFormSchema = z.object({
     copyOnSelect: z.boolean(),
     cursorBlink: z.boolean(),
+    shell: z.string().optional(),
     cursorStyle: z.enum(cursorStyleOptions as [string, ...string[]]).optional(),
     fontSize: z.number().min(4).max(40),
     fontFamily: z.string().optional(),
