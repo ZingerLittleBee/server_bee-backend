@@ -62,8 +62,7 @@ async fn main() -> std::io::Result<()> {
             .configure(config_services)
             .configure(|cfg| local_services(cfg, &host))
             .service(web::resource("/version").to(version))
-            // .service(web::resource("/config").to(config_test))
-            .service(web::resource("/check").route(web::post().to(check_token)))
+            .service(web::resource("/check").to(check_token))
             .service(kill_process)
             .service(rest_token)
             // websocket route
