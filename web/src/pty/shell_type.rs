@@ -1,3 +1,4 @@
+use std::env;
 use std::process::Command;
 
 #[derive(Debug)]
@@ -5,6 +6,23 @@ pub enum ShellType {
     Zsh,
     Bash,
     Sh,
+}
+
+impl Default for ShellType {
+    fn default() -> Self {
+        match env::var("SHELL") {
+            Ok(shell) => {
+                if shell.ends_with("zsh") {
+                    ShellType::Zsh
+                } else if shell.ends_with("bash") {
+                    ShellType::Bash
+                } else {
+                    ShellType::Sh
+                }
+            }
+            Err(_) => ShellType::Sh,
+        }
+    }
 }
 
 impl ShellType {
@@ -33,7 +51,7 @@ impl ShellTypeExt for str {
             "zsh" => ShellType::Zsh,
             "bash" => ShellType::Bash,
             "sh" => ShellType::Sh,
-            _ => ShellType::Bash,
+            _ => ShellType::default(),
         }
     }
 }

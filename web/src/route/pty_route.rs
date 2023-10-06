@@ -190,7 +190,7 @@ async fn pty_index(
     let shell = params
         .get("shell")
         .map(|value| value.to_shell_type())
-        .unwrap_or(ShellType::Bash);
+        .unwrap_or(ShellType::default());
     let resp = ws::start(PtyWs::new(shell, config.as_ref().clone()), &req, stream);
     resp
 }
