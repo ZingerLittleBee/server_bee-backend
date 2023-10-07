@@ -1,4 +1,4 @@
-import { kDashboardRoute, kSettingsRoute } from '@/lib/route'
+import { kDashboardRoute, kSettingsRoute, kTerminalRoute } from '@/lib/route'
 
 export type SiteConfig = typeof siteConfig
 
@@ -10,6 +10,10 @@ export const siteConfig = {
             title: 'Dashboard',
             href: kDashboardRoute,
             cls: 'hidden sm:flex',
+        },
+        terminal: {
+            title: 'Terminal',
+            href: kTerminalRoute,
         },
         client: {
             title: 'Settings',

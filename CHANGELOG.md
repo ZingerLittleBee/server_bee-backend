@@ -1,3 +1,12 @@
+## `2.1.0` (2023-10-05)
+### Features
+#### Web
+- Add `pty` support
+
+#### view
+- Add `terminal` page
+- Add `terminal` settings
+
 ## `2.0.0` (2023-09-07)
 ### Features
 #### Web

@@ -36,6 +36,7 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 ![overview](https://assets.serverbee.app/snapshots/overview.png)
 ![process](https://assets.serverbee.app/snapshots/process.png)
 ![disk&network](https://assets.serverbee.app/snapshots/disk&network.png)
+![terminal](https://assets.serverbee.app/snapshots/terminal.png)
 ![settings](https://assets.serverbee.app/snapshots/settings.png)
 
 ## Interactive install

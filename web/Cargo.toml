@@ -1,8 +1,8 @@
 [package]
 name = "serverbee-web"
-version = "2.0.0"
+version = "2.1.0"
 edition = "2021"
-categories = ["web-programming::http-server", "visualization"]
+categories = ["web-programming::http-server", "visualization", "monitor", "terminal"]
 keywords = ["serverbee", "web-server", "visualization", "monitor"]
 homepage = "https://github.com/ZingerLittleBee/server_bee-backend"
 repository = "https://github.com/ZingerLittleBee/server_bee-backend"
@@ -49,6 +49,7 @@ serde_urlencoded = "0.7"
 reqwest = { version = "0.11", features = ["json", "stream"], default-features = false }
 
 anyhow = "1.0"
+chrono = "0.4.31"
 
 sled = "0.34.7"
 
@@ -57,3 +58,8 @@ ezsockets = { version= "0.5.1", features = ["rustls"] }
 
 [target.'cfg(not(windows))'.dependencies]
 systemstat = "0.2.1"
+nix = "0.23.0"
+atty = "0.2"
+ioctl-rs = "0.2"
+signal-hook = "0.3.10"
+async-stream = "0.3.5"

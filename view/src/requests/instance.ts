@@ -2,16 +2,11 @@ import axios from 'axios'
 
 import { toast } from '@/components/ui/use-toast'
 
-const instance = axios.create(
-    process.env.NODE_ENV === 'development'
-        ? {
-              baseURL: '/api',
-              withCredentials: true,
-          }
-        : {
-              withCredentials: true,
-          }
-)
+const instance = axios.create({
+    baseURL: process.env.NODE_ENV === 'development' ? '/api' : undefined,
+    withCredentials: true,
+    timeout: 5000,
+})
 
 instance.interceptors.response.use(
     function (response) {

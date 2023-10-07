@@ -12,7 +12,11 @@ interface MainNavProps {
 export function MainNav({ items }: MainNavProps) {
     return (
         <div className="flex gap-6 md:gap-10">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link
+                to="/"
+                draggable="false"
+                className="flex items-center space-x-2"
+            >
                 <Icons.logo className="h-6 w-6" />
                 <span className="inline-block font-bold">
                     {siteConfig.name}
@@ -26,6 +30,7 @@ export function MainNav({ items }: MainNavProps) {
                             (item, index) =>
                                 item.href && (
                                     <Link
+                                        draggable="false"
                                         key={index}
                                         to={item.href}
                                         className={cn(
