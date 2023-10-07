@@ -75,17 +75,23 @@ export default function TerminalPage() {
             })
         }
 
+        terminal.open(terminalDivRef.current!)
+
+        const fitAddon = new FitAddon()
+        const searchAddon = new SearchAddon()
+        terminal.loadAddon(fitAddon)
+        terminal.loadAddon(new WebLinksAddon())
+        terminal.loadAddon(searchAddon)
+
+        searchAddonRef.current = searchAddon
+
+        const resizeFn = () => fitAddon.fit()
+        window.addEventListener('resize', resizeFn)
+
         webSocket.onopen = () => {
-            terminal.open(terminalDivRef.current!)
             const attachAddon = new AttachAddon(webSocket)
-            const fitAddon = new FitAddon()
-            const searchAddon = new SearchAddon()
-            terminal.loadAddon(fitAddon)
             terminal.loadAddon(attachAddon)
-            terminal.loadAddon(new WebLinksAddon())
-            terminal.loadAddon(searchAddon)
             fitAddon.fit()
-            searchAddonRef.current = searchAddon
         }
 
         webSocket.onclose = (reason) => {
@@ -98,6 +104,7 @@ export default function TerminalPage() {
         return () => {
             webSocket.close()
             terminal.dispose()
+            window.removeEventListener('resize', resizeFn)
         }
     }, [
         terminalSettings,
@@ -125,7 +132,7 @@ export default function TerminalPage() {
                             <Cog />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent className="overflow-auto ">
+                    <SheetContent className="overflow-auto">
                         <SheetHeader>
                             <SheetTitle>Terminal</SheetTitle>
                             <SheetDescription>
@@ -133,21 +140,17 @@ export default function TerminalPage() {
                             </SheetDescription>
                         </SheetHeader>
                         <TerminalForm
-                            className="top-0 w-[320px] sm:top-0"
+                            className="top-0 sm:top-0"
                             onSubmit={() => setOpen(false)}
                         />
                     </SheetContent>
                 </Sheet>
             </div>
             <div
-                className="mt-2 h-[600px] rounded-lg p-2"
+                className="mt-2 h-full rounded-lg p-2"
                 style={{ backgroundColor: terminalSettings?.background }}
             >
-                <div
-                    id="terminal"
-                    ref={terminalDivRef}
-                    className="h-full"
-                ></div>
+                <div id="terminal" ref={terminalDivRef}></div>
             </div>
         </div>
     )

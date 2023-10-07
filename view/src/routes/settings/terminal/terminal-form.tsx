@@ -95,8 +95,6 @@ export function TerminalForm({
 
         const resizeFn = () => fitAddon.fit()
 
-        terminal.onResize(resizeFn)
-
         window.addEventListener('resize', resizeFn)
 
         return () => {
@@ -159,7 +157,7 @@ export function TerminalForm({
         <div className="relative w-full space-y-8">
             <div
                 className={cn(
-                    'sticky top-0 z-[100] w-[340px] rounded-lg p-2 sm:top-[4rem] md:w-full',
+                    'sticky top-0 z-[100] w-full rounded-lg p-2 sm:top-[4rem]',
                     className
                 )}
                 style={{ backgroundColor: form.getValues('background') }}
