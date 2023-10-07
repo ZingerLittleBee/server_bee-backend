@@ -125,7 +125,7 @@ export default function TerminalPage() {
                             <Cog />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent className="overflow-auto">
+                    <SheetContent className="overflow-auto ">
                         <SheetHeader>
                             <SheetTitle>Terminal</SheetTitle>
                             <SheetDescription>
@@ -133,7 +133,7 @@ export default function TerminalPage() {
                             </SheetDescription>
                         </SheetHeader>
                         <TerminalForm
-                            className="top-0"
+                            className="top-0 w-[320px] sm:top-0"
                             onSubmit={() => setOpen(false)}
                         />
                     </SheetContent>

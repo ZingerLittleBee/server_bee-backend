@@ -92,9 +92,17 @@ export function TerminalForm({
         terminal.writeln('This is selected line')
         terminal.write('Hello from ServerBee $ ')
         terminal.select(0, 1, 21)
+
+        const resizeFn = () => fitAddon.fit()
+
+        terminal.onResize(resizeFn)
+
+        window.addEventListener('resize', resizeFn)
+
         return () => {
             terminal.clear()
             terminal.dispose()
+            window.removeEventListener('resize', resizeFn)
         }
     }, [
         form,
@@ -151,7 +159,7 @@ export function TerminalForm({
         <div className="relative w-full space-y-8">
             <div
                 className={cn(
-                    'sticky top-[65px] z-[100] w-full rounded-lg p-2',
+                    'sticky top-0 z-[100] w-[340px] rounded-lg p-2 sm:top-[4rem] md:w-full',
                     className
                 )}
                 style={{ backgroundColor: form.getValues('background') }}
@@ -159,7 +167,7 @@ export function TerminalForm({
                 <div
                     id="terminal-preview"
                     ref={terminalDivRef}
-                    className="h-[150px] w-[calc(100vw-64px-1rem)] lg:w-full"
+                    className="h-[150px]"
                 ></div>
             </div>
             <Form {...form}>

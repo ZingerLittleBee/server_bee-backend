@@ -74,7 +74,13 @@
   * {
     @apply border-border;
   }
+  html {
+    margin-left: calc(100vw - 100%);
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  html, body, #root {
+    @apply h-full;
   }
 }
