@@ -12,16 +12,16 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'http://127.0.0.1:9527',
+                target: 'http://localhost:9527',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
             },
             '/ws': {
-                target: 'ws://127.0.0.1:9527',
+                target: 'ws://localhost:9527',
                 ws: true,
             },
             '/pty': {
-                target: 'ws://127.0.0.1:9527',
+                target: 'ws://localhost:9527',
                 ws: true,
             },
         },
