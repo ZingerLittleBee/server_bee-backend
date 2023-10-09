@@ -1,8 +1,9 @@
 import { TerminalForm } from '@/routes/settings/terminal/terminal-form.tsx'
 
 import { Separator } from '@/components/ui/separator.tsx'
+import WithAuth from '@/components/with_auth.tsx'
 
-export default function SettingsTerminalPage() {
+function SettingsTerminalPage() {
     return (
         <div className="space-y-6">
             <div>
@@ -16,3 +17,5 @@ export default function SettingsTerminalPage() {
         </div>
     )
 }
+
+export default WithAuth(SettingsTerminalPage)
