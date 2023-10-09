@@ -18,6 +18,10 @@ const sidebarNavItems = [
         title: 'Server',
         href: '/settings/server',
     },
+    {
+        title: 'Terminal',
+        href: '/settings/terminal',
+    },
     // {
     //     title: 'Appearance',
     //     href: '/settings/appearance',

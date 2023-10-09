@@ -18,17 +18,7 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 - module `web` provide data from server
 - module `deploy` provide **AutoLaunch**、**AutoUpdate**、**DownloadWebModule**
 
-## Dashboard for web
-![overview](./snapshots/overview.png)
-![process](./snapshots/process.png)
-![disk&network](./snapshots/disk&network.png)
-![settings](./snapshots/settings.png)
-
-## Interactive install
-![interactive install](./snapshots/interactive.gif)
-
-# Features
-
+## Features
 - CPU load
 - load average
 - memory usage
@@ -41,6 +31,16 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 - detail process
 - kill process
 - sub process
+
+## Dashboard for web
+![overview](https://assets.serverbee.app/snapshots/overview.png)
+![process](https://assets.serverbee.app/snapshots/process.png)
+![disk&network](https://assets.serverbee.app/snapshots/disk&network.png)
+![terminal](https://assets.serverbee.app/snapshots/terminal.png)
+![settings](https://assets.serverbee.app/snapshots/settings.png)
+
+## Interactive install
+![interactive install](https://assets.serverbee.app/snapshots/interactive.gif)
 
 # How to use
 
@@ -94,6 +94,13 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 3. double-click to run serverbee-deploy.exe
 
 ## More settings
+### Allow downloading of pre-release versions
+> By default, only stable versions will be downloaded
+>
+> If you want to download pre-release versions, you can use the --pre-release parameter
+```bash
+./serverbee-deploy --pre-release
+```
 
 ### Interactive install
 ```bash

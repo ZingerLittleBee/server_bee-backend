@@ -25,6 +25,11 @@ async fn dashboard() -> impl Responder {
     handle_embedded_file("index.html")
 }
 
+#[get("/terminal")]
+async fn terminal() -> impl Responder {
+    handle_embedded_file("index.html")
+}
+
 #[get("/login")]
 async fn login() -> impl Responder {
     handle_embedded_file("index.html")
@@ -54,6 +59,7 @@ pub fn page_services(cfg: &mut web::ServiceConfig) {
     cfg.service(index)
         .service(login)
         .service(dashboard)
+        .service(terminal)
         .service(js)
         .service(css)
         .service(svg)

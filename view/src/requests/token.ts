@@ -7,15 +7,11 @@ export const getToken = async () => {
 
 export const verifyToken = async (token: string) => {
     try {
-        await instance.post(
-            '/check',
-            {},
-            {
-                headers: {
-                    Authorization: token,
-                },
-            }
-        )
+        await instance.get('/check', {
+            headers: {
+                Authorization: token,
+            },
+        })
         return true
     } catch {
         return false

@@ -1,14 +1,15 @@
-use std::fs::{File, OpenOptions};
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use crate::cli::Port;
 use crate::config::Config;
+use serde::{Deserialize, Serialize};
+use std::fs::{File, OpenOptions};
+use std::path::PathBuf;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StorageConfig {
     pub port: Option<u16>,
     pub is_auto_launch: Option<bool>,
-    interactive: Option<bool>
+    pub locale: Option<String>,
+    interactive: Option<bool>,
 }
 
 impl StorageConfig {
@@ -18,8 +19,9 @@ impl StorageConfig {
         } else {
             Self {
                 port: None,
+                locale: None,
                 is_auto_launch: None,
-                interactive: None
+                interactive: None,
             }
         }
     }
@@ -29,6 +31,17 @@ impl StorageConfig {
             self.interactive = Some(interactive);
             self.save_config();
         }
+    }
+
+    pub fn set_locale(&mut self, locale: String) {
+        if self.locale.is_none() || self.locale.as_ref().unwrap() != &locale {
+            self.locale = Some(locale);
+            self.save_config();
+        }
+    }
+
+    pub fn get_locale(&self) -> String {
+        self.locale.clone().unwrap_or_else(|| "en".to_string())
     }
 
     pub fn get_interactive(&self) -> Option<bool> {

@@ -37,6 +37,7 @@ const MoreView = () => {
                 <DropdownMenuGroup>
                     <DropdownMenuItem>
                         <Link
+                            draggable="false"
                             to={siteConfig.links.github}
                             target="_blank"
                             rel="noreferrer"
@@ -48,6 +49,7 @@ const MoreView = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                         <Link
+                            draggable="false"
                             to={siteConfig.links.twitter}
                             target="_blank"
                             rel="noreferrer"
@@ -80,8 +82,8 @@ const MoreView = () => {
 
 export function SiteHeader() {
     return (
-        <header className="sticky top-0 z-40 w-full border-b bg-background">
-            <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
+        <header className="sticky top-0 z-40 flex min-h-[4rem] w-full border-b bg-background">
+            <div className="container flex h-full items-center space-x-4 sm:justify-between sm:space-x-0">
                 <MainNav items={Object.values(siteConfig.mainNav)} />
                 <div className="flex flex-1 items-center justify-end space-x-4">
                     <nav className="flex items-center space-x-1">
@@ -89,6 +91,7 @@ export function SiteHeader() {
                             <MoreView />
                         </div>
                         <Link
+                            draggable="false"
                             to={siteConfig.links.github}
                             target="_blank"
                             rel="noreferrer"
@@ -105,6 +108,7 @@ export function SiteHeader() {
                             </div>
                         </Link>
                         <Link
+                            draggable="false"
                             to={siteConfig.links.twitter}
                             target="_blank"
                             rel="noreferrer"

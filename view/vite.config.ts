@@ -20,6 +20,10 @@ export default defineConfig({
                 target: 'ws://127.0.0.1:9527',
                 ws: true,
             },
+            '/pty': {
+                target: 'ws://127.0.0.1:9527',
+                ws: true,
+            },
         },
     },
 })

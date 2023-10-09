@@ -31,3 +31,16 @@ export type ServerConfig = {
 export type ServerConfigVo = Omit<ServerConfig, 'disable_ssl'> & {
     disableSsl: boolean
 }
+
+export type TerminalSettings = {
+    shell?: string
+    copyOnSelect?: boolean
+    fontSize?: number
+    fontFamily?: string
+    cursorStyle?: string
+    cursorBlink?: boolean
+    foreground?: string
+    background?: string
+    selectionBackground?: string
+    selectionForeground?: string
+}
