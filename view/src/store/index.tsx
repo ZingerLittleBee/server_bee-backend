@@ -46,6 +46,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     )
     const [token, tokenDispatch] = useReducer(tokenReducer, {
         communicationToken: localStorage.getItem(kCommunicationToken) ?? '',
+        isVerified: false,
     })
     const [history, historyDispatch] = useReducer(historyReducer, {
         cpu: [],
