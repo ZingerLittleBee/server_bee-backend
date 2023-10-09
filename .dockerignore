@@ -1,0 +1,6 @@
+view/node_modules
+view/dist
+pkg
+.git
+db
+target

@@ -57,7 +57,11 @@ impl Config {
     }
 
     pub fn get_version(&self) -> String {
-        self.version.clone()
+        if self.version.starts_with('v') {
+            self.version.clone()
+        } else {
+            format!("v{}", self.version)
+        }
     }
 
     pub fn get_port(&self) -> u16 {
@@ -111,6 +115,14 @@ impl Config {
         // serde_yaml::to_writer(f, &web_config).unwrap();
     }
 
+    pub fn get_locale(&self) -> String {
+        self.storage_config.get_locale()
+    }
+
+    pub fn set_locale(&mut self, locale: String) {
+        self.storage_config.set_locale(locale);
+    }
+
     #[cfg(target_arch = "x86_64")]
     pub fn get_filename(&self) -> String {
         if cfg!(target_os = "macos") {
@@ -157,15 +169,16 @@ impl Config {
     }
 
     pub fn bin_zip_url(&self) -> PathBuf {
-        let version = format!("v{}", self.get_version());
-
-        Path::new(BASE_URL).join(version).join(self.get_filename())
+        Path::new(BASE_URL)
+            .join(self.get_version())
+            .join(self.get_filename())
     }
 
     pub fn set_auto_launch(&mut self, enable: bool) {
         let app_name = env!("CARGO_PKG_NAME");
         info!(
-            "自启执行文件: {}",
+            "{}: {}",
+            t!("auto_launch_file_path"),
             env::current_exe().unwrap().to_str().unwrap()
         );
 
@@ -178,13 +191,13 @@ impl Config {
 
         if enable {
             if auto.is_enabled().expect("Couldn't check auto launch") {
-                info!("开机启动项已存在, 无需重复设置");
+                info!("{}", t!("already_auto_launch"));
             }
         } else if auto.is_enabled().expect("Couldn't check auto launch") {
             auto.disable().expect("Couldn't disable auto launch");
-            info!("取消开机启动成功");
+            info!("{}", t!("cancel_auto_launch"));
         } else {
-            info!("已经取消开机启动");
+            info!("{}", t!("cancel_auto_launch"));
         }
 
         self.storage_config.set_auto_launch(enable);
@@ -196,11 +209,28 @@ impl Config {
                 return parent.to_path_buf();
             }
         }
-        env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
+        env::current_dir().expect(t!("failed_to_get_current_dir").as_str())
     }
 
     pub fn deploy_log_path() -> PathBuf {
         Config::current_dir().join("deploy.log")
+    }
+
+    async fn get_latest_version_from_status(include_pre: Option<bool>) -> Result<String> {
+        let can_pre = include_pre.unwrap_or(false);
+        let client = reqwest::Client::new();
+        let response = client
+            .get(format!(
+                "https://status.serverbee.app/api/{}",
+                if can_pre { "pre-version" } else { "version" }
+            ))
+            // .header(header::AUTHORIZATION, format!("token {}", token))
+            .header(header::USER_AGENT, "reqwest")
+            .send()
+            .await?
+            .error_for_status()?;
+
+        Ok(response.text().await?)
     }
 
     async fn get_latest_version_from_github() -> Result<String> {
@@ -245,7 +275,18 @@ impl Config {
         Ok("".into())
     }
 
-    pub async fn get_latest_version() -> Result<String> {
+    pub async fn get_latest_version(pre_version: bool) -> Result<String> {
+        match Config::get_latest_version_from_status(Some(pre_version)).await {
+            Ok(version) => {
+                if !version.is_empty() {
+                    return Ok(version);
+                }
+            }
+            Err(e) => {
+                warn!("{}", t!("failed_to_get_version_from_status", error = e));
+            }
+        }
+
         match Config::get_latest_version_from_github().await {
             Ok(version) => {
                 if !version.is_empty() {
@@ -253,7 +294,7 @@ impl Config {
                 }
             }
             Err(e) => {
-                warn!("从 github 获取最新版本失败: {}, 尝试从 jsdelivr 获取", e);
+                warn!("{}", t!("failed_to_get_version_from_github", error = e));
             }
         }
 
@@ -262,9 +303,13 @@ impl Config {
                 return Ok(version);
             }
         } else {
-            warn!("从 jsdelivr 获取最新版本失败, 将使用 cargo.toml 中的版本");
+            warn!("{}", t!("failed_to_get_version_from_jsdelivr"));
         }
-
+        warn!(
+            "{}: {}",
+            t!("use_version_from_cargo_toml"),
+            env!("CARGO_PKG_VERSION")
+        );
         Ok(env!("CARGO_PKG_VERSION").into())
     }
 

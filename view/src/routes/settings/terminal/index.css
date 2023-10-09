@@ -1,0 +1,8 @@
+
+#terminal-preview {
+    .terminal, .xterm {
+        .xterm-viewport {
+            @apply overflow-hidden;
+        }
+    }
+}

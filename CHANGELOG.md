@@ -1,3 +1,27 @@
+## `2.1.0` (2023-10-05)
+### Features
+#### Web
+- Add `pty` support
+
+#### view
+- Add `terminal` page
+- Add `terminal` settings
+
+## `2.0.0` (2023-09-07)
+### Features
+#### Web
+- Dashboard for web
+- Config for web
+- Data report
+
+#### Deploy
+- i18n
+- Option of download Pre-release
+
+### Refactor
+- Refactor the config struct
+- Refactor the local api
+
 ## `1.2.6` (2023-06-11)
 ### Bug Fixes
 - Linux daemon template

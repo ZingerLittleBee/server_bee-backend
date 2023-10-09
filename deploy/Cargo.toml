@@ -1,6 +1,6 @@
 [package]
 name = "serverbee-deploy"
-version = "1.2.6"
+version = "2.1.0"
 edition = "2021"
 
 [features]
@@ -33,3 +33,5 @@ serde_json = "1.0"
 serde_yaml = "0.9.4"
 
 reqwest = { version = "0.11", features = ["json", "stream"], default-features = false }
+
+rust-i18n = "2"

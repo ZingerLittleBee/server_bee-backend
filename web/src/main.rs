@@ -1,72 +1,82 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
 use cli::Args;
-use crate::config::Config;
+use std::sync::{Arc, RwLock};
 
-use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, guard};
-use actix_web_actors::ws;
+use crate::config::config::Config;
+use crate::handler::http_handler::{check_token, kill_process, rest_token, version};
+
+use crate::db::db_wrapper::DbWrapper;
+use crate::report::reporter::Reporter;
+use crate::route::config_route::config_services;
+use crate::route::local_route::local_services;
+use crate::route::page_route::page_services;
+#[cfg(not(target_os = "windows"))]
+use crate::route::pty_route::pty_service;
+use crate::server::echo_ws;
+use actix_web::{middleware, web, App, HttpServer};
 use clap::Parser;
 use log::info;
-use sled::Db;
-use crate::handler::http_handler::{clear_token, index, kill_process, rest_token, rest_token_local, version, view_token};
-use crate::handler::db_handler::db_test;
-use crate::token::communication_token::CommunicationToken;
 
 mod cli;
 mod config;
+mod db;
+mod handler;
 mod model;
+
+mod pty;
+mod report;
+mod route;
 mod server;
 mod system_info;
-mod vo;
-mod handler;
+mod test;
 mod token;
-
-use self::server::MyWebSocket;
-
-/// WebSocket handshake and start `MyWebSocket` actor.
-async fn echo_ws(_token: CommunicationToken, req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    ws::start(MyWebSocket::new(), &req, stream)
-}
-
-async fn init_sled_db() -> Db {
-    sled::open("db").unwrap()
-}
+mod traits;
+mod utils;
+mod vo;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
     let args = Args::parse();
 
-    Config::init_logging(args.log_path);
+    let config = Config::new(DbWrapper::new(), args);
 
-    let port =
-        args.port.unwrap_or_else(Config::get_server_port);
+    let host = config.server_host().unwrap_or_else(|| String::from(""));
+
+    let port = config.server_port();
 
     info!("starting HTTP server at http://localhost:{}", port);
 
-    let db = init_sled_db().await;
+    let config = Arc::new(RwLock::new(config));
+
+    let report_config = Arc::clone(&config);
+
+    actix_rt::spawn(async {
+        Reporter::run(report_config).await;
+    });
 
     HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(db.clone()))
+        let mut app = App::new()
+            .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
-            .service(web::resource("/").to(index))
+            .configure(config_services)
+            .configure(|cfg| local_services(cfg, &host))
             .service(web::resource("/version").to(version))
-            .service(web::resource("/db").to(db_test))
+            .service(web::resource("/check").to(check_token))
             .service(kill_process)
             .service(rest_token)
             // websocket route
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
-            .service(
-                web::scope("/local")
-                    // private api localhost only
-                    .guard(guard::Host("localhost"))
-                    .service(web::resource("/token/view").to(view_token))
-                    .service(web::resource("/token/clear").to(clear_token))
-                    .service(web::resource("/token/rest").to(rest_token_local))
-            )
+            .configure(page_services)
             // enable logger
-            .wrap(middleware::Logger::default())
+            .wrap(middleware::Logger::default());
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            app = app.configure(pty_service);
+        }
+
+        app
     })
     .workers(2)
     .bind(("0.0.0.0", port))?

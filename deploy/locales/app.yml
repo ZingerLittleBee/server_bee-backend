@@ -1,0 +1,109 @@
+_version: 2
+hello:
+  en: Hello world
+  zh: 你好世界
+messages.hello:
+  en: Hello, %{name}
+  zh: 你好，%{name}
+latest_version:
+  en: Latest Version
+  zh: 最新版本
+port_question:
+  en: Please input port? (default 9527)
+  zh: 请输入端口号? (默认使用 9527)
+install_confirm:
+  en: Press any key to continue the installation, to cancel the installation enter Ctrl+C
+  zh: 按任意键以继续安装, 取消安装请输入 Ctrl+C
+start_install:
+  en: Confirmation complete, starting installation.
+  zh: 确认完毕, 开始安装
+auto_launch:
+  en: Auto-start on boot
+  zh: 开机自启
+port:
+  en: Port
+  zh: 端口号
+confirm_config:
+  en: Please confirm the following settings
+  zh: 请确认如下设置
+error_and_retry:
+  en: An error occurred, please retry
+  zh: 出现错误，请重试
+port_in_use:
+  en: Port %{port} is in use, please change port
+  zh: 端口 %{port} 已被占用，请更换端口
+port_invalid:
+  en: Port is invalid
+  zh: 端口号输入有误
+full_path:
+  en: Full file path
+  zh: 文件全路径
+download_and_unzip:
+  en: File %{path} downloaded successfully, unpacking now
+  zh: 文件 %{path} 下载成功, 正在解压
+unzip_success:
+  en: File unpacking completed
+  zh: 文件解压完毕
+skip_download:
+  en: File already exists, skipping download
+  zh: 文件已存在, 跳过下载
+install_finish:
+  en: Installation completed, press any key to exit...
+  zh: 安装结束, 按任意键退出...
+yes:
+  en: Yes
+  zh: 是
+no:
+  en: No
+  zh: 否
+launch_question:
+  en: Do you want to auto-start on boot?
+  zh: 是否开机自启?
+action_tips:
+  en: ↑↓ Move, Enter Confirm ✅, Input to filter
+  zh: ↑↓ 移动, 回车确定 ✅, 输入以筛选
+run_success:
+  en: serverbee-web started successfully
+  zh: serverbee-web 启动成功
+run_fail:
+  en: Running %{path} failed, please try to run manually
+  zh: 运行 %{path} 失败, 请尝试手动运行
+file_extracted:
+  en: 'File extracted to: %{path}'
+  zh: '文件解压到: %{path}'
+file_extracted_with_size:
+  en: 'File extracted to: %{path} (%{size} bytes)'
+  zh: '文件解压到: %{path} (%{size} 字节)'
+locale_question:
+  en: Please select language
+  zh: 请选择语言
+auto_launch_tips:
+  en: After installation is complete, please execute the following command to enable auto-start on boot
+  zh: 安装完成后, 请执行以下命令以开启开机自启
+deploy_full_path:
+  en: Replace with the full path of serverbee-deploy
+  zh: 替换为 serverbee-deploy 的全路径
+auto_launch_file_path:
+  en: Auto-start executable file
+  zh: 自启执行文件
+cancel_auto_launch:
+  en: Auto-start has been cancelled
+  zh: 已取消开机启动
+already_auto_launch:
+  en: Auto-start item already exists, no need to set again
+  zh: 开机启动项已存在, 无需重复设置
+failed_to_get_current_dir:
+  en: Failed to get the current directory, insufficient permissions, or not unpacked
+  zh: 获取当前目录失败, 权限不足或未解压
+failed_to_get_version_from_status:
+  en: 'Failed to get the latest version from status: %{error}, trying to get from github'
+  zh: '从 status 获取最新版本失败: %{error}, 尝试从 github 获取'
+failed_to_get_version_from_github:
+  en: 'Failed to get the latest version from github: %{error}, trying to get from jsdelivr'
+  zh: '从 github 获取最新版本失败: %{error}, 尝试从 jsdelivr 获取'
+failed_to_get_version_from_jsdelivr:
+  en: Failed to get the latest version from jsdelivr, the version in cargo.toml will be used
+  zh: 从 jsdelivr 获取最新版本失败, 将使用 cargo.toml 中的版本
+use_version_from_cargo_toml:
+  en: Using version from cargo.toml
+  zh: 使用 cargo.toml 中的版本

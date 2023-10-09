@@ -18,10 +18,7 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 - `web` 模块提供来自机器的数据
 - `deploy` 模块提供 **开机启动**、**自动更新**、**下载 Web 模块** 的功能
 
-![interactive install](./snapshots/interactive.gif)
-
-# 特点
-
+## 特点
 - CPU 负载
 - 平均负载
 - 内存使用情况
@@ -34,6 +31,16 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 - 进程详细信息
 - 杀死进程
 - 进程所属子进程
+
+## Web 仪表盘
+![overview](https://assets.serverbee.app/snapshots/overview.png)
+![process](https://assets.serverbee.app/snapshots/process.png)
+![disk&network](https://assets.serverbee.app/snapshots/disk&network.png)
+![terminal](https://assets.serverbee.app/snapshots/terminal.png)
+![settings](https://assets.serverbee.app/snapshots/settings.png)
+
+## 交互式安装
+![interactive install](https://assets.serverbee.app/snapshots/interactive.gif)
 
 # 如何使用
 
@@ -86,6 +93,13 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 3. 双击启动 serverbee-deploy.exe
 
 ## 更多配置
+### 允许下载预发布版本
+> 默认情况下，只会下载稳定版本
+>
+> 如果你想下载预发布版本，可以使用 `--pre-release` 参数
+```bash
+./serverbee-deploy --pre-release
+```
 
 ### 交互式安装
 ```bash
@@ -114,25 +128,124 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -p 8081 -a false -u true
 ```
 
-# 身份验证
+# 配置相关 API
 以下接口只能从 `localhost` 访问
-## View Token
+
+## 查看所有配置
 ```bash
-curl http://localhost:9527/local/token/view
+curl http://localhost:9527/local/config
+```
+响应如下:
+```json
+{
+    "success": true,
+    "data": {
+        "web_server": {
+            "port": 9527
+        },
+        "server": {
+            "token": "token",
+            "host": "serverhub.app",
+            "disable_ssl": false
+        },
+        "app": {
+            "token": "token"
+        }
+    }
+}
 ```
 
-## 重设 Token
+## 查看 `web_server` 配置
+> web 服务器的相关配置，包括端口号
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"token": "youNewToken"}' http://127.0.0.1:9527/local/token/rest
+curl http://localhost:9527/local/config/web_server
+```
+响应如下:
+```json
+{
+  "success": true,
+  "data": {
+    "port": 9527
+  }
+}
 ```
 
-## 清空 Token
+## 更新 `web_server` 配置
 ```bash
-curl http://localhost:9527/local/token/clear
+curl -X POST -H "Content-Type: application/json" -d '{"port": 9527}' http://127.0.0.1:9527/local/config/web_server
+```
+响应如下:
+```json
+{
+  "success": true
+}
 ```
 
+## 查看 `app` 配置
+> app 的相关配置，包括通讯密钥
+```bash
+curl http://localhost:9527/local/config/app
+```
+响应如下:
+```json
+{
+  "success": true,
+  "data": {
+    "token": "token"
+  }
+}
+```
+
+## 更新 `app` 配置
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"token": "newToken"}' http://localhost:9527/local/config/app
+```
+响应如下:
+```json
+{
+  "success": true
+}
+```
+
+## 查看 `server` 配置
+> server 的相关配置，包括通讯密钥、服务器地址、是否禁用 SSL
+```bash
+curl http://localhost:9527/local/config/server
+```
+响应如下:
+```json
+{
+  "success": true,
+  "data": {
+    "token": "token",
+    "host": "serverhub.app",
+    "disable_ssl": false
+  }
+}
+```
+
+## 更新 `server` 配置
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"token": "newToken", "host": "serverhub.app", "disable_ssl": false}' http://127.0.0.1:9527/local/config/server
+```
+响应如下:
+```json
+{
+  "success": true
+}
+```
 
 # 从源码编译
+## 1. 构建前端源码
+> 需要安装 nodejs、pnpm
+```shell
+pnpm -C view install
+pnpm -C view build
+```
+构建产物在 `view/out` 目录下
+
+## 2. 构建 web、deploy 模块源码
+> 需要安装 rust
 ```bash
 cargo build --release
 ```
@@ -146,8 +259,7 @@ cargo build --release
 
 [CHANGELOG](CHANGELOG.md)
 
-# 了解更多
-# Read More
+# 更多
 [官网](https://serverbee.app/)
 
 [文档](https://docs.serverbee.app/)
