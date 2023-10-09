@@ -1,4 +1,8 @@
-import { kDashboardRoute, kSettingsRoute, kTerminalRoute } from '@/lib/route'
+import {
+    kDashboardRoute,
+    kSettingsGeneralRoute,
+    kTerminalRoute,
+} from '@/lib/route'
 
 export type SiteConfig = typeof siteConfig
 
@@ -17,7 +21,7 @@ export const siteConfig = {
         },
         client: {
             title: 'Settings',
-            href: kSettingsRoute,
+            href: kSettingsGeneralRoute,
         },
     },
     links: {
