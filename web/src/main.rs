@@ -6,7 +6,6 @@ use std::sync::{Arc, RwLock};
 use crate::config::config::Config;
 use crate::handler::http_handler::{check_token, kill_process, rest_token, version};
 
-use crate::db::db_wrapper::DbWrapper;
 use crate::report::reporter::Reporter;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
@@ -39,7 +38,7 @@ mod vo;
 async fn main() -> std::io::Result<()> {
     let args = Args::parse();
 
-    let config = Config::new(DbWrapper::new(), args);
+    let config = Config::new(args);
 
     let host = config.server_host().unwrap_or_else(|| String::from(""));
 

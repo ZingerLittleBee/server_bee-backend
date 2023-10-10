@@ -1,4 +1,4 @@
-pub(crate) const LOG_PATH: &str = "log_path";
+pub(crate) const LOG_DIR: &str = "log_dir";
 
 pub(crate) const LAST_LOGIN: &str = "last_login";
 
