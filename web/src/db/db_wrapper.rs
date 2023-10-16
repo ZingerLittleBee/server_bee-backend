@@ -1,6 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sled::Db;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub struct DbWrapper {
@@ -8,13 +9,16 @@ pub struct DbWrapper {
 }
 
 impl DbWrapper {
-    fn init_sled_db() -> Db {
-        sled::open("db").unwrap()
+    fn init_sled_db(path: PathBuf) -> Db {
+        sled::open(path).unwrap()
     }
 
-    pub fn new() -> DbWrapper {
+    pub fn new(path: Option<PathBuf>) -> DbWrapper {
         DbWrapper {
-            db: DbWrapper::init_sled_db(),
+            db: DbWrapper::init_sled_db(
+                path.map(|p| p.join("db"))
+                    .unwrap_or_else(|| PathBuf::from("db")),
+            ),
         }
     }
 

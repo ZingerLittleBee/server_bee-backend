@@ -1,7 +1,7 @@
 use crate::cli::Args;
 use crate::config::app::AppConfig;
 use crate::config::constant::{
-    APP_CONFIG, DEFAULT_PORT, LAST_LOGIN, LOG_PATH, SERVER_CONFIG, WEB_SERVER_CONFIG,
+    APP_CONFIG, DEFAULT_PORT, LAST_LOGIN, LOG_DIR, SERVER_CONFIG, WEB_SERVER_CONFIG,
 };
 use crate::config::server::ServerConfig;
 use crate::config::web_server::WebServerConfig;
@@ -23,7 +23,7 @@ use std::path::PathBuf;
 #[derive(Clone, Debug)]
 pub struct Config {
     db: DbWrapper,
-    log_path: PathBuf,
+    log_dir: PathBuf,
     web_server: WebServerConfig,
     server: ServerConfig,
     app: AppConfig,
@@ -31,7 +31,9 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(db: DbWrapper, args: Args) -> Self {
+    pub fn new(args: Args) -> Self {
+        let db = DbWrapper::new(args.data_dir.map(|d| PathBuf::from(d)));
+
         // merge web server config
         let mut web_server = match db.get(WEB_SERVER_CONFIG) {
             Ok(Some(v)) => v,
@@ -69,9 +71,9 @@ impl Config {
             db.set(APP_CONFIG, &app);
         });
 
-        let log_path = args
-            .log_path
-            .unwrap_or_else(|| match db.get::<String>(LOG_PATH) {
+        let log_dir = args
+            .log_dir
+            .unwrap_or_else(|| match db.get::<String>(LOG_DIR) {
                 Ok(Some(v)) => v,
                 _ => Config::current_dir().to_str().unwrap().to_string(),
             });
@@ -87,7 +89,7 @@ impl Config {
 
         let config = Config {
             db,
-            log_path: PathBuf::from(log_path),
+            log_dir: PathBuf::from(log_dir),
             web_server,
             server,
             app,
@@ -130,7 +132,7 @@ impl Config {
     }
 
     fn init_logging(&self) {
-        let log_path = self.log_path();
+        let log_dir = self.log_dir();
         let log_file = self.log_file();
         info!("日志文件路径: {:?}", log_file);
 
@@ -141,19 +143,10 @@ impl Config {
             )))
             .build();
 
-        // Logging to log file.
-        // let logfile = FileAppender::builder()
-        //     // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
-        //     .encoder(Box::new(PatternEncoder::new(
-        //         "[{d(%Y-%m-%d %H:%M:%S)} {T} {h({l})}] {m}{n}",
-        //     )))
-        //     .build(log_path)
-        //     .unwrap();
-
         // rolling log file.
         let window_roller = FixedWindowRoller::builder()
             .build(
-                &format!("{}/archive/serverbee.{}.log.gz", log_path.display(), "{}"),
+                &format!("{}/archive/serverbee.{}.log.gz", log_dir.display(), "{}"),
                 5,
             )
             .unwrap();
@@ -209,12 +202,12 @@ impl Config {
         env::current_dir().expect("获取当前目录失败, 权限不足或当前目录不存在")
     }
 
-    pub fn log_path(&self) -> PathBuf {
-        self.log_path.clone()
+    pub fn log_dir(&self) -> PathBuf {
+        self.log_dir.clone()
     }
 
     pub fn log_file(&self) -> PathBuf {
-        self.log_path().join("web.log")
+        self.log_dir().join("web.log")
     }
 
     pub fn set_web_server_config(&mut self, config: WebServerConfig) -> Result<()> {

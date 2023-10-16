@@ -1,9 +1,9 @@
 name: Publish CD
 
 on:
-  push:
-    tags:
-      - '*'
+#  push:
+#    tags:
+#      - '*'
   workflow_dispatch:
 
 jobs:

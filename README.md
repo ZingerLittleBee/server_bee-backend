@@ -107,13 +107,6 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -i
 ```
 
-### Use custom port
-```bash
-./serverbee-deploy -p 8081
-# for unused deploy module
-./serverbee-web -p 8081
-```
-
 ### Enable auto launch (default is enable)
 ```bash
 ./serverbee-deploy -a true
@@ -122,6 +115,23 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ### Disable auto launch
 ```bash
 ./serverbee-deploy -a false
+```
+
+### Use custom port
+```bash
+./serverbee-deploy -p 8081
+# for unused deploy module
+./serverbee-web -p 8081
+```
+
+### Log directory (default is current directory)
+```shell
+./serverbee-web -l /var/log/serverbee
+```
+
+### Data directory (default is current directory)
+```shell
+./serverbee-web -d /var/lib/serverbee
 ```
 
 ### Examples

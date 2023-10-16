@@ -1,3 +1,4 @@
+import { createRef } from 'react'
 import ErrorPage from '@/error-page.tsx'
 import DashboardPage from '@/routes/dashboard.tsx'
 import LoginPage from '@/routes/login.tsx'
@@ -10,7 +11,7 @@ import SettingsTerminalPage from '@/routes/settings/terminal/page.tsx'
 import TerminalPage from '@/routes/terminal'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
-const router = createBrowserRouter([
+export const routes = [
     {
         path: '/',
         element: <Root />,
@@ -23,43 +24,54 @@ const router = createBrowserRouter([
             {
                 path: '/dashboard',
                 element: <DashboardPage />,
+                nodeRef: createRef(),
             },
             {
                 path: '/login',
                 element: <LoginPage />,
+                nodeRef: createRef(),
             },
             {
                 path: '/terminal',
                 element: <TerminalPage />,
+                nodeRef: createRef(),
             },
             {
                 path: '/settings',
                 element: <SettingsLayout />,
+
                 children: [
                     {
                         path: '/settings',
                         element: <Navigate to="/settings/general" />,
+                        nodeRef: createRef(),
                     },
                     {
                         path: '/settings/general',
                         element: <GeneralPage />,
+                        nodeRef: createRef(),
                     },
                     {
                         path: '/settings/security',
                         element: <SettingsSecurityPage />,
+                        nodeRef: createRef(),
                     },
                     {
                         path: '/settings/server',
                         element: <SettingsServerPage />,
+                        nodeRef: createRef(),
                     },
                     {
                         path: '/settings/terminal',
                         element: <SettingsTerminalPage />,
+                        nodeRef: createRef(),
                     },
                 ],
             },
         ],
     },
-])
+]
+
+const router = createBrowserRouter(routes)
 
 export default router

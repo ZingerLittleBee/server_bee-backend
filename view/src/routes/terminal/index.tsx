@@ -23,8 +23,9 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet.tsx'
+import WithAuth from '@/components/with_auth.tsx'
 
-export default function TerminalPage() {
+function TerminalPage() {
     const { terminalSettings } = useTerminalSettings()
     const terminalDivRef = useRef(null)
     const terminalRef = useRef<Terminal | null>(null)
@@ -155,3 +156,5 @@ export default function TerminalPage() {
         </div>
     )
 }
+
+export default WithAuth(TerminalPage)

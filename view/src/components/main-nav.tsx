@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { NavItem } from '@/types/nav'
 import { siteConfig } from '@/config/site'
+import { kDashboardRoute } from '@/lib/route.ts'
 import { cn } from '@/lib/utils'
 import { Icons } from '@/components/icons'
 
@@ -13,7 +14,7 @@ export function MainNav({ items }: MainNavProps) {
     return (
         <div className="flex gap-6 md:gap-10">
             <Link
-                to="/"
+                to={kDashboardRoute}
                 draggable="false"
                 className="flex items-center space-x-2"
             >

@@ -106,13 +106,6 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ./serverbee-deploy -i
 ```
 
-### 使用自定义端口
-```bash
-./serverbee-deploy -p 8081
-# 对于未使用 deploy 模块的用户，可以使用以下命令
-./serverbee-web -p 8081
-```
-
 ### 开机自启 (默认打开)
 ```bash
 ./serverbee-deploy -a true
@@ -121,6 +114,23 @@ unzip serverbee-deploy-x86_64-unknown-linux-musl.zip
 ### 关闭开机自启
 ```bash
 ./serverbee-deploy -a false
+```
+
+### 使用自定义端口
+```bash
+./serverbee-deploy -p 8081
+# 对于未使用 deploy 模块的用户，可以使用以下命令
+./serverbee-web -p 8081
+```
+
+### 日志目录 (默认是当前目录)
+```shell
+./serverbee-web -l /var/log/serverbee
+```
+
+### 数据目录 (默认是当前目录)
+```shell
+./serverbee-web -d /var/lib/serverbee
 ```
 
 ### 例子

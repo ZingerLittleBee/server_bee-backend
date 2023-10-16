@@ -8,7 +8,12 @@ pub struct Args {
     /// Log directory, defaults to the current directory where the program is located.
     /// 日志目录, 默认为程序所在当前目录
     #[clap(short, long)]
-    pub log_path: Option<String>,
+    pub log_dir: Option<String>,
+
+    /// Data directory, defaults to the current directory where the program is located.
+    /// 数据目录, 默认为程序所在当前目录
+    #[clap(short, long)]
+    pub data_dir: Option<String>,
 
     /// port, default 9527.
     /// 端口号, 默认 9527

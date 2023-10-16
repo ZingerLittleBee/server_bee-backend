@@ -1,3 +1,15 @@
+## `2.1.2` (2023-10-10)
+### Features
+- Add data dir option
+
+## `2.1.1` (2023-10-09)
+### Features
+- Avoid same route redirect
+- Validate state cache
+
+### Refactor
+- Login page
+
 ## `2.1.0` (2023-10-05)
 ### Features
 #### Web
