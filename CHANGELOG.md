@@ -1,3 +1,13 @@
+## `2.2.0` (2023-10-21)
+### Features
+- Add Windows terminal support
+
+### Refactor
+- Refactor the pty implement
+
+### Bug Fixes
+- Fix the font family not work of the terminal page
+
 ## `2.1.2` (2023-10-10)
 ### Features
 - Add data dir option
