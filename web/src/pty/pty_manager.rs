@@ -1,146 +1,70 @@
-use std::fmt::Debug;
-
 use crate::pty::shell_type::ShellType;
-use anyhow::Context;
-use atty::Stream;
-use log::{error, info};
-use nix::libc;
-use nix::pty::openpty;
-use nix::unistd::{fork, ForkResult};
-use std::os::fd::RawFd;
-use std::os::unix::prelude::{CommandExt, FromRawFd};
-use std::process::{Command, Stdio};
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::sync::mpsc::{Receiver, Sender};
+use actix::Message;
+use portable_pty::{native_pty_system, CommandBuilder, PtyPair, PtySize};
+use std::thread::{sleep, spawn};
+use std::{
+    io::{BufRead, BufReader, Write},
+    time::Duration,
+};
 
-#[derive(Debug)]
-pub struct PtyManager {
-    pty_in: File,
-    pty_out: File,
-    slave: RawFd,
-    history: Vec<u8>,
-    stop_read_tx: Option<Sender<()>>,
-    child_pid: Option<i32>,
-}
-
-impl Drop for PtyManager {
-    fn drop(&mut self) {
-        if let Some(pid) = self.child_pid {
-            unsafe { libc::kill(pid, libc::SIGKILL) };
-        }
-        if let Some(tx) = &self.stop_read_tx {
-            tx.try_send(()).unwrap();
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Message, Debug, Eq, PartialEq)]
+#[rtype(result = "()")]
 pub enum PtyMessage {
     Buffer(Vec<u8>),
 }
 
+pub struct PtyManager {
+    pty_pair: PtyPair,
+    writer: Box<dyn Write + Send>,
+}
+
 impl PtyManager {
-    pub fn new(shell: ShellType) -> Self {
-        let pty = match openpty(None, None) {
-            Ok(pty) => pty,
-            Err(e) => {
-                error!(
-                    "open pty failed: {}, maybe hit the system maximum allowed pty num",
-                    e
-                );
-                panic!("open pty failed")
-            }
+    pub fn new(shell_type: ShellType) -> Self {
+        let pty_system = native_pty_system();
+
+        let pty_pair = pty_system
+            .openpty(PtySize {
+                rows: 24,
+                cols: 80,
+                pixel_width: 0,
+                pixel_height: 0,
+            })
+            .unwrap();
+
+        #[cfg(target_os = "windows")]
+        let cmd = CommandBuilder::new("powershell.exe");
+        #[cfg(not(target_os = "windows"))]
+        let cmd = CommandBuilder::new(shell_type.to_str());
+
+        let mut child = if let Ok(child) = pty_pair.slave.spawn_command(cmd) {
+            child
+        } else {
+            panic!("spawn shell failed")
         };
 
-        let master = pty.master;
-        let slave = pty.slave;
+        spawn(move || {
+            child.wait().unwrap();
+        });
 
-        let mut builder = Command::new(shell.to_str());
-        builder.arg("-l");
+        let writer = pty_pair.master.take_writer().unwrap();
 
-        let mut child_pid: Option<i32> = None;
-
-        match unsafe { fork() } {
-            Ok(ForkResult::Parent { child: pid, .. }) => {
-                info!("child pid: {}", pid);
-                child_pid = Some(pid.as_raw());
-            }
-            Ok(ForkResult::Child) => {
-                unsafe { ioctl_rs::ioctl(master, ioctl_rs::TIOCNOTTY) };
-                unsafe { libc::setsid() };
-                unsafe { ioctl_rs::ioctl(slave, ioctl_rs::TIOCSCTTY) };
-
-                builder
-                    .stdin(unsafe { Stdio::from_raw_fd(slave) })
-                    .stdout(unsafe { Stdio::from_raw_fd(slave) })
-                    .stderr(unsafe { Stdio::from_raw_fd(slave) })
-                    .exec();
-            }
-            Err(_) => error!("Fork failed"),
-        }
-
-        let pty_in = unsafe { File::from_raw_fd(master) };
-        let pty_out = unsafe { File::from_raw_fd(master) };
-
-        Self {
-            slave,
-            pty_in,
-            pty_out,
-            child_pid,
-            history: Vec::new(),
-            stop_read_tx: None,
-        }
+        Self { pty_pair, writer }
     }
 
-    pub async fn start(&mut self) -> Receiver<PtyMessage> {
-        self.pty_output_handler().await
-    }
+    pub fn start(&self) -> std::sync::mpsc::Receiver<PtyMessage> {
+        let (tx, rx) = std::sync::mpsc::channel::<PtyMessage>();
 
-    pub async fn write_all(&mut self, data: &[u8]) -> anyhow::Result<()> {
-        self.pty_in.write_all(data).await.context("pty write error")
-    }
+        let reader = self.pty_pair.master.try_clone_reader().unwrap();
 
-    async fn pty_output_handler(&mut self) -> Receiver<PtyMessage> {
-        let mut history = self.history.clone();
-        let mut pty_out = self.pty_out.try_clone().await.unwrap();
-        let (tx, rx) = tokio::sync::mpsc::channel::<PtyMessage>(100);
-
-        let (stop_read_tx, mut stop_read_rx) = tokio::sync::mpsc::channel(1);
-        self.stop_read_tx = Some(stop_read_tx);
-
-        tokio::spawn(async move {
-            match tx.send(PtyMessage::Buffer(vec![])).await {
-                Ok(_) => {}
-                Err(e) => {
-                    info!("send pty message error: {}", e);
-                }
-            }
-
-            let mut buf: [u8; 1024] = [0; 1024];
-
+        spawn(move || {
+            let mut buf = BufReader::new(reader);
             loop {
-                tokio::select! {
-                    size = pty_out.read(&mut buf) => {
-                        match size {
-                            Ok(size) => {
-
-                                let message = PtyMessage::Buffer(buf[..size].to_vec());
-                                history.append(&mut buf[..size].to_vec());
-                                if let Err(e) = tx.send(message).await {
-                                    info!("Send pty message error: {}", e);
-                                }
-                                buf.fill(0);
-                            },
-                            Err(e) => {
-                                info!("Read output from pty error: {}", e);
-                                break;
-                            }
-                        }
-                    }
-                    _ = stop_read_rx.recv() => {
-                        info!("Stop signal received, breaking the loop");
-                        break;
+                sleep(Duration::from_millis(1));
+                let data = buf.fill_buf().unwrap().to_vec();
+                buf.consume(data.len());
+                if data.len() > 0 {
+                    if let Err(e) = tx.send(PtyMessage::Buffer(data)) {
+                        println!("send pty message error: {}", e);
                     }
                 }
             }
@@ -148,33 +72,19 @@ impl PtyManager {
         rx
     }
 
-    pub fn history(&self) -> Vec<u8> {
-        self.history.clone()
+    pub fn write_to_pty(&mut self, data: &str) -> std::io::Result<()> {
+        write!(self.writer, "{}", data)
     }
 
-    pub fn set_termsize(&self, mut size: Box<libc::winsize>) -> bool {
-        (unsafe { libc::ioctl(self.slave, libc::TIOCSWINSZ, &mut *size) } as i32) > 0
-    }
-
-    pub fn get_termsize(fd: i32) -> Option<Box<libc::winsize>> {
-        let mut ret = 0;
-        let mut size = Box::new(libc::winsize {
-            ws_row: 25,
-            ws_col: 80,
-            ws_xpixel: 0,
-            ws_ypixel: 0,
-        });
-
-        if atty::is(Stream::Stdin) {
-            ret = unsafe { libc::ioctl(fd, libc::TIOCGWINSZ, &mut *size) } as i32;
-        } else {
-            size.ws_row = 25;
-            size.ws_col = 80;
-        };
-
-        if ret < 0 {
-            return None;
-        }
-        Some(size)
+    pub fn resize_pty(&self, rows: u16, cols: u16) -> bool {
+        self.pty_pair
+            .master
+            .resize(PtySize {
+                rows,
+                cols,
+                ..Default::default()
+            })
+            .map(|_| true)
+            .unwrap_or(false)
     }
 }
