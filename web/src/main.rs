@@ -10,7 +10,6 @@ use crate::report::reporter::Reporter;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
 use crate::route::page_route::page_services;
-#[cfg(not(target_os = "windows"))]
 use crate::route::pty_route::pty_service;
 use crate::server::echo_ws;
 use actix_web::{middleware, web, App, HttpServer};
@@ -55,11 +54,12 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
-        let mut app = App::new()
+       App::new()
             .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
             .configure(config_services)
             .configure(|cfg| local_services(cfg, &host))
+            .configure(pty_service)
             .service(web::resource("/version").to(version))
             .service(web::resource("/check").to(check_token))
             .service(kill_process)
@@ -68,14 +68,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
             .configure(page_services)
             // enable logger
-            .wrap(middleware::Logger::default());
-
-        #[cfg(not(target_os = "windows"))]
-        {
-            app = app.configure(pty_service);
-        }
-
-        app
+            .wrap(middleware::Logger::default())
     })
     .workers(2)
     .bind(("0.0.0.0", port))?

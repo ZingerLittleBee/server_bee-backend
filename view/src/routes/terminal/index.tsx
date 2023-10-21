@@ -5,15 +5,13 @@ import { FitAddon } from 'xterm-addon-fit'
 import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 
-import './index.css'
 import 'xterm/css/xterm.css'
+import './index.css'
 
 import { TerminalForm } from '@/routes/settings/terminal/terminal-form.tsx'
 import SearchWidget from '@/routes/terminal/search.tsx'
 import { Cog } from 'lucide-react'
 
-import { wsBaseUrl } from '@/lib/utils.ts'
-import { useTerminalSettings } from '@/hooks/useTerminalSettings.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import {
     Sheet,
@@ -24,6 +22,8 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet.tsx'
 import WithAuth from '@/components/with_auth.tsx'
+import { useTerminalSettings } from '@/hooks/useTerminalSettings.tsx'
+import { wsBaseUrl } from '@/lib/utils.ts'
 
 function TerminalPage() {
     const { terminalSettings } = useTerminalSettings()
@@ -53,7 +53,7 @@ function TerminalPage() {
                 selectionBackground: terminalSettings?.selectionBackground,
                 selectionForeground: terminalSettings?.selectionForeground,
             },
-            fontFamily: 'FiraCode Nerd Font Mono',
+            fontFamily: terminalSettings?.fontFamily,
         })
         terminalRef.current = terminal
 
@@ -151,7 +151,7 @@ function TerminalPage() {
                 className="mt-2 h-full rounded-lg p-2"
                 style={{ backgroundColor: terminalSettings?.background }}
             >
-                <div id="terminal" ref={terminalDivRef}></div>
+                <div id="terminal" className='h-full' ref={terminalDivRef}></div>
             </div>
         </div>
     )

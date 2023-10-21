@@ -110,9 +110,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for PtyWs {
 
                     match self.pty_manager.lock() {
                         Ok(pty_manager) => {
-                            if pty_manager.resize_pty(rows, cols) {
-                                error!("set pty size failed")
-                            }
+                            pty_manager.resize_pty(rows, cols);
                         }
                         Err(e) => {
                             error!("Error getting pty manager lock: {}", e)

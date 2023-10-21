@@ -1,5 +1,6 @@
 use crate::pty::shell_type::ShellType;
 use actix::Message;
+use log::error;
 use portable_pty::{native_pty_system, CommandBuilder, PtyPair, PtySize};
 use std::thread::{sleep, spawn};
 use std::{
@@ -32,7 +33,7 @@ impl PtyManager {
             .unwrap();
 
         #[cfg(target_os = "windows")]
-        let cmd = CommandBuilder::new("powershell.exe");
+        let cmd = CommandBuilder::new(shell_type.to_str());
         #[cfg(not(target_os = "windows"))]
         let cmd = CommandBuilder::new(shell_type.to_str());
 
@@ -77,14 +78,19 @@ impl PtyManager {
     }
 
     pub fn resize_pty(&self, rows: u16, cols: u16) -> bool {
-        self.pty_pair
+        match self.pty_pair
             .master
             .resize(PtySize {
                 rows,
                 cols,
                 ..Default::default()
             })
-            .map(|_| true)
-            .unwrap_or(false)
+            .map(|_| true) {
+                Ok(result) => result,
+                Err(e) => {
+                    error!("resize pty error: {}", e);
+                    false
+                }
+            }
     }
 }
