@@ -2555,7 +2555,7 @@ dependencies = [
 
 [[package]]
 name = "serverbee-deploy"
-version = "2.2.0"
+version = "2.2.1"
 dependencies = [
  "anyhow",
  "auto-launch",
@@ -2578,7 +2578,7 @@ dependencies = [
 
 [[package]]
 name = "serverbee-web"
-version = "2.2.0"
+version = "2.2.1"
 dependencies = [
  "actix",
  "actix-codec",

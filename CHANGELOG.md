@@ -1,3 +1,7 @@
+## `2.2.1` (2023-10-22)
+### Features
+- Add shell type selector
+
 ## `2.2.0` (2023-10-21)
 ### Features
 - Add Windows terminal support

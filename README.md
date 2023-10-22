@@ -45,6 +45,11 @@ Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serv
 # How to use
 
 ## Installation
+### Quick install(Linux、macOS)
+```bash
+bash <(curl -s https://raw.githubusercontent.com/ZingerLittleBee/server_bee-backend/main/script/startup.sh)
+```
+
 ### Docker
 > The installation tutorial is located in the documentation 👉 [Docker](https://docs.serverbee.app/en/usage/docker)
 
