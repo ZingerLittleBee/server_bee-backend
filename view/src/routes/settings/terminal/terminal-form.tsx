@@ -36,6 +36,15 @@ import { toast } from '@/components/ui/use-toast.ts'
 import './index.css'
 
 import { cn } from '@/lib/utils.ts'
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 
 export function TerminalForm({
     className,
@@ -268,15 +277,39 @@ export function TerminalForm({
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Shell</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="default system shell"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormDescription>
-                                    shell name or path
-                                </FormDescription>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select system shell" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>
+                                                Linux、macOS
+                                            </SelectLabel>
+                                            <SelectItem value="sh">
+                                                sh
+                                            </SelectItem>
+                                            <SelectItem value="bash">
+                                                bash
+                                            </SelectItem>
+                                            <SelectItem value="zsh">
+                                                zsh
+                                            </SelectItem>
+                                            <SelectLabel>Windows</SelectLabel>
+                                            <SelectItem value="powershell.exe">
+                                                powershell.exe
+                                            </SelectItem>
+                                            <SelectItem value="cmd.exe">
+                                                cmd.exe
+                                            </SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}

@@ -9,7 +9,6 @@ export const kRestoreTerminal = 'RESTORE_TERMINAL'
 export const defaultTerminalSettings: TerminalSettings = {
     copyOnSelect: true,
     fontSize: 14,
-    fontFamily: 'FiraCode Nerd Font Mono',
     cursorStyle: 'block',
     cursorBlink: true,
     foreground: '#FFFFFF',
