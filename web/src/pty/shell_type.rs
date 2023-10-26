@@ -1,15 +1,17 @@
 use std::env;
-use std::process::Command;
 
 #[derive(Debug)]
 pub enum ShellType {
     Zsh,
     Bash,
     Sh,
+    Powershell,
+    Cmd,
 }
 
 impl Default for ShellType {
     fn default() -> Self {
+        #[cfg(not(target_os = "windows"))]
         match env::var("SHELL") {
             Ok(shell) => {
                 if shell.ends_with("zsh") {
@@ -17,11 +19,18 @@ impl Default for ShellType {
                 } else if shell.ends_with("bash") {
                     ShellType::Bash
                 } else {
-                    ShellType::Sh
+                    #[cfg(target_os = "macos")]
+                    return ShellType::Zsh;
+
+                    #[cfg(target_os = "linux")]
+                    return ShellType::Sh;
                 }
             }
             Err(_) => ShellType::Sh,
         }
+
+        #[cfg(target_os = "windows")]
+        ShellType::Powershell
     }
 }
 
@@ -31,13 +40,9 @@ impl ShellType {
             ShellType::Zsh => "zsh",
             ShellType::Bash => "bash",
             ShellType::Sh => "sh",
+            ShellType::Powershell => "powershell.exe",
+            ShellType::Cmd => "cmd.exe",
         }
-    }
-
-    fn to_cmd(&self) -> Command {
-        let mut cmd = Command::new(self.to_str());
-        cmd.arg("-l");
-        cmd
     }
 }
 
@@ -51,6 +56,8 @@ impl ShellTypeExt for str {
             "zsh" => ShellType::Zsh,
             "bash" => ShellType::Bash,
             "sh" => ShellType::Sh,
+            "powershell.exe" => ShellType::Powershell,
+            "cmd.exe" => ShellType::Cmd,
             _ => ShellType::default(),
         }
     }

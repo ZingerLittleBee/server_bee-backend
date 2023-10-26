@@ -1,6 +1,6 @@
 [package]
 name = "serverbee-web"
-version = "2.1.2"
+version = "2.2.1"
 edition = "2021"
 categories = ["web-programming::http-server", "visualization", "monitor", "terminal"]
 keywords = ["serverbee", "web-server", "visualization", "monitor"]
@@ -40,7 +40,6 @@ tokio-util = "0.7.8"
 
 sysinfo = "0.29.10"
 
-
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9.4"
@@ -56,10 +55,7 @@ sled = "0.34.7"
 async-trait = "0.1.52"
 ezsockets = { version= "0.5.1", features = ["rustls"] }
 
+portable-pty = "0.8.1"
+
 [target.'cfg(not(windows))'.dependencies]
 systemstat = "0.2.1"
-nix = "0.23.0"
-atty = "0.2"
-ioctl-rs = "0.2"
-signal-hook = "0.3.10"
-async-stream = "0.3.5"

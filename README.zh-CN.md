@@ -45,6 +45,11 @@ iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的
 # 如何使用
 
 ## 安装
+### 一键安装(Linux、macOS)
+```bash
+bash <(curl -s https://raw.githubusercontent.com/ZingerLittleBee/server_bee-backend/main/script/startup.sh)
+```
+
 ### Docker
 > 详细教程请访问文档链接 👉 [Docker](https://docs.serverbee.app/usage/docker)
 
