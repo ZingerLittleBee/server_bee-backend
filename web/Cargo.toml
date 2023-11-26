@@ -1,8 +1,8 @@
 [package]
 name = "serverbee-web"
-version = "2.2.1"
+version = "2.3.0"
 edition = "2021"
-categories = ["web-programming::http-server", "visualization", "monitor", "terminal"]
+categories = ["web-programming::http-server", "visualization"]
 keywords = ["serverbee", "web-server", "visualization", "monitor"]
 homepage = "https://github.com/ZingerLittleBee/server_bee-backend"
 repository = "https://github.com/ZingerLittleBee/server_bee-backend"

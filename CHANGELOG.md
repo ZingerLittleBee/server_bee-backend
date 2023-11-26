@@ -1,3 +1,7 @@
+## `2.3.0` (2023-11-26)
+### Features
+- Support IPv6
+
 ## `2.2.1` (2023-10-22)
 ### Features
 - Add shell type selector
