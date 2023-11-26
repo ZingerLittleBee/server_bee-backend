@@ -1,5 +1,6 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
+use std::net::TcpListener;
 use cli::Args;
 use std::sync::{Arc, RwLock};
 
@@ -33,8 +34,19 @@ mod traits;
 mod utils;
 mod vo;
 
+fn is_ipv6_supported() -> bool {
+    TcpListener::bind("[::]:0").is_ok()
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    if is_ipv6_supported() {
+        println!("IPv6 is supported");
+    } else {
+        println!("IPv6 is not supported");
+    }
+
     let args = Args::parse();
 
     let config = Config::new(args);
@@ -72,6 +84,7 @@ async fn main() -> std::io::Result<()> {
     })
     .workers(2)
     .bind(("0.0.0.0", port))?
+    .bind(format!("[::]:{}", port))?
     .run()
     .await
 }
