@@ -54,6 +54,7 @@ pub fn local_services(cfg: &mut web::ServiceConfig, host: &str) {
             .guard(
                 guard::Any(guard::Host("localhost"))
                     .or(guard::Host("127.0.0.1"))
+                    .or(guard::Host("[::1]"))
                     .or(guard::Host(host)),
             )
             .service(
