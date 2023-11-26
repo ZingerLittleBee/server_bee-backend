@@ -1,6 +1,7 @@
 #![cfg_attr(feature = "subsystem", windows_subsystem = "windows")]
 
 use cli::Args;
+use std::net::TcpListener;
 use std::sync::{Arc, RwLock};
 
 use crate::config::config::Config;
@@ -43,8 +44,6 @@ async fn main() -> std::io::Result<()> {
 
     let port = config.server_port();
 
-    info!("starting HTTP server at http://localhost:{}", port);
-
     let config = Arc::new(RwLock::new(config));
 
     let report_config = Arc::clone(&config);
@@ -53,8 +52,25 @@ async fn main() -> std::io::Result<()> {
         Reporter::run(report_config).await;
     });
 
+    let is_dual_stack = is_ipv6_supported();
+
+    let bind_addr = if is_dual_stack {
+        format!("[::]:{}", port)
+    } else {
+        format!("0.0.0.0:{}", port)
+    };
+
+    if is_dual_stack {
+        info!("dual stack is supported");
+        info!("starting HTTP server at IPv4 http://localhost:{}", port);
+        info!("starting HTTP server at IPv6 http://[::1]:{}", port);
+    } else {
+        info!("System doesn't support dual stack");
+        info!("starting HTTP server at http://localhost:{}", port);
+    }
+
     HttpServer::new(move || {
-       App::new()
+        App::new()
             .app_data(web::Data::new(Arc::clone(&config)))
             .app_data(web::JsonConfig::default().limit(4096))
             .configure(config_services)
@@ -71,7 +87,11 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
     })
     .workers(2)
-    .bind(("0.0.0.0", port))?
+    .bind(bind_addr)?
     .run()
     .await
+}
+
+fn is_ipv6_supported() -> bool {
+    TcpListener::bind("[::]:0").is_ok()
 }
