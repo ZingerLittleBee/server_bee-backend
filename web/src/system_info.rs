@@ -453,7 +453,7 @@ impl SystemInfo {
         DeviceInfo::new(os_overview, memory_info, network_info, disk_detail, version)
     }
 
-    // 仅刷新cpu、内存、网络、磁盘的私有函数
+    // 仅刷新cpu、内存、网络、磁盘的私有函数？
     fn refresh_less(&mut self) {
         self.sys.refresh_cpu();
         self.sys.refresh_memory();
