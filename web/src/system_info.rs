@@ -324,7 +324,7 @@ impl SystemInfo {
 
     pub fn get_less_fusion(&mut self) -> Fusion {
         // 如果只更新less的话，可以不用refresh_all
-        // 因为refresh_all会更新包含process在内的所有系统数据。会比较占用cpu。
+        // refresh_all会更新包含process在内的所有系统数据，比较占用cpu。
         // 以我的电脑为例：refresh_all占用10%左右cpu，refresh_less基本上不占用cpu
         SystemInfo::refresh_less(self);
         Fusion::new_less(self.get_overview().convert())
