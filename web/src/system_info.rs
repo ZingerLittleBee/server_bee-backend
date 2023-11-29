@@ -323,7 +323,7 @@ impl SystemInfo {
     }
 
     pub fn get_less_fusion(&mut self) -> Fusion {
-        self.sys.refresh_all();
+        SystemInfo::refresh_less(self);
         Fusion::new_less(self.get_overview().convert())
     }
 
@@ -448,5 +448,13 @@ impl SystemInfo {
         let memory_info = self.get_mem_usage();
         let version = env!("CARGO_PKG_VERSION").to_string();
         DeviceInfo::new(os_overview, memory_info, network_info, disk_detail, version)
+    }
+
+    // 仅刷新cpu、内存、网络、磁盘的私有函数
+    fn refresh_less(&mut self) {
+        self.sys.refresh_cpu();
+        self.sys.refresh_memory();
+        self.sys.refresh_networks();
+        self.sys.refresh_disks();
     }
 }
