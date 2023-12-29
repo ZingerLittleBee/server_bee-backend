@@ -78,19 +78,16 @@ impl PtyManager {
     }
 
     pub fn resize_pty(&self, rows: u16, cols: u16) -> bool {
-        match self.pty_pair
+        self.pty_pair
             .master
             .resize(PtySize {
                 rows,
                 cols,
                 ..Default::default()
             })
-            .map(|_| true) {
-                Ok(result) => result,
-                Err(e) => {
-                    error!("resize pty error: {}", e);
-                    false
-                }
-            }
+            .map(|_| true).unwrap_or_else(|e| {
+            error!("resize pty error: {}", e);
+            false
+        })
     }
 }
