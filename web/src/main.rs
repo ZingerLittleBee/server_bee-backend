@@ -7,7 +7,7 @@ use std::sync::{Arc, RwLock};
 use crate::config::config::Config;
 use crate::handler::http_handler::{check_token, kill_process, rest_token, version};
 
-use crate::report::reporter::Reporter;
+use crate::record::recorder::Recorder;
 use crate::route::config_route::config_services;
 use crate::route::local_route::local_services;
 use crate::route::page_route::page_services;
@@ -24,6 +24,7 @@ mod handler;
 mod model;
 
 mod pty;
+mod record;
 mod report;
 mod route;
 mod server;
@@ -49,7 +50,8 @@ async fn main() -> std::io::Result<()> {
     let report_config = Arc::clone(&config);
 
     actix_rt::spawn(async {
-        Reporter::run(report_config).await;
+        // Reporter::run(report_config).await;
+        Recorder::run().await;
     });
 
     let is_dual_stack = is_ipv6_supported();
