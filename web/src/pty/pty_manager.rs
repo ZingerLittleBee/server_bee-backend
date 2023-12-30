@@ -85,9 +85,10 @@ impl PtyManager {
                 cols,
                 ..Default::default()
             })
-            .map(|_| true).unwrap_or_else(|e| {
-            error!("resize pty error: {}", e);
-            false
-        })
+            .map(|_| true)
+            .unwrap_or_else(|e| {
+                error!("resize pty error: {}", e);
+                false
+            })
     }
 }

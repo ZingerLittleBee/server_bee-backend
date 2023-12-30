@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use crate::model::user::User;
 use crate::vo::formator::Convert;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
 pub struct UserVo {

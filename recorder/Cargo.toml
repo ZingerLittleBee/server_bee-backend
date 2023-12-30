@@ -1,0 +1,17 @@
+[package]
+name = "serverbee-recorder"
+version = "0.1.0"
+edition = "2021"
+categories = ["web-programming::http-server", "visualization"]
+keywords = ["serverbee", "web-server", "visualization", "monitor"]
+homepage = "https://github.com/ZingerLittleBee/server_bee-backend"
+repository = "https://github.com/ZingerLittleBee/server_bee-backend"
+description = "Backend for iOS application named ServerBee"
+readme = "../README.md"
+
+[dependencies]
+dotenvy = "0.15.7"
+actix-web = "4"
+log = "0.4.20"
+env_logger = "0.10.1"
+serde = { version = "1", features = ["derive"] }

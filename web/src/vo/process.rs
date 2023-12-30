@@ -42,9 +42,7 @@ pub struct ProcessVo {
 
     pub user: Option<String>,
 
-    pub children: Option<Vec<String>>
-
-    // pub group_id: Option<String>,
+    pub children: Option<Vec<String>>, // pub group_id: Option<String>,
 }
 
 impl Convert<ProcessVo> for Process {

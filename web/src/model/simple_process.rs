@@ -12,7 +12,6 @@ pub struct SimpleProcess {
     pub cpu_usage: f32,
 
     pub memory: u64,
-
 }
 
 impl From<&SysProcess> for SimpleProcess {
@@ -22,7 +21,7 @@ impl From<&SysProcess> for SimpleProcess {
             pid: pro.pid().as_u32(),
             memory: pro.memory(),
             cpu_usage: pro.cpu_usage(),
-            parent_id: pro.parent().map(|p| p.as_u32())
+            parent_id: pro.parent().map(|p| p.as_u32()),
         }
     }
 }

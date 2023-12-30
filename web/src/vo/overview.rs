@@ -28,7 +28,12 @@ impl From<OverviewVo> for ByteString {
 impl Convert<OverviewVo> for Overview {
     fn convert(&self) -> OverviewVo {
         OverviewVo {
-            load_avg: self.load_avg.clone().iter().map(|x| format!("{:.1}", x).parse::<f64>().unwrap_or_default()).collect(),
+            load_avg: self
+                .load_avg
+                .clone()
+                .iter()
+                .map(|x| format!("{:.1}", x).parse::<f64>().unwrap_or_default())
+                .collect(),
             cpu_usage: format!("{:.1}", self.cpu_usage),
             memory_usage: self.memory_usage.convert(),
             disk_usage: self.disk_usage.convert(),
