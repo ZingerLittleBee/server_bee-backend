@@ -1,8 +1,7 @@
 use crate::vo::disk::DiskIOVo;
-use crate::vo::formator::Convert;
 use serde::{Deserialize, Serialize};
 
-use super::formator::{FormatData, Formator};
+use crate::vo::formator::FormatData;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct ProcessVo {

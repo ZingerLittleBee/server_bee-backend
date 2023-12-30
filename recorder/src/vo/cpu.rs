@@ -1,4 +1,3 @@
-use crate::vo::formator::Convert;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
@@ -14,4 +13,3 @@ pub struct CpuUsageVo {
     pub name: String,
     pub usage: f32,
 }
-

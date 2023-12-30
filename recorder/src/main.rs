@@ -3,7 +3,6 @@ mod vo;
 
 use dotenvy::dotenv;
 use std::env;
-use std::sync::Arc;
 
 use crate::constant::default_value::DEFAULT_PORT;
 use crate::constant::env::PORT;
