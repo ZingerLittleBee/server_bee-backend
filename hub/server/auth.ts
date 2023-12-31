@@ -1,12 +1,11 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { db } from '@/server/db'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import {
-  getServerSession,
-  type DefaultSession,
-  type NextAuthOptions,
-} from "next-auth";
-
-import { db } from "@/server/db";
-import CredentialsProvider from "next-auth/providers/credentials";
+    getServerSession,
+    type DefaultSession,
+    type NextAuthOptions,
+} from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -14,19 +13,25 @@ import CredentialsProvider from "next-auth/providers/credentials";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
-  }
+declare module 'next-auth' {
+    interface Session extends DefaultSession {
+        user: {
+            id: string
+            username: string
+            // ...other properties
+            // role: UserRole;
+        } & DefaultSession['user']
+    }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+    interface JWT {
+        id: string
+        username: string
+    }
+
+    interface User {
+        id: string
+        username: string
+    }
 }
 
 /**
@@ -35,48 +40,65 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-  callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
-  },
-  adapter: PrismaAdapter(db),
-  providers: [
-    CredentialsProvider({
-      // The name to display on the sign in form (e.g. "Sign in with...")
-      name: "Credentials",
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: {  label: "Password", type: "password" }
-      },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
+    session: {
+        strategy: 'jwt',
+        maxAge: 30 * 24 * 60 * 60,
+    },
+    callbacks: {
+        async signIn({ user }) {
+            return !!user?.id
+        },
+        jwt: async ({ token, user }) => {
+            if (user) {
+                token = { ...user }
+            }
+            return token
+        },
+        session: ({ session, token, user }) => {
+            console.log('session token', token)
+            console.log('session user', user)
+            if (token) {
+                session.user.id = token.id as string
+                session.user.username = token.username as string
+            }
+            return session
+        },
+    },
+    adapter: PrismaAdapter(db),
+    providers: [
+        CredentialsProvider({
+            name: 'Credentials',
+            credentials: {
+                username: { label: 'Username', type: 'text' },
+                password: { label: 'Password', type: 'password' },
+            },
+            async authorize(credentials, req) {
+                if (!credentials?.username || !credentials?.password) {
+                    return null
+                }
 
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null
+                return { id: '123123', username: credentials.username }
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
-      }
-    })]
-};
+                // const { username, password } =  credentials
+                // const user = await db.user.findUnique({
+                //   where: {
+                //     name: username
+                //   },
+                // })
+                //
+                // if (!user) return null
+                //
+                // const isMatch = await bcrypt.compare(user.password, password)
+                //
+                // return isMatch ? user : null
+            },
+        }),
+    ],
+}
 
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = () => getServerSession(authOptions);
+export const getServerAuthSession = () => getServerSession(authOptions)
