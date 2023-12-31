@@ -6,14 +6,9 @@ import {
 import { z } from 'zod'
 
 export const serverRouter = createTRPCRouter({
-    hello: publicProcedure
-        .input(z.object({ text: z.string() }))
-        .query(({ input }) => {
-            return {
-                greeting: `Hello ${input.text}`,
-            }
-        }),
-
+    list: publicProcedure.query(({ ctx }) => {
+        return ctx.db.server.findMany()
+    }),
     create: protectedProcedure
         .input(z.object({ name: z.string().min(1) }))
         .mutation(async ({ ctx, input }) => {
