@@ -1,7 +1,8 @@
 'use client'
 
 import { type ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { format } from 'date-fns'
+import { MoreHorizontal } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -15,14 +16,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DataTableColumnHeader } from '@/app/_components/data-table/data-table-column-header'
 
-export type Payment = {
+export type Server = {
     id: string
-    amount: number
-    status: 'pending' | 'processing' | 'success' | 'failed'
-    email: string
+    name: string
+    description?: string
+    createdAt: string
 }
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Server>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -80,38 +81,36 @@ export const columns: ColumnDef<Payment>[] = [
         },
     },
     {
-        accessorKey: 'status',
+        accessorKey: 'id',
         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Status" />
+            <DataTableColumnHeader column={column} title="ID" />
         ),
     },
     {
-        accessorKey: 'email',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
-                >
-                    Email
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        accessorKey: 'name',
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Name" />
+        ),
     },
     {
-        accessorKey: 'amount',
-        header: () => <div className="text-right">Amount</div>,
+        accessorKey: 'description',
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Description" />
+        ),
+    },
+    {
+        accessorKey: 'createdAt',
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="CreateTime" />
+        ),
         cell: ({ row }) => {
-            const amount = parseFloat(row.getValue('amount'))
-            const formatted = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            }).format(amount)
+            const createdAt = row.getValue<string>('createdAt')
 
-            return <div className="text-right font-medium">{formatted}</div>
+            const formatted = createdAt
+                ? format(createdAt, 'yyyy-MM-dd HH:mm:ss')
+                : ''
+
+            return <div className="font-medium">{formatted}</div>
         },
     },
 ]
