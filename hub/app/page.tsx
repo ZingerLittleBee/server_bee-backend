@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { getServerAuthSession } from '@/server/auth'
-import { api } from '@/trpc/server'
 
-import { siteConfig } from '@/config/site'
 import { buttonVariants } from '@/components/ui/button'
 
 export default async function Home() {
@@ -25,11 +23,7 @@ export default async function Home() {
                 </p>
             </div>
             <div className="flex gap-4">
-                <Link
-                    href=""
-                    rel="noreferrer"
-                    className={buttonVariants()}
-                >
+                <Link href="" rel="noreferrer" className={buttonVariants()}>
                     Register
                 </Link>
                 <Link

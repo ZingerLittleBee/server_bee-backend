@@ -1,7 +1,7 @@
 import '@/styles/globals.css'
 
 import type { ReactNode } from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { cookies } from 'next/headers'
 import { StateProvider } from '@/store'

@@ -2,16 +2,16 @@
 
 import { useState } from 'react'
 import {
-    ColumnDef,
-    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    SortingState,
     useReactTable,
-    VisibilityState,
+    type ColumnDef,
+    type ColumnFiltersState,
+    type SortingState,
+    type VisibilityState,
 } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui/input'
@@ -23,8 +23,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination } from '@/app/server/components/data-table-pagination'
-import { DataTableViewOptions } from '@/app/server/components/data-table-view-options'
+import { DataTablePagination } from '@/app/_components/data-table/data-table-pagination'
+import { DataTableViewOptions } from '@/app/_components/data-table/data-table-view-options'
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]

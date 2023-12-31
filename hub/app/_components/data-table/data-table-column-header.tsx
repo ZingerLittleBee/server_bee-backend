@@ -1,3 +1,4 @@
+import { type HTMLAttributes } from 'react'
 import {
     ArrowDownIcon,
     ArrowUpIcon,
@@ -17,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 interface DataTableColumnHeaderProps<TData, TValue>
-    extends React.HTMLAttributes<HTMLDivElement> {
+    extends HTMLAttributes<HTMLDivElement> {
     column: Column<TData, TValue>
     title: string
 }
