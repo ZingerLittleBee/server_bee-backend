@@ -42,8 +42,19 @@ export const serverRouter = createTRPCRouter({
             })
             return serverToken.token
         }),
-
-    getSecretMessage: protectedProcedure.query(() => {
-        return 'you can now see this secret message!'
-    }),
+    getTokens: protectedProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            })
+        )
+        .query(async ({ input, ctx }) => {
+            if (!ctx.session.user) throw NotLoggedInError
+            const queryResult = await ctx.db.serverToken.findMany({
+                where: {
+                    serverId: input.id,
+                },
+            })
+            return queryResult.map((item) => item.token)
+        }),
 })

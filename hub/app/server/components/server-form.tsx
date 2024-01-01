@@ -18,6 +18,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/use-toast'
+import { useTokenDialogStore } from '@/app/server/store/token-dialog'
+
+export enum ServerFormMode {
+    Create,
+    Edit,
+}
 
 const formSchema = z.object({
     name: z.string().min(1),
@@ -26,8 +32,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export function ServerForm() {
+export type ServerFormProps = {
+    mode: ServerFormMode
+    server?: FormValues
+    onSubmit?: () => void
+}
+
+export function ServerForm({ mode, server, onSubmit }: ServerFormProps) {
     const { mutateAsync } = api.server.create.useMutation()
+    const { setIsOpen, setTokenDialogProps } = useTokenDialogStore()
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -36,19 +49,23 @@ export function ServerForm() {
         },
     })
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log('onSubmit data', data)
+    async function onFormSubmit(data: z.infer<typeof formSchema>) {
         const token = await mutateAsync(data)
-        console.log('onSubmit token', token)
-        toast({
+        setTokenDialogProps({
             title: 'Server created!',
-            description: `Your server was created successfully, token: ${token}`,
+            description: 'Copy the token for communication with the node',
+            tokens: [token],
         })
+        setIsOpen(true)
+        onSubmit?.()
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form
+                onSubmit={form.handleSubmit(onFormSubmit)}
+                className="space-y-8"
+            >
                 <FormField
                     control={form.control}
                     name="name"
@@ -79,7 +96,11 @@ export function ServerForm() {
                     )}
                 />
                 <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                    <Button type="submit">Save changes</Button>
+                    <Button type="submit">
+                        {mode === ServerFormMode.Create
+                            ? 'Create'
+                            : 'Save changes'}
+                    </Button>
                 </div>
             </form>
         </Form>

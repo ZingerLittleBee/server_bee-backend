@@ -1,37 +1,25 @@
 import * as React from 'react'
 import { api } from '@/trpc/server'
-import { PlusCircle } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
+import AddServer from '@/app/server/add-server'
 import { columns, type Server } from '@/app/server/columns'
+import FormDialog from '@/app/server/components/form-dialog'
+import { TokenDialog } from '@/app/server/components/token-dialog'
 import { DataTable } from '@/app/server/data-table'
-import { ServerForm } from '@/app/server/server-form'
 
 async function getData(): Promise<Server[]> {
-    return [
-        {
-            id: '728ed52f',
-            name: 'Server 1',
-            description: 'Server 1 description',
-            createdAt: '2021-10-01T12:00:00Z',
-        },
-    ]
+    const servers = await api.server.list.query()
+
+    return servers.map<Server>((server) => ({
+        id: server.id,
+        name: server.name,
+        description: server.description ?? undefined,
+        createdAt: server.createdAt,
+    }))
 }
 
 export default async function ServerPage() {
-    const data = await getData()
-
-    const d = await api.server.list.query()
-
-    console.log('ServerPage d', d)
+    const servers = await getData()
 
     return (
         <div className="h-full flex-1 flex-col space-y-8 py-8">
@@ -45,26 +33,12 @@ export default async function ServerPage() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <PlusCircle />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>Add Server</DialogTitle>
-                                <DialogDescription>
-                                    Make changes to your profile here. Click
-                                    save when you're done.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <ServerForm />
-                        </DialogContent>
-                    </Dialog>
+                    <AddServer />
                 </div>
             </div>
-            <DataTable data={data} columns={columns} />
+            <DataTable data={servers} columns={columns} />
+            <FormDialog />
+            <TokenDialog />
         </div>
     )
 }
