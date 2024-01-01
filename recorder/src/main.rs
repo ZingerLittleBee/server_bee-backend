@@ -7,15 +7,32 @@ use std::env;
 use crate::constant::default_value::DEFAULT_PORT;
 use crate::constant::env::PORT;
 use crate::vo::record::Record;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::http::StatusCode;
+use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use log::info;
 use mongodb::{Client, Collection};
 
 #[post("/record")]
 async fn recorder(
-    record: actix_web::web::Json<Record>,
-    collection: actix_web::web::Data<Collection<Record>>,
+    req: HttpRequest,
+    record: web::Json<Record>,
+    collection: web::Data<Collection<Record>>,
 ) -> impl Responder {
+    let auth_header = match req.headers().get("Authorization") {
+        Some(val) => match val.to_str() {
+            Ok(v) => v,
+            Err(_) => return HttpResponse::build(StatusCode::UNAUTHORIZED).finish(),
+        },
+        None => return HttpResponse::build(StatusCode::UNAUTHORIZED).finish(),
+    };
+
+    let token = match auth_header.split_whitespace().nth(1) {
+        Some(v) => v,
+        None => return HttpResponse::build(StatusCode::UNAUTHORIZED).finish(),
+    };
+
+    info!("token: {}", token);
+
     // info!("recorder: {:?}", fusion);
     let record = record.into_inner();
 
@@ -25,7 +42,7 @@ async fn recorder(
 
     collection.insert_one(record, None).await.unwrap();
 
-    HttpResponse::Ok()
+    HttpResponse::Ok().into()
 }
 
 #[get("/version")]

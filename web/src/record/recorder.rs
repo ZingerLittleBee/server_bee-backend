@@ -1,9 +1,11 @@
-use crate::record::constant::RECORD_ENDPOINT;
+use crate::config::config::Config;
+use crate::record::constant::{RECORD_ENDPOINT, SLEEP_TIME_SECOND_RETRY};
 use crate::system_info::SystemInfo;
 use crate::vo::fusion::Fusion;
 use log::{error, info};
 use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
+use std::sync::{Arc, RwLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::time::{sleep, Duration};
 
@@ -28,11 +30,13 @@ impl Record {
     }
 }
 
-pub struct Recorder {}
+pub struct Recorder {
+    config: Arc<RwLock<Config>>,
+}
 
 impl Recorder {
-    pub async fn run() {
-        let recorder = Recorder {};
+    pub async fn run(config: Arc<RwLock<Config>>) {
+        let recorder = Recorder { config };
         recorder.start().await;
     }
 
@@ -45,11 +49,28 @@ impl Recorder {
         let url = format!("http://localhost:{}{}", 9528, RECORD_ENDPOINT);
         info!("Recorder url: {}", url);
 
+        let config = self.config.clone();
+
         actix_rt::spawn(async move {
             let mut sys = SystemInfo::new();
             loop {
+                let token = match config.read() {
+                    Ok(config) => config.server_token(),
+                    Err(err) => {
+                        error!("Failed reading config, error: {:?}", err);
+                        sleep(Duration::from_secs(1)).await;
+                        continue;
+                    }
+                };
+
+                if token.is_none() {
+                    sleep(Duration::from_secs(SLEEP_TIME_SECOND_RETRY)).await;
+                    continue;
+                }
+
                 match Recorder::recorder_fusion_data(
                     &client,
+                    token.unwrap(),
                     &url,
                     sys.get_fusion_with_simple_process(),
                 )
@@ -68,10 +89,20 @@ impl Recorder {
 
     async fn recorder_fusion_data(
         client: &reqwest::Client,
+        token: String,
         url: &str,
         fusion: Fusion,
     ) -> Result<Response, Error> {
         let params = Record::new(fusion);
-        client.post(url).json(&params).send().await
+        client
+            .post(url)
+            .header("Authorization", format!("Bearer {}", token))
+            .json(&params)
+            .send()
+            .await
+    }
+
+    fn get_token(&self) -> Option<String> {
+        self.config.read().unwrap().server_token()
     }
 }
