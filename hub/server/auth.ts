@@ -1,11 +1,15 @@
 import { db } from '@/server/db'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { compare } from 'bcrypt'
 import {
     getServerSession,
+    User,
     type DefaultSession,
     type NextAuthOptions,
 } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+
+import { getLogger } from '@/lib/logging'
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -34,6 +38,8 @@ declare module 'next-auth' {
     }
 }
 
+const logger = getLogger('Auth')
+
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
@@ -55,8 +61,6 @@ export const authOptions: NextAuthOptions = {
             return token
         },
         session: ({ session, token, user }) => {
-            console.log('session token', token)
-            console.log('session user', user)
             if (token) {
                 session.user.id = token.id as string
                 session.user.username = token.username as string
@@ -77,20 +81,30 @@ export const authOptions: NextAuthOptions = {
                     return null
                 }
 
-                return { id: '123123', username: credentials.username }
+                // return { id: '123123', username: credentials.username }
 
-                // const { username, password } =  credentials
-                // const user = await db.user.findUnique({
-                //   where: {
-                //     name: username
-                //   },
-                // })
-                //
-                // if (!user) return null
-                //
-                // const isMatch = await bcrypt.compare(user.password, password)
-                //
-                // return isMatch ? user : null
+                const { username, password } = credentials
+                const user = await db.user.findUnique({
+                    where: {
+                        name: username,
+                    },
+                })
+
+                if (!user) {
+                    logger.error(`User not found with username: ${username}`)
+                    return null
+                }
+
+                const isMatch = await compare(password, user.password)
+                if (!isMatch) {
+                    logger.error('Password does not match')
+                    return null
+                }
+
+                return {
+                    id: user.id,
+                    username: user.name,
+                } as User
             },
         }),
     ],

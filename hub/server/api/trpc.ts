@@ -7,11 +7,18 @@
  * need to use are documented accordingly near the end.
  */
 
+import { env } from '@/env'
 import { getServerAuthSession } from '@/server/auth'
 import { db } from '@/server/db'
 import { initTRPC, TRPCError } from '@trpc/server'
+import { hashSync } from 'bcrypt'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
+
+import { getLogger } from '@/lib/logging'
+import { generateRandomString } from '@/lib/str'
+
+const logger = getLogger('init trpc')
 
 /**
  * 1. CONTEXT
@@ -27,6 +34,34 @@ import { ZodError } from 'zod'
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
     const session = await getServerAuthSession()
+
+    // create default user if none exists
+    const num = await db.user.count()
+    logger.info(`Found ${num} users in database`)
+    if (num === 0) {
+        logger.info('No users found, creating default user')
+
+        const credential = {
+            name: 'admin',
+            password: generateRandomString(10),
+        }
+
+        const saltRounds =
+            typeof env.SALT_ROUNDS === 'string'
+                ? parseInt(env.SALT_ROUNDS)
+                : env.SALT_ROUNDS
+
+        await db.user.create({
+            data: {
+                ...credential,
+                password: hashSync(credential.password, saltRounds),
+            },
+        })
+
+        logger.warn(
+            `Created default user: ${credential.name} with password: ${credential.password}`
+        )
+    }
 
     return {
         db,

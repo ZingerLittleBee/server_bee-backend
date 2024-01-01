@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getServerAuthSession } from '@/server/auth'
 import {
     Cloud,
@@ -16,7 +17,9 @@ import {
     Users,
 } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { buttonVariants } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -127,10 +130,20 @@ export async function UserNav() {
                     <span>API</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                <DropdownMenuItem className="focus:bg-transparent">
+                    <Link
+                        href="/api/auth/signout"
+                        rel="noreferrer"
+                        className={cn(
+                            'w-full',
+                            buttonVariants({
+                                variant: 'outline',
+                            })
+                        )}
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                    </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

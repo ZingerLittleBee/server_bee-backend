@@ -65,6 +65,18 @@ model Server {
     description String?
     ownerId   String
     owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    token     ServerToken[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model ServerToken {
+    id         Int  @id @default(autoincrement())
+    token      String  @unique
+    isExpires  Boolean @default(false)
+
+    serverId   String
+    server     Server  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+    @@unique([token, id])
 }

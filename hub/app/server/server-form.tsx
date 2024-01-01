@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
     name: z.string().min(1),
@@ -25,11 +27,24 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 export function ServerForm() {
+    const { mutateAsync } = api.server.create.useMutation()
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            name: '',
+            description: undefined,
+        },
     })
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {}
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        console.log('onSubmit data', data)
+        const token = await mutateAsync(data)
+        console.log('onSubmit token', token)
+        toast({
+            title: 'Server created!',
+            description: `Your server was created successfully, token: ${token}`,
+        })
+    }
 
     return (
         <Form {...form}>
