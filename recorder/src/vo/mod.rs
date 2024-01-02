@@ -4,6 +4,7 @@ pub mod device_info;
 pub mod disk;
 pub mod formator;
 pub mod fusion;
+pub mod invalid_token;
 pub mod memory;
 pub mod network;
 pub mod overview;

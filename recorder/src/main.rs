@@ -4,19 +4,25 @@ mod vo;
 use dotenvy::dotenv;
 use std::env;
 
+use crate::constant::db::{
+    DATABASE_NAME, INVALID_COLLECTION_INDEX, INVALID_COLLECTION_NAME, RECORD_COLLECTION_NAME,
+};
 use crate::constant::default_value::DEFAULT_PORT;
 use crate::constant::env::PORT;
 use crate::vo::record::Record;
 use actix_web::http::StatusCode;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use log::info;
-use mongodb::{Client, Collection};
+use log::{error, info};
+use mongodb::bson::doc;
+use mongodb::options::IndexOptions;
+use mongodb::{bson, Client, Collection, IndexModel};
 
 #[post("/record")]
 async fn recorder(
     req: HttpRequest,
     record: web::Json<Record>,
     collection: web::Data<Collection<Record>>,
+    invalid_collection: web::Data<Collection<bson::Document>>,
 ) -> impl Responder {
     let auth_header = match req.headers().get("Authorization") {
         Some(val) => match val.to_str() {
@@ -26,10 +32,34 @@ async fn recorder(
         None => return HttpResponse::build(StatusCode::UNAUTHORIZED).finish(),
     };
 
+    info!("auth_header: {}", auth_header);
+
     let token = match auth_header.split_whitespace().nth(1) {
         Some(v) => v,
         None => return HttpResponse::build(StatusCode::UNAUTHORIZED).finish(),
     };
+
+    // if token in invalid_collection
+    // return 403
+    match invalid_collection
+        .find_one(
+            doc! {
+                "token": token
+            },
+            None,
+        )
+        .await
+    {
+        Ok(Some(_)) => {
+            info!("token: {} is invalid", token);
+            return HttpResponse::build(StatusCode::FORBIDDEN).finish();
+        }
+        Ok(None) => {}
+        Err(e) => {
+            info!("find_one error: {}", e);
+            return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish();
+        }
+    }
 
     info!("token: {}", token);
 
@@ -63,13 +93,52 @@ async fn main() -> std::io::Result<()> {
     let uri = env::var("MONGODB_URI").expect("MONGODB_URI must be set");
 
     let client = Client::with_uri_str(uri).await.unwrap();
-    let database = client.database("serverbee");
-    let record_collection: Collection<Record> = database.collection("record");
+    let database = client.database(DATABASE_NAME);
+    let record_collection: Collection<Record> = database.collection(RECORD_COLLECTION_NAME);
+    let invalid_collection: Collection<bson::Document> =
+        database.collection(INVALID_COLLECTION_NAME);
+
+    let collection_names = if let Ok(collection_names) = database.list_collection_names(None).await
+    {
+        collection_names
+    } else {
+        vec![]
+    };
+    if !collection_names.contains(&INVALID_COLLECTION_NAME.to_string()) {
+        let initial_document = doc! { INVALID_COLLECTION_INDEX: "test" };
+        match database
+            .collection(INVALID_COLLECTION_NAME)
+            .insert_one(initial_document, None)
+            .await
+        {
+            Ok(_) => {}
+            Err(e) => {
+                error!("failed to insert initial document: {:?}", e);
+            }
+        }
+
+        let index_model = IndexModel::builder()
+            .keys(doc! { INVALID_COLLECTION_INDEX: 1 })
+            .options(
+                IndexOptions::builder()
+                    .name(Some(INVALID_COLLECTION_INDEX.to_string()))
+                    .unique(true)
+                    .build(),
+            )
+            .build();
+        match invalid_collection.create_index(index_model, None).await {
+            Ok(_) => {}
+            Err(e) => {
+                error!("failed to create index: {:?}", e);
+            }
+        }
+    }
 
     info!("listening on port {}", port);
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(record_collection.clone()))
+            .app_data(web::Data::new(invalid_collection.clone()))
             .service(recorder)
             .service(version)
     })

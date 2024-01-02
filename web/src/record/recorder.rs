@@ -2,7 +2,7 @@ use crate::config::config::Config;
 use crate::record::constant::{RECORD_ENDPOINT, SLEEP_TIME_SECOND_RETRY};
 use crate::system_info::SystemInfo;
 use crate::vo::fusion::Fusion;
-use log::{error, info};
+use log::{error, info, warn};
 use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -65,6 +65,10 @@ impl Recorder {
 
                 if token.is_none() {
                     sleep(Duration::from_secs(SLEEP_TIME_SECOND_RETRY)).await;
+                    warn!(
+                        "Token is none, retry after {} seconds",
+                        SLEEP_TIME_SECOND_RETRY
+                    );
                     continue;
                 }
 

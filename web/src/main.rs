@@ -51,7 +51,7 @@ async fn main() -> std::io::Result<()> {
 
     actix_rt::spawn(async {
         // Reporter::run(report_config).await;
-        Recorder::run().await;
+        Recorder::run(report_config).await;
     });
 
     let is_dual_stack = is_ipv6_supported();
