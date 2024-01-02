@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useBoundStore } from '@/store'
 
 import {
     Dialog,
@@ -10,10 +11,11 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { ServerForm, ServerFormMode } from '@/app/server/components/server-form'
-import { useFormDialogStore } from '@/app/server/store/form-dialog'
 
 export default function FormDialog() {
-    const { isOpen, setIsOpen, serverFormProps } = useFormDialogStore()
+    const isOpen = useBoundStore.use.isOpenServerForm()
+    const setIsOpen = useBoundStore.use.setIsOpenServerForm()
+    const serverFormProps = useBoundStore.use.serverFormProps()
 
     return (
         <Dialog defaultOpen={isOpen} open={isOpen} onOpenChange={setIsOpen}>

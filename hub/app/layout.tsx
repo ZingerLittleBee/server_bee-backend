@@ -4,7 +4,6 @@ import type { ReactNode } from 'react'
 import { type Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { cookies } from 'next/headers'
-import { StateProvider } from '@/store'
 import { TRPCReactProvider } from '@/trpc/react'
 
 import { siteConfig } from '@/config/site'
@@ -50,9 +49,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     >
                         <div className="relative flex min-h-screen flex-col">
                             <SiteHeader />
-                            <div className="flex-1">
-                                <StateProvider>{children}</StateProvider>
-                            </div>
+                            <div className="flex-1">{children}</div>
                             <Toaster />
                         </div>
                         <TailwindIndicator />

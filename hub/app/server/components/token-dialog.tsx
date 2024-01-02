@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useBoundStore } from '@/store'
 import { CheckIcon, Copy } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useTokenDialogStore } from '@/app/server/store/token-dialog'
 
 export type TokenDialogProps = {
     title: string
@@ -24,7 +24,9 @@ export type TokenDialogProps = {
 }
 
 export function TokenDialog() {
-    const { isOpen, setIsOpen, tokenDialogProps } = useTokenDialogStore()
+    const isOpen = useBoundStore.use.isOpenTokenDialog()
+    const setIsOpen = useBoundStore.use.setIsOpenTokenDialog()
+    const tokenDialogProps = useBoundStore.use.tokenDialogProps()
     const [copySuccess, setCopySuccess] = useState(false)
 
     return (

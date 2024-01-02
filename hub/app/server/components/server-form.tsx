@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useBoundStore } from '@/store'
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -17,8 +18,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from '@/components/ui/use-toast'
-import { useTokenDialogStore } from '@/app/server/store/token-dialog'
 
 export enum ServerFormMode {
     Create,
@@ -40,7 +39,8 @@ export type ServerFormProps = {
 
 export function ServerForm({ mode, server, onSubmit }: ServerFormProps) {
     const { mutateAsync } = api.server.create.useMutation()
-    const { setIsOpen, setTokenDialogProps } = useTokenDialogStore()
+    const setIsOpen = useBoundStore.use.setIsOpenServerForm()
+    const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {

@@ -1,5 +1,6 @@
 'use client'
 
+import { useBoundStore } from '@/store'
 import { api } from '@/trpc/react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
@@ -17,7 +18,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
 import { DataTableColumnHeader } from '@/app/_components/data-table/data-table-column-header'
-import { useTokenDialogStore } from '@/app/server/store/token-dialog'
 
 export type Server = {
     id: string
@@ -54,8 +54,8 @@ export const columns: ColumnDef<Server>[] = [
     {
         id: 'actions',
         cell: ({ row }) => {
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            const { setIsOpen, setTokenDialogProps } = useTokenDialogStore()
+            const setIsOpen = useBoundStore.use.setIsOpenTokenDialog()
+            const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
             const tokens = api.server.getTokens.useQuery({
                 id: row.original.id,
             })

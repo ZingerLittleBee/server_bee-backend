@@ -1,31 +1,20 @@
-"use client"
-import React, { createContext, ReactNode, useContext, useReducer } from "react";
-import { UserAction, userReducer, UserState } from "@/store/user";
+import { createSelectors } from '@/store/createSelectors'
+import { create } from 'zustand'
 
-interface StateContextProps {
-  userState: UserState;
-  userDispatch: React.Dispatch<UserAction>;
-}
+import {
+    createServerFormDialogSlice,
+    type ServerFormDialogSlice,
+} from '@/app/server/store/form-dialog'
+import {
+    createTokenDialogSlice,
+    type TokenDialogSlice,
+} from '@/app/server/store/token-dialog'
 
-const StateContext = createContext<StateContextProps | undefined>(undefined)
+type BoundStore = ServerFormDialogSlice & TokenDialogSlice
 
-interface StateProviderProps {
-    children: ReactNode;
-}
+const useBoundStoreBase = create<BoundStore>((...a) => ({
+    ...createServerFormDialogSlice(...a),
+    ...createTokenDialogSlice(...a),
+}))
 
-const StateProvider = ({ children }: StateProviderProps): React.JSX.Element => {
-  const [userState, userDispatch] = useReducer(userReducer, {})
-
-  return (
-    <StateContext.Provider
-      value={{ userState, userDispatch }}
-    >
-      {children}
-    </StateContext.Provider>
-  )
-}
-
-// 创建一个自定义 hook 以方便使用
-const useStore = () => useContext<StateContextProps | undefined>(StateContext)
-
-export { StateProvider, useStore }
+export const useBoundStore = createSelectors(useBoundStoreBase)

@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import {
     ServerFormMode,
@@ -6,22 +6,29 @@ import {
 } from '@/app/server/components/server-form'
 
 type State = {
-    isOpen: boolean
+    isOpenServerForm: boolean
     serverFormProps: ServerFormProps
 }
 
 type Action = {
-    setIsOpen: (isOpen: State['isOpen']) => void
+    setIsOpenServerForm: (isOpen: State['isOpenServerForm']) => void
     setServerFormProps: (serverFormProps: State['serverFormProps']) => void
 }
 
-// Create your store, which includes both state and (optionally) actions
-export const useFormDialogStore = create<State & Action>((set) => ({
-    isOpen: false,
+export type ServerFormDialogSlice = State & Action
+
+export const createServerFormDialogSlice: StateCreator<
+    ServerFormDialogSlice,
+    [],
+    [],
+    ServerFormDialogSlice
+> = (set) => ({
+    isOpenServerForm: false,
     serverFormProps: {
         mode: ServerFormMode.Create,
     },
-    setServerFormProps: (serverFormProps) =>
+    setServerFormProps: (serverFormProps: ServerFormProps) =>
         set(() => ({ serverFormProps: serverFormProps })),
-    setIsOpen: (isOpen) => set(() => ({ isOpen: isOpen })),
-}))
+    setIsOpenServerForm: (isOpen: boolean) =>
+        set(() => ({ isOpenServerForm: isOpen })),
+})
