@@ -2,20 +2,32 @@ mod constant;
 mod vo;
 
 use dotenvy::dotenv;
+use std::collections::HashSet;
 use std::env;
 
 use crate::constant::db::{
     DATABASE_NAME, INVALID_COLLECTION_INDEX, INVALID_COLLECTION_NAME, RECORD_COLLECTION_NAME,
 };
 use crate::constant::default_value::DEFAULT_PORT;
-use crate::constant::env::PORT;
+use crate::constant::env::{MONGODB_URI, PORT, SERVER_JWT_SECRET};
 use crate::vo::record::Record;
 use actix_web::http::StatusCode;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use log::{error, info};
+use jsonwebtoken::{decode, DecodingKey, Validation};
+use log::{debug, error, info, warn};
 use mongodb::bson::doc;
 use mongodb::options::IndexOptions;
 use mongodb::{bson, Client, Collection, IndexModel};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    #[serde(rename = "userId")]
+    user_id: String,
+
+    #[serde(rename = "serverId")]
+    server_id: String,
+}
 
 #[post("/record")]
 async fn recorder(
@@ -23,6 +35,7 @@ async fn recorder(
     record: web::Json<Record>,
     collection: web::Data<Collection<Record>>,
     invalid_collection: web::Data<Collection<bson::Document>>,
+    secret: web::Data<String>,
 ) -> impl Responder {
     let auth_header = match req.headers().get("Authorization") {
         Some(val) => match val.to_str() {
@@ -31,8 +44,6 @@ async fn recorder(
         },
         None => return HttpResponse::build(StatusCode::UNAUTHORIZED).finish(),
     };
-
-    info!("auth_header: {}", auth_header);
 
     let token = match auth_header.split_whitespace().nth(1) {
         Some(v) => v,
@@ -61,10 +72,30 @@ async fn recorder(
         }
     }
 
-    info!("token: {}", token);
+    debug!("token: {}", token);
 
-    // info!("recorder: {:?}", fusion);
-    let record = record.into_inner();
+    let mut validation = Validation::default();
+    validation.validate_exp = false;
+    validation.required_spec_claims = HashSet::new();
+
+    let token_data = match decode::<Claims>(
+        &token,
+        &DecodingKey::from_secret(secret.as_bytes()),
+        &validation,
+    ) {
+        Ok(data) => data,
+        Err(e) => {
+            warn!("jwt decode error: {}", e);
+            return HttpResponse::build(StatusCode::UNAUTHORIZED).finish();
+        }
+    };
+
+    let server_id = token_data.claims.server_id;
+
+    debug!("server_id: {}", server_id);
+
+    let mut record = record.into_inner();
+    record.set_server_id(server_id);
 
     let fusion_bytes = serde_json::to_vec(&record).unwrap();
     let size_kb = fusion_bytes.len() as f32 / 1024.0;
@@ -90,7 +121,9 @@ async fn main() -> std::io::Result<()> {
         .map(|v| v.parse().unwrap_or(DEFAULT_PORT))
         .unwrap_or(DEFAULT_PORT);
 
-    let uri = env::var("MONGODB_URI").expect("MONGODB_URI must be set");
+    let uri = env::var(MONGODB_URI).expect("MONGODB_URI must be set");
+
+    let server_jwt_secret = env::var(SERVER_JWT_SECRET).expect("SERVER_JWT_SECRET must be set");
 
     let client = Client::with_uri_str(uri).await.unwrap();
     let database = client.database(DATABASE_NAME);
@@ -137,6 +170,7 @@ async fn main() -> std::io::Result<()> {
     info!("listening on port {}", port);
     HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(server_jwt_secret.clone()))
             .app_data(web::Data::new(record_collection.clone()))
             .app_data(web::Data::new(invalid_collection.clone()))
             .service(recorder)
