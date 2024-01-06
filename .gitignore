@@ -3,3 +3,9 @@
 /db
 .history
 .env
+
+# front-end
+.turbo
+build/**
+dist/**
+.next/**

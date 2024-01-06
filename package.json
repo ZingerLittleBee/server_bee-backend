@@ -1,0 +1,21 @@
+{
+  "name": "server_bee-backend",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZingerLittleBee/server_bee-backend.git"
+  },
+  "author": "ZingerLittleBee",
+  "bugs": {
+    "url": "https://github.com/ZingerLittleBee/server_bee-backend/issues"
+  },
+  "homepage": "https://github.com/ZingerLittleBee/server_bee-backend#readme",
+  "scripts": {
+    "dev:hub": "dotenv -- turbo dev --filter hub",
+    "dev:view": "dotenv -- turbo dev --filter view",
+    "build": "dotenv -- turbo build"
+  },
+  "devDependencies": {
+    "dotenv-cli": "latest"
+  }
+}
