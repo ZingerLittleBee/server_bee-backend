@@ -1,11 +1,22 @@
 'use client'
 
-import * as React from 'react'
+import { api } from '@/trpc/react'
+
+import DashboardContent from '@/app/dashboard/content'
 
 export default function DashboardPage() {
-    return (
-        <div className="h-full flex-1 flex-col space-y-8 py-8">
-            DashboardPage
-        </div>
-    )
+    const { data: record, refetch } = api.dashboard.fetch.useQuery(undefined, {
+        refetchInterval: 1000,
+        staleTime: 0,
+    })
+
+    // useEffect(() => {
+    //     const task = setInterval(() => {
+    //         refetch()
+    //     }, 1000)
+    //
+    //     return () => clearInterval(task)
+    // }, [])
+
+    return <DashboardContent fusion={record?.fusion} />
 }

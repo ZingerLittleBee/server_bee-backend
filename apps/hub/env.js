@@ -39,6 +39,7 @@ export const env = createEnv({
         SERVER_JWT_SECRET: z.string().min(12, {
             message: 'Secret must be at least 12 characters long',
         }),
+        MONGODB_URI: z.string(),
     },
 
     /**
@@ -61,6 +62,7 @@ export const env = createEnv({
         NEXTAUTH_URL: process.env.NEXTAUTH_URL,
         SALT_ROUNDS: process.env.SALT_ROUNDS,
         SERVER_JWT_SECRET: process.env.SERVER_JWT_SECRET,
+        MONGODB_URI: process.env.MONGODB_URI,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

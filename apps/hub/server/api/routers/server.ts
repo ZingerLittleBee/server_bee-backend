@@ -57,4 +57,16 @@ export const serverRouter = createTRPCRouter({
             })
             return queryResult.map((item) => item.token)
         }),
+    getOwnServerIds: protectedProcedure.query(async ({ ctx }) => {
+        if (!ctx.session.user) throw NotLoggedInError
+        const result = await ctx.db.server.findMany({
+            where: {
+                ownerId: ctx.session.user.id,
+            },
+            select: {
+                id: true,
+            },
+        })
+        return result.map((item) => item.id)
+    }),
 })

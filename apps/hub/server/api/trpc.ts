@@ -8,9 +8,10 @@
  */
 
 import { env } from '@/env'
+import { appRouter } from '@/server/api/root'
 import { getServerAuthSession } from '@/server/auth'
 import { db } from '@/server/db'
-import { initTRPC, TRPCError } from '@trpc/server'
+import { initTRPC, RouterCaller, TRPCError } from '@trpc/server'
 import { hashSync } from 'bcrypt'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
@@ -138,3 +139,14 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed)
+
+export async function getCaller(opts: { headers: Headers }): Promise<any> {
+    const { createCallerFactory } = t
+    const createCaller = createCallerFactory(appRouter)
+    const session = await getServerAuthSession()
+    return createCaller({
+        session: session,
+        db,
+        ...opts,
+    })
+}

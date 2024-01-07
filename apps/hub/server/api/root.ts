@@ -1,3 +1,4 @@
+import { dashboardRouter } from '@/server/api/routers/dashboard'
 import { serverRouter } from '@/server/api/routers/server'
 import { createTRPCRouter } from '@/server/api/trpc'
 
@@ -8,6 +9,7 @@ import { createTRPCRouter } from '@/server/api/trpc'
  */
 export const appRouter = createTRPCRouter({
     server: serverRouter,
+    dashboard: dashboardRouter,
 })
 
 // export type definition of API

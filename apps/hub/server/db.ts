@@ -1,12 +1,14 @@
 import { env } from '@/env'
 import { PrismaClient } from '@prisma/client'
+import { MongoClient } from 'mongodb'
 
-const globalForPrisma = globalThis as unknown as {
+const globalForDatabase = globalThis as unknown as {
     prisma: PrismaClient | undefined
+    mongo: MongoClient | undefined
 }
 
 export const db =
-    globalForPrisma.prisma ??
+    globalForDatabase.prisma ??
     new PrismaClient({
         log:
             env.NODE_ENV === 'development'
@@ -14,4 +16,7 @@ export const db =
                 : ['error'],
     })
 
-if (env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+if (env.NODE_ENV !== 'production') globalForDatabase.prisma = db
+export const mongo = globalForDatabase.mongo ?? new MongoClient(env.MONGODB_URI)
+
+if (env.NODE_ENV !== 'production') globalForDatabase.mongo = mongo
