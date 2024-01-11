@@ -1651,6 +1651,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "interactor"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "actix-web",
+ "actix-web-actors",
+ "dotenvy",
+ "env_logger",
+ "futures",
+ "futures-util",
+ "jsonwebtoken",
+ "log",
+ "mongodb",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "ioctl-rs"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
