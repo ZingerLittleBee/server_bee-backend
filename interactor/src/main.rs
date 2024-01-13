@@ -1,12 +1,14 @@
+mod auth;
 mod constant;
 mod vo;
 mod ws;
 
+use crate::auth::Auth;
 use crate::constant::db::{
     DATABASE_NAME, INVALID_COLLECTION_INDEX, INVALID_COLLECTION_NAME, RECORD_COLLECTION_NAME,
 };
 use crate::constant::default_value::DEFAULT_PORT;
-use crate::constant::env::{MONGODB_URI, PORT, SERVER_JWT_SECRET};
+use crate::constant::env::{AUTH_SERVER_URL, MONGODB_URI, PORT, SERVER_JWT_SECRET};
 use crate::vo::record::Record;
 use crate::ws::echo_ws;
 use actix_web::{web, App, HttpServer};
@@ -25,6 +27,8 @@ async fn main() -> std::io::Result<()> {
     let uri = env::var(MONGODB_URI).expect("MONGODB_URI must be set");
 
     let server_jwt_secret = env::var(SERVER_JWT_SECRET).expect("SERVER_JWT_SECRET must be set");
+
+    env::var(AUTH_SERVER_URL).expect("AUTH_SERVER_URL must be set");
 
     let client = Client::with_uri_str(uri).await.unwrap();
     let database = client.database(DATABASE_NAME);
@@ -78,9 +82,14 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(server_jwt_secret.clone()))
             .app_data(web::Data::new(record_collection.clone()))
             .app_data(web::Data::new(invalid_collection.clone()))
+            .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
     })
     .bind(("0.0.0.0", port))?
     .run()
     .await
+}
+
+async fn index(_auth: Auth) -> &'static str {
+    "Hello world!"
 }
