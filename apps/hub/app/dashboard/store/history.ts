@@ -1,5 +1,5 @@
-import { Dispatch } from 'react'
-import { Overview } from '@serverbee/types'
+import { type Dispatch } from 'react'
+import { type Overview } from '@serverbee/types'
 
 import { toKiB } from '@/lib/unit'
 
@@ -35,7 +35,7 @@ export const historyReducer = (
                         ? state.cpu.slice(-1000)
                         : state.cpu),
                     {
-                        value: action.payload.cpu_usage,
+                        value: action.payload?.cpu_usage,
                         time: time,
                     },
                 ],
@@ -44,8 +44,8 @@ export const historyReducer = (
                         ? state.network.slice(-1000)
                         : state.network),
                     {
-                        tx: toKiB(action.payload.network_io.tx).toFixed(1),
-                        rx: toKiB(action.payload.network_io.rx).toFixed(1),
+                        tx: toKiB(action.payload?.network_io.tx).toFixed(1),
+                        rx: toKiB(action.payload?.network_io.rx).toFixed(1),
                         time: time,
                     },
                 ],

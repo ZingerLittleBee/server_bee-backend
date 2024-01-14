@@ -36,7 +36,9 @@ export const toMiB = ([strNum, unit]: [string, string]): number => {
     return 0
 }
 
-export const toKiB = ([strNum, unit]: [string, string]): number => {
+export const toKiB = (param: string[]): number => {
+    if (!Array.isArray(param) || param.length < 2) return 0
+    const [strNum, unit] = param
     if (!strNum || !unit) return 0
     if (unit === 'B') {
         return parseInt(strNum) / 1024
