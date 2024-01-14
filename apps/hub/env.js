@@ -49,6 +49,7 @@ export const env = createEnv({
      */
     client: {
         // NEXT_PUBLIC_CLIENTVAR: z.string(),
+        NEXT_PUBLIC_INTERACTOR_URL: z.string().url(),
     },
 
     /**
@@ -63,6 +64,7 @@ export const env = createEnv({
         SALT_ROUNDS: process.env.SALT_ROUNDS,
         SERVER_JWT_SECRET: process.env.SERVER_JWT_SECRET,
         MONGODB_URI: process.env.MONGODB_URI,
+        NEXT_PUBLIC_INTERACTOR_URL: process.env.NEXT_PUBLIC_INTERACTOR_URL,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

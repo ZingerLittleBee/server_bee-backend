@@ -35,7 +35,9 @@ impl MyWebSocket {
     }
 
     fn task(&self, ctx: &mut <Self as Actor>::Context) {
-        ctx.run_interval(TASK_INTERVAL, |act, ctx| {});
+        ctx.run_interval(TASK_INTERVAL, |act, ctx| {
+            ctx.text("Hello world!");
+        });
     }
 }
 

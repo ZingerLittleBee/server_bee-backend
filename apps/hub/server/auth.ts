@@ -3,9 +3,9 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { compare } from 'bcrypt'
 import {
     getServerSession,
-    User,
     type DefaultSession,
     type NextAuthOptions,
+    type User,
 } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
