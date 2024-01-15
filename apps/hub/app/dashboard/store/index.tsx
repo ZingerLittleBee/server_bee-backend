@@ -1,3 +1,5 @@
+'use client'
+
 import {
     createContext,
     useContext,
@@ -48,7 +50,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (
             ws.status !== WebSocket.OPEN &&
-            ws.status !== WebSocket.CONNECTING
+            ws.status !== WebSocket.CONNECTING &&
+            ws.status !== WebSocket.CLOSING
         ) {
             wsDispatch({ type: kSetWsStatus, payload: WebSocket.CONNECTING })
 
@@ -82,6 +85,10 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             return () => {
                 console.log('Closing websocket')
                 wsDispatch({ type: kSetWsStatus, payload: WebSocket.CLOSING })
+                wsDispatch({
+                    type: kSetWs,
+                    payload: {} as WebSocket,
+                })
                 instance.close()
             }
         }

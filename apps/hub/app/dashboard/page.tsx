@@ -44,7 +44,7 @@ export default function DashboardPage() {
     }, [status])
 
     return (
-        <StoreProvider>
+        <>
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">
                     {os?.name ?? 'Unknown'}
@@ -105,6 +105,6 @@ export default function DashboardPage() {
                     </div>
                 </TabsContent>
             </Tabs>
-        </StoreProvider>
+        </>
     )
 }
