@@ -2,6 +2,7 @@ use crate::vo::overview::{OsOverviewVo, OverviewVo};
 use crate::vo::process::ProcessVo;
 use crate::vo::realtime_status::RealtimeStatusVo;
 use crate::vo::simple_process::SimpleProcessVo;
+use bytestring::ByteString;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
@@ -22,6 +23,12 @@ pub struct Fusion {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub full_process: Option<Vec<ProcessVo>>,
+}
+
+impl From<Fusion> for ByteString {
+    fn from(fusion: Fusion) -> Self {
+        serde_json::to_string(&fusion).unwrap().into()
+    }
 }
 
 impl Fusion {
