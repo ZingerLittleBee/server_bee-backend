@@ -1,3 +1,5 @@
+import { FormatData } from '@serverbee/types'
+
 export const generateRandomString = (length: number) => {
     const characters =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -8,4 +10,10 @@ export const generateRandomString = (length: number) => {
         )
     }
     return result
+}
+
+export const formatDataToString = (data?: FormatData) => {
+    if (!data) return ''
+    const [value, unit] = data
+    return `${value} ${unit}`
 }
