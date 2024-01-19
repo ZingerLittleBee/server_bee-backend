@@ -104,9 +104,6 @@ importers:
       '@trpc/server':
         specifier: ^10.43.6
         version: 10.45.0
-      axios:
-        specifier: ^1.6.0
-        version: 1.6.5
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1

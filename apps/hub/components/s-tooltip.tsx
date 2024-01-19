@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { PropsWithChildren, type ReactNode } from 'react'
 
 import {
     Tooltip,
@@ -7,12 +7,10 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-interface STooltipProps {
-    content: ReactNode
-    children: ReactNode
-}
-
-export function STooltip({ children, content }: STooltipProps) {
+export function STooltip({
+    children,
+    content,
+}: PropsWithChildren<{ content: ReactNode }>) {
     return (
         <TooltipProvider>
             <Tooltip>
