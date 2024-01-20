@@ -1,31 +1,42 @@
 'use client'
 
-import { FC, HTMLAttributes, useMemo } from 'react'
-import { type FormatData } from '@serverbee/types'
+import { useMemo } from 'react'
 import {
     Bold,
     Card,
     CategoryBar,
+    Divider,
     Flex,
-    Icon,
     ProgressBar,
+    ProgressCircle,
+    SparkAreaChart,
     Text,
     Title,
+    Tracker,
 } from '@tremor/react'
-import { Cpu, MemoryStick } from 'lucide-react'
+import {
+    Activity,
+    ArrowDownCircle,
+    ArrowUpCircle,
+    Cpu,
+    HardDrive,
+    MemoryStick,
+    Network,
+} from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { formatToString, toGiB } from '@/lib/unit'
+import { STooltip } from '@/components/s-tooltip'
 import { useStore } from '@/app/dashboard/store'
 
 export default function PanelPage() {
-    const { fusion } = useStore()
+    const { fusion, history } = useStore()
     const overview = fusion?.overview
 
     const memValues = useMemo(() => {
-        const { used, total } = overview?.memory_usage
+        const { used, total } = overview?.memory_usage ?? {}
 
-        const usedNum = isNaN(parseInt(used[0])) ? 0 : parseInt(used[0])
-        const totalNum = isNaN(parseInt(total[0])) ? 0 : parseInt(total[0])
+        const usedNum = isNaN(parseInt(used?.[0])) ? 0 : parseInt(used[0])
+        const totalNum = isNaN(parseInt(total?.[0])) ? 0 : parseInt(total[0])
 
         const percent = Math.round(
             totalNum === 0 ? 0 : (usedNum / totalNum) * 100
@@ -34,8 +45,48 @@ export default function PanelPage() {
         return [percent, 100 - percent]
     }, [overview?.memory_usage])
 
+    const memory = useMemo(
+        () => overview?.memory_usage,
+        [overview?.memory_usage]
+    )
+    const network = useMemo(() => overview?.network_io, [overview?.network_io])
+    const networkHistory = useMemo(
+        () => history?.network.slice(-5),
+        [history?.network]
+    )
+
+    const disk = useMemo(() => overview?.disk_io, [overview?.disk_io])
+    const diskUsage = useMemo(
+        () => overview?.disk_usage,
+        [overview?.disk_usage]
+    )
+
+    const diskUsedPercent = useMemo(() => {
+        const used = toGiB(diskUsage?.used)
+        const total = toGiB(diskUsage?.total)
+
+        return total === 0 ? 0 : Math.round((used / total) * 100)
+    }, [diskUsage])
+
     return (
-        <Card className="mx-auto max-w-md space-y-4">
+        <Card className="w-[300px] space-y-4 p-4 pt-2">
+            <div>
+                <Title>🇭🇰 Server1</Title>
+                <Divider className="my-1" />
+            </div>
+            <Flex className="truncate" justifyContent="between">
+                <Flex className="truncate" justifyContent="start">
+                    <Text className="flex items-center gap-1">
+                        <Activity className="h-4 w-4" />
+                        <Bold>Load</Bold>
+                    </Text>
+                </Flex>
+                <Text color="purple">
+                    <STooltip content="1 min | 5 min | 15 min">
+                        <Bold>{overview?.load_avg.join(' | ')}</Bold>
+                    </STooltip>
+                </Text>
+            </Flex>
             <div className="flex flex-col gap-2">
                 <Flex className="truncate" justifyContent="between">
                     <Flex className="truncate" justifyContent="start">
@@ -55,157 +106,158 @@ export default function PanelPage() {
                 />
             </div>
             <div className="flex flex-col gap-2">
-                <Flex className="truncate" justifyContent="between">
+                <Flex className="gap-4 truncate" justifyContent="between">
                     <Flex className="truncate" justifyContent="start">
                         <Text className="flex items-center gap-1">
                             <MemoryStick className="h-4 w-4" />
                             <Bold>Mem</Bold>
                         </Text>
                     </Flex>
-                    <Text color="slate">
-                        <Bold>{overview?.memory_usage.used} / </Bold>
-                    </Text>
-                    <Text color="blue">
-                        <Bold>{overview?.memory_usage.total}</Bold>
-                    </Text>
+                    <STooltip content="Used">
+                        <div className="flex items-center gap-1">
+                            <div
+                                className="
+                                flex
+                            h-4
+                            w-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400"
+                            >
+                                U
+                            </div>
+                            <Text color="amber">
+                                <Bold>
+                                    {memory?.used
+                                        ? formatToString(memory?.used)
+                                        : 'N/A'}
+                                </Bold>
+                            </Text>
+                        </div>
+                    </STooltip>
+                    <STooltip content="Total">
+                        <div className="flex items-center gap-1">
+                            <div className="flex h-4 w-4 items-center justify-center rounded-full border border-emerald-200 text-[10px] font-bold text-emerald-600 dark:border-emerald-600 dark:text-emerald-400">
+                                T
+                            </div>
+                            <Text color="emerald">
+                                <Bold>
+                                    {memory?.used
+                                        ? formatToString(memory?.total)
+                                        : 'N/A'}
+                                </Bold>
+                            </Text>
+                        </div>
+                    </STooltip>
                 </Flex>
                 <CategoryBar
                     values={memValues}
-                    colors={['slate', 'blue']}
+                    colors={['amber', 'emerald']}
                     markerValue={memValues[0]}
                     showLabels={false}
                     showAnimation={true}
                 />
             </div>
+            <div className="flex flex-col gap-2">
+                <Flex className="truncate" justifyContent="between">
+                    <Flex className="truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1">
+                            <Network className="h-4 w-4" />
+                            <Bold>Net</Bold>
+                        </Text>
+                    </Flex>
+                    <div className="flex gap-2">
+                        <Text
+                            color="violet"
+                            className="flex items-center gap-1 dark:text-violet-400"
+                        >
+                            <STooltip content="Transmit">
+                                <ArrowUpCircle className="h-4 w-4" />
+                            </STooltip>
+                            <STooltip content="Transmit">
+                                <Bold>
+                                    {network?.tx
+                                        ? formatToString(network?.tx)
+                                        : 'N/A'}
+                                </Bold>
+                            </STooltip>
+                        </Text>
+                        <Text
+                            color="green"
+                            className="flex items-center gap-1
+                            text-green-700 dark:text-green-500"
+                        >
+                            <STooltip content="Receive">
+                                <ArrowDownCircle className="h-4 w-4" />
+                            </STooltip>
+                            <STooltip content="Receive">
+                                <Bold>
+                                    {network?.rx
+                                        ? formatToString(network?.rx)
+                                        : 'N/A'}
+                                </Bold>
+                            </STooltip>
+                        </Text>
+                    </div>
+                </Flex>
+                <Flex className="gap-4">
+                    <SparkAreaChart
+                        data={networkHistory}
+                        categories={['rx', 'tx']}
+                        index={'time'}
+                        colors={['emerald', 'violet']}
+                        className="h-12 w-full"
+                    />
+                </Flex>
+            </div>
+            <div
+                className="flex flex-col gap-2"
+                style={{
+                    marginTop: '0',
+                }}
+            >
+                <Flex className="gap-4 truncate" justifyContent="between">
+                    <Flex className="truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1">
+                            <HardDrive className="h-4 w-4" />
+                            <Bold>Disk</Bold>
+                        </Text>
+                    </Flex>
+                    <div className="flex gap-2">
+                        <div className="flex items-center justify-center space-x-2">
+                            <Tracker
+                                data={[{ color: 'cyan', tooltip: 'Read' }]}
+                                className="flex h-3 w-2 items-center justify-center"
+                            />
+                            <Text color="cyan">
+                                {disk?.read
+                                    ? formatToString(disk?.read)
+                                    : 'N/A'}
+                            </Text>
+                        </div>
+                        <div className="flex items-center justify-center space-x-2">
+                            <Tracker
+                                data={[{ color: 'fuchsia', tooltip: 'Write' }]}
+                                className="flex h-3 w-2 items-center justify-center"
+                            />
+                            <Text color="fuchsia">
+                                {disk?.write
+                                    ? formatToString(disk?.write)
+                                    : 'N/A'}
+                            </Text>
+                        </div>
+                    </div>
+                    <ProgressCircle
+                        value={diskUsedPercent}
+                        radius={20}
+                        strokeWidth={4}
+                        tooltip={`Used: ${formatToString(
+                            diskUsage?.used
+                        )}, Total: ${formatToString(diskUsage?.total)}`}
+                    >
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {diskUsedPercent}%
+                        </span>
+                    </ProgressCircle>
+                </Flex>
+            </div>
         </Card>
-
-        // <Card className="w-[300px]">
-        //     <CardHeader className="p-4">
-        //         <CardTitle>Server1</CardTitle>
-        //         <CardDescription>Server1 Descriptions</CardDescription>
-        //     </CardHeader>
-        //     <CardContent className="px-4">
-        //         <div className="grid grid-cols-1 gap-3 gap-y-4">
-        //             <div className="grid gap-1">
-        //                 <div className="flex items-center gap-1 text-muted-foreground">
-        //                     <Cpu className="h-4 w-4" />
-        //                     <span className="text-sm">CPU</span>
-        //                 </div>
-        //                 <div>
-        //                     <span>{`${overview?.cpu_usage}%`}</span>
-        //                     <p className="flex items-end gap-1">
-        //                         <span className="text-xs text-muted-foreground">
-        //                             Load: {overview?.load_avg.join(' | ')}
-        //                         </span>
-        //                     </p>
-        //                 </div>
-        //             </div>
-        //             <div className="grid gap-1">
-        //                 <div className="flex items-center gap-1 text-muted-foreground">
-        //                     <MemoryStick className="h-4 w-4" />
-        //                     <span className="text-sm">Mem</span>
-        //                 </div>
-        //                 <div className="flex flex-col">
-        //                     <div className="flex items-end gap-1">
-        //                         <ValueWithUnitBlock
-        //                             data={overview?.memory_usage.used}
-        //                         />
-        //                     </div>
-        //                     <div className="flex items-end gap-1">
-        //                         <span className="text-xs text-muted-foreground">
-        //                             Total:{' '}
-        //                             {formatDataToString(
-        //                                 overview?.memory_usage.total
-        //                             )}
-        //                         </span>
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //             <div className="grid gap-1">
-        //                 <div className="flex items-center gap-1 text-muted-foreground">
-        //                     <Network className="h-4 w-4" />
-        //                     <span className="text-sm">Net</span>
-        //                 </div>
-        //                 <div className="grid gap-1">
-        //                     <div className="flex items-center gap-2">
-        //                         <ValueWithUnitBlock
-        //                             data={overview?.network_io.tx}
-        //                         />
-        //                         <Badge
-        //                             variant="outline"
-        //                             className="flex h-4 w-4 items-center justify-center p-0 text-slate-400"
-        //                         >
-        //                             <STooltip content="TX">
-        //                                 <ArrowUp className="h-3 w-3" />
-        //                             </STooltip>
-        //                         </Badge>
-        //                     </div>
-        //                     <div className="flex items-center gap-2">
-        //                         <ValueWithUnitBlock
-        //                             data={overview?.network_io.rx}
-        //                         />
-        //                         <Badge
-        //                             variant="outline"
-        //                             className="flex h-4 w-4 items-center justify-center p-0 text-slate-400"
-        //                         >
-        //                             <STooltip content="RX">
-        //                                 <ArrowDown className="h-3 w-3" />
-        //                             </STooltip>
-        //                         </Badge>
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //             <div className="grid gap-1">
-        //                 <div className="flex items-center gap-1 text-muted-foreground">
-        //                     <HardDrive className="h-4 w-4" />
-        //                     <span className="text-sm">Disk</span>
-        //                 </div>
-        //                 <div className="grid gap-1">
-        //                     <div className="flex items-center gap-2">
-        //                         <ValueWithUnitBlock
-        //                             data={overview?.disk_io.read}
-        //                         />
-        //                         <Tracker
-        //                             data={[
-        //                                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //                                 // @ts-expect-error
-        //                                 { color: 'slate-300', tooltip: 'Read' },
-        //                             ]}
-        //                             className="flex h-3 w-2 items-center justify-center"
-        //                         />
-        //                     </div>
-        //                     <div className="flex items-center gap-2">
-        //                         <ValueWithUnitBlock
-        //                             data={overview?.disk_io.write}
-        //                         />
-        //                         <Tracker
-        //                             data={[
-        //                                 {
-        //                                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //                                     // @ts-expect-error
-        //                                     color: 'slate-200',
-        //                                     tooltip: 'Write',
-        //                                 },
-        //                             ]}
-        //                             className="flex h-3 w-2 items-center justify-center"
-        //                         />
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //     </CardContent>
-        // </Card>
-    )
-}
-
-const ValueWithUnitBlock: FC<
-    HTMLAttributes<HTMLDivElement> & { data: FormatData }
-> = ({ data, className }) => {
-    const [value, unit] = useMemo(() => data ?? [], [data])
-    return (
-        <p className={cn('flex items-center gap-1', className)}>
-            <span className="text-sm">{value ?? '0'}</span>
-            <span className="text-sm text-muted-foreground">{unit}</span>
-        </p>
     )
 }
