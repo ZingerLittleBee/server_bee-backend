@@ -20,6 +20,7 @@ import {
     ArrowUpCircle,
     Cpu,
     HardDrive,
+    Info,
     MemoryStick,
     Network,
 } from 'lucide-react'
@@ -162,6 +163,7 @@ export default function PanelPage() {
                             <Network className="h-4 w-4" />
                             <Bold>Net</Bold>
                         </Text>
+                        <NetworkTooltip />
                     </Flex>
                     <div className="flex gap-2">
                         <Text
@@ -259,5 +261,46 @@ export default function PanelPage() {
                 </Flex>
             </div>
         </Card>
+    )
+}
+
+const NetworkTooltip = () => {
+    const { fusion } = useStore()
+    const network = fusion?.overview?.network_io
+
+    return (
+        <STooltip
+            content={
+                <div>
+                    <Text className="mx-2">Total Usage</Text>
+                    <div className="bg-muted my-1 w-full border" />
+                    <div className="mx-2 flex flex-row items-center space-x-2">
+                        <div className="h-2 w-2 rounded-full bg-[#8b5cf6]"></div>
+                        <Flex alignItems="center" className="gap-1">
+                            <Text>Transmit</Text>
+                            <Bold>
+                                {network?.ttl_tx
+                                    ? formatToString(network?.ttl_tx)
+                                    : 'N/A'}
+                            </Bold>
+                        </Flex>
+                    </div>
+                    <div className="mx-2 flex flex-row items-center space-x-2">
+                        <div className="h-2 w-2 rounded-full bg-[#22c55e]" />
+                        <Flex alignItems="center" className="gap-1">
+                            <Text>Receive</Text>
+                            <Bold>
+                                {network?.ttl_rx
+                                    ? formatToString(network?.ttl_rx)
+                                    : 'N/A'}
+                            </Bold>
+                        </Flex>
+                    </div>
+                </div>
+            }
+            className="px-0"
+        >
+            <Info className="h-3 w-3 self-start text-slate-500" />
+        </STooltip>
     )
 }

@@ -39,6 +39,7 @@ const config = {
     "@typescript-eslint/no-unsafe-argument": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-return": "off",
+    "tailwindcss/no-custom-classname": "off",
   },
   "settings": {
     "tailwindcss": {

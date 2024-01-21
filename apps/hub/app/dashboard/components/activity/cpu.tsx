@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { useMemo, type FC } from 'react'
 import { Bold, Flex, Text } from '@tremor/react'
 import { unix } from 'dayjs'
 import {
@@ -6,9 +6,9 @@ import {
     AreaChart,
     ResponsiveContainer,
     Tooltip,
-    TooltipProps,
     XAxis,
     YAxis,
+    type TooltipProps,
 } from 'recharts'
 
 import { Card } from '@/components/ui/card'
@@ -36,7 +36,7 @@ export function CpuActivity() {
             return (
                 <Card className="min-w-[150px] py-1">
                     <Text className="mx-4">{time}</Text>
-                    <div className="my-1 w-full border bg-muted"></div>
+                    <div className="bg-muted my-1 w-full border"></div>
                     <div className="mx-4 flex flex-row items-center space-x-2">
                         <div className="h-2 w-2 rounded-full bg-[#8884d8]"></div>
                         <Flex alignItems="center">

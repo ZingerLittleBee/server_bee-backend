@@ -1,4 +1,4 @@
-import { PropsWithChildren, type ReactNode } from 'react'
+import { HTMLAttributes, PropsWithChildren, type ReactNode } from 'react'
 
 import {
     Tooltip,
@@ -10,12 +10,15 @@ import {
 export function STooltip({
     children,
     content,
-}: PropsWithChildren<{ content: ReactNode }>) {
+    className,
+}: PropsWithChildren<
+    Omit<HTMLAttributes<HTMLDivElement>, 'content'> & { content: ReactNode }
+>) {
     return (
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>{children}</TooltipTrigger>
-                <TooltipContent>{content}</TooltipContent>
+                <TooltipContent className={className}>{content}</TooltipContent>
             </Tooltip>
         </TooltipProvider>
     )

@@ -42,7 +42,7 @@ export default function CpuWidget() {
                 <div className="text-2xl font-bold">
                     {cpuUsage ? `${cpuUsage}%` : 'N/A'}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                     Load Average:{' '}
                     {loadAverage
                         ? `${loadAverage?.[0]} | ${loadAverage?.[1]} | ${loadAverage?.[2]}`
