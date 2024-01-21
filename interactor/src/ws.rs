@@ -6,9 +6,12 @@ use crate::vo::record::Record;
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
+use anyhow::Result;
+use bytestring::ByteString;
+use futures_util::TryStreamExt;
 use log::{error, warn};
 use mongodb::bson::doc;
-use mongodb::Collection;
+use mongodb::{bson, Collection};
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -18,9 +21,18 @@ const TASK_INTERVAL: Duration = Duration::from_secs(1);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+#[derive(Debug, Clone)]
+enum HubMessage {
+    Overview,
+    Detail(String),
+    Process,
+    ProcessDetail(String),
+}
+
 pub struct MyWebSocket {
     hb: Instant,
     collection: Arc<Collection<Record>>,
+    message: HubMessage,
 }
 
 impl MyWebSocket {
@@ -28,6 +40,7 @@ impl MyWebSocket {
         Self {
             hb: Instant::now(),
             collection,
+            message: HubMessage::Overview,
         }
     }
 
@@ -47,32 +60,101 @@ impl MyWebSocket {
         ctx.run_interval(TASK_INTERVAL, move |act, ctx| {
             let collection = act.collection.clone();
 
-            let find_options = mongodb::options::FindOneOptions::builder()
-                .sort(doc! { "time": -1 })
-                .build();
+            let message = act.message.clone();
 
-            let fut = async move {
-                match collection.find_one(None, find_options).await {
-                    Ok(Some(record)) => Some(record),
-                    Ok(None) => None,
-                    Err(e) => {
-                        error!("failed to execute find_one: {:?}", e);
-                        None
-                    }
+            match message {
+                HubMessage::Overview => {
+                    ctx.spawn(
+                        wrap_future::<_, Self>(Self::overview(collection.clone())).map(
+                            |result, _, ctx| match result {
+                                Ok(records) => {
+                                    let json_string = serde_json::to_string(&records)
+                                        .expect("Failed to serialize records");
+                                    ctx.text(ByteString::from(json_string));
+                                }
+                                Err(e) => {
+                                    error!("failed to execute overview: {:?}", e);
+                                }
+                            },
+                        ),
+                    );
                 }
+                HubMessage::Detail(server_id) => {
+                    ctx.spawn(
+                        wrap_future::<_, Self>(Self::detail(collection.clone(), server_id.clone()))
+                            .map(move |result, _, ctx| match result {
+                                Some(record) => {
+                                    let json_string = serde_json::to_string(&record)
+                                        .expect("Failed to serialize record");
+                                    ctx.text(ByteString::from(json_string));
+                                }
+                                None => {
+                                    error!("failed to execute detail: {:?}", server_id);
+                                }
+                            }),
+                    );
+                }
+                HubMessage::Process => {}
+                HubMessage::ProcessDetail(_) => {}
             };
-
-            // 使用 wrap_future 将普通的 Future 转换为 ActorFuture
-            let actor_fut = wrap_future::<_, Self>(fut).map(|result, act, ctx| match result {
-                Some(record) => {
-                    ctx.text(record.get_fusion());
-                }
-                None => {
-                    ctx.text("No record found or there was an error.");
-                }
-            });
-            ctx.spawn(actor_fut);
         });
+    }
+
+    async fn detail(collection: Arc<Collection<Record>>, server_id: String) -> Option<Record> {
+        let find_options = mongodb::options::FindOneOptions::builder()
+            .sort(doc! { "time": -1 })
+            .build();
+        match collection
+            .find_one(
+                {
+                    doc! { "server_id": server_id }
+                },
+                find_options,
+            )
+            .await
+        {
+            Ok(Some(record)) => Some(record),
+            Ok(None) => None,
+            Err(e) => {
+                error!("failed to execute find_one: {:?}", e);
+                None
+            }
+        }
+    }
+
+    async fn overview(collection: Arc<Collection<Record>>) -> Result<Vec<Record>> {
+        let pipeline = vec![
+            doc! {
+                "$group": {
+                    "_id": "$server_id",
+                    "overview": { "$first": "$fusion.overview" },
+                    "server_id": { "$first": "$server_id" },
+                    "time": { "$first": "$time" }
+                }
+            },
+            doc! {
+                "$sort": { "record.time": -1 }
+            },
+            doc! {
+                "$project": {
+                    "server_id": 1,
+                    "fusion": {
+                        "overview": "$overview"
+                    },
+                    "time": 1,
+                    "_id": 0
+                }
+            },
+        ];
+
+        let mut cursor = collection.aggregate(pipeline, None).await?;
+        let mut records = Vec::new();
+
+        while let Some(result) = cursor.try_next().await? {
+            let record: Record = bson::from_document(result)?;
+            records.push(record);
+        }
+        Ok(records)
     }
 }
 
@@ -95,7 +177,30 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
             Ok(ws::Message::Pong(_)) => {
                 self.hb = Instant::now();
             }
-            Ok(ws::Message::Text(text)) => {}
+            Ok(ws::Message::Text(text)) => {
+                let msg = text.trim();
+                if msg.starts_with('/') {
+                    let mut command = msg.splitn(2, ' ');
+
+                    match command.next() {
+                        Some("/overview") => self.message = HubMessage::Overview,
+                        Some("/detail") => {
+                            if let Some(cmd) = command.next() {
+                                self.message = HubMessage::Detail(cmd.to_string());
+                            }
+                        }
+                        Some("/process") => {
+                            self.message = HubMessage::Process;
+                        }
+                        Some("/process_detail") => {
+                            if let Some(cmd) = command.next() {
+                                self.message = HubMessage::ProcessDetail(cmd.to_string());
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
             Ok(ws::Message::Close(reason)) => {
                 ctx.close(reason);

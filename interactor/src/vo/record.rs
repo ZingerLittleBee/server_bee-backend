@@ -13,6 +13,14 @@ impl Record {
     pub fn get_fusion(self) -> Fusion {
         self.fusion
     }
+
+    pub fn overview(self) -> Self {
+        Self {
+            server_id: self.server_id,
+            fusion: self.fusion,
+            time: self.time,
+        }
+    }
 }
 
 impl From<Record> for ByteString {
