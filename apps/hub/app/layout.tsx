@@ -12,7 +12,8 @@ import { Toaster } from '@/components/ui/toaster'
 import { SiteHeader } from '@/components/site-header'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { ThemeProvider } from '@/components/theme-provider'
-import { StoreProvider } from '@/app/dashboard/store'
+
+import { StoreProvider } from './dashboard/store'
 
 export const metadata: Metadata = {
     title: {
@@ -32,25 +33,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <html lang="en">
             <body
                 className={cn(
-                    'min-h-screen bg-background font-sans antialiased',
+                    'bg-background min-h-screen font-sans antialiased',
                     fontSans.variable
                 )}
             >
                 <TRPCReactProvider cookies={cookies().toString()}>
-                    <ThemeProvider
-                        attribute="class"
-                        defaultTheme="system"
-                        enableSystem
-                    >
-                        <StoreProvider>
+                    <StoreProvider>
+                        <ThemeProvider
+                            attribute="class"
+                            defaultTheme="system"
+                            enableSystem
+                        >
                             <div className="relative flex min-h-screen flex-col">
                                 <SiteHeader />
                                 <div className="flex-1">{children}</div>
                                 <Toaster />
                             </div>
-                        </StoreProvider>
-                        <TailwindIndicator />
-                    </ThemeProvider>
+                            <TailwindIndicator />
+                        </ThemeProvider>
+                    </StoreProvider>
                 </TRPCReactProvider>
             </body>
         </html>

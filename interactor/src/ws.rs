@@ -125,15 +125,15 @@ impl MyWebSocket {
     async fn overview(collection: Arc<Collection<Record>>) -> Result<Vec<Record>> {
         let pipeline = vec![
             doc! {
+                "$sort": { "time": -1 }
+            },
+            doc! {
                 "$group": {
                     "_id": "$server_id",
                     "overview": { "$first": "$fusion.overview" },
                     "server_id": { "$first": "$server_id" },
                     "time": { "$first": "$time" }
                 }
-            },
-            doc! {
-                "$sort": { "record.time": -1 }
             },
             doc! {
                 "$project": {

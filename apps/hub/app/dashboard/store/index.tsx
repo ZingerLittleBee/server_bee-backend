@@ -7,11 +7,12 @@ import {
     useReducer,
     type ReactNode,
 } from 'react'
-import { type Fusion } from '@serverbee/types'
+import { OVERVIEW_CMD } from '@/constant/ws'
+import { useBoundStore } from '@/store'
+import { type Record } from '@serverbee/types'
 
 import {
     fusionReducer,
-    kSetFusion,
     type FusionContext,
     type FusionState,
 } from '@/app/dashboard/store/fusion'
@@ -30,6 +31,9 @@ type StoreContextProps = FusionContext & HistoryContext & WsContext
 const StoreContext = createContext<StoreContextProps>({} as StoreContextProps)
 
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
+    const updateRecord = useBoundStore.use.updateRecord()
+    const addNetworkHistory = useBoundStore.use.addNetworkHistory()
+
     const [fusion, fusionDispatch] = useReducer(
         fusionReducer,
         {} as FusionState
@@ -61,18 +65,27 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 
             instance.onopen = () => {
                 console.log('Websocket Connected')
-                instance.send('/more')
+                instance.send(OVERVIEW_CMD)
                 wsDispatch({ type: kSetWsStatus, payload: WebSocket.OPEN })
             }
             instance.onmessage = (e) => {
                 try {
-                    const fusion = JSON.parse(e.data) as Fusion
-                    fusionDispatch({ type: kSetFusion, payload: fusion })
-                    historyDispatch({
-                        type: kHistoryAdd,
-                        payload: fusion.overview,
-                    })
-                } catch {}
+                    const records = JSON.parse(e.data) as Record[]
+                    // fusionDispatch({ type: kSetFusion, payload: fusion })
+                    // historyDispatch({
+                    //     type: kHistoryAdd,
+                    //     payload: fusion.overview,
+                    // })
+                    updateRecord(records)
+                    addNetworkHistory(
+                        records?.map((r) => ({
+                            serverId: r.server_id,
+                            network: r.fusion.overview.network_io,
+                        }))
+                    )
+                } catch (e) {
+                    console.error('Error parsing websocket message', e)
+                }
             }
             instance.onclose = () => {
                 wsDispatch({ type: kSetWsStatus, payload: WebSocket.CLOSED })
