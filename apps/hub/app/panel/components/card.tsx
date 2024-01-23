@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { FC, useMemo } from 'react'
 import { type NetworkIO, type Record } from '@serverbee/types'
 import {
     Bold,
@@ -26,7 +26,6 @@ import {
 
 import { formatToString, toGiB, toMiB } from '@/lib/unit'
 import { STooltip } from '@/components/s-tooltip'
-import { useStore } from '@/app/dashboard/store'
 
 export type PanelCardProps = Record & {
     networkHistory: NetworkIO[]
@@ -170,7 +169,7 @@ export default function PanelCard({
                             <Network className="h-4 w-4" />
                             <Bold>Net</Bold>
                         </Text>
-                        <NetworkTooltip />
+                        <NetworkTooltip network={networkHistory.at(-1)} />
                     </Flex>
                     <div className="flex gap-2">
                         <Text
@@ -271,10 +270,7 @@ export default function PanelCard({
     )
 }
 
-const NetworkTooltip = () => {
-    const { fusion } = useStore()
-    const network = fusion?.overview?.network_io
-
+const NetworkTooltip: FC<{ network?: NetworkIO }> = ({ network }) => {
     return (
         <STooltip
             content={
