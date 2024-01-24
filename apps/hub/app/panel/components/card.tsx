@@ -57,6 +57,25 @@ export default function PanelCard({
         () => overview?.memory_usage,
         [overview?.memory_usage]
     )
+    const memoryTotal = useMemo(() => {
+        return [
+            {
+                key: 'Used',
+                value: memory?.swap_used
+                    ? formatToString(memory?.swap_used)
+                    : 'N/A',
+                color: InfoColorEnum.Amber,
+            },
+            {
+                key: 'Total',
+                value: memory?.swap_total
+                    ? formatToString(memory?.swap_total)
+                    : 'N/A',
+                color: InfoColorEnum.Emerald,
+            },
+        ]
+    }, [memory])
+
     const network = useMemo(() => overview?.network_io, [overview?.network_io])
     const netHistory = useMemo(() => {
         return networkHistory.map(({ rx, tx }, index) => ({
@@ -158,15 +177,11 @@ export default function PanelCard({
                             <MemoryStick className="h-4 w-4" />
                             <Bold>Mem</Bold>
                         </Text>
+                        <InfoTooltip data={memoryTotal} title="Swap" />
                     </Flex>
                     <STooltip content="Used">
                         <div className="flex items-center gap-1">
-                            <div
-                                className="
-                                flex
-                            h-4
-                            w-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400"
-                            >
+                            <div className="flex h-4 w-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400">
                                 U
                             </div>
                             <Text color="amber">
@@ -315,16 +330,19 @@ enum InfoColorEnum {
     Green = 'bg-[#22c55e]',
     Teal = 'bg-[#14b8a6]',
     Fuchsia = 'bg-[#d946ef]',
+    Emerald = 'bg-[#10b981]',
+    Amber = 'bg-[#f59e0b]',
 }
 
 const InfoTooltip: FC<{
+    title?: string
     data: { key: string; value: string; color: InfoColorEnum }[]
-}> = ({ data }) => {
+}> = ({ title = 'Total Usage', data }) => {
     return (
         <STooltip
             content={
                 <div>
-                    <Text className="mx-2">Total Usage</Text>
+                    <Text className="mx-2">{title}</Text>
                     <div className="bg-muted my-1 w-full border" />
                     {data?.map(({ key, value, color }) => (
                         <div
