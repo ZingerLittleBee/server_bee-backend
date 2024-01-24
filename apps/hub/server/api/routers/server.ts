@@ -7,7 +7,13 @@ import { z } from 'zod'
 export const serverRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
         if (!ctx.session.user) throw NotLoggedInError
-        return ctx.db.server.findMany()
+        return ctx.db.server.findMany({
+            select: {
+                id: true,
+                name: true,
+                description: true,
+            },
+        })
     }),
     create: protectedProcedure
         .input(

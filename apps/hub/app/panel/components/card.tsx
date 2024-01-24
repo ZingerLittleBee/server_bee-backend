@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { useMemo, type FC, type HTMLAttributes } from 'react'
 import { type NetworkIO, type Record } from '@serverbee/types'
 import {
     Bold,
@@ -25,17 +25,21 @@ import {
 } from 'lucide-react'
 
 import { formatToString, toGiB, toMiB } from '@/lib/unit'
+import { cn } from '@/lib/utils'
 import { STooltip } from '@/components/s-tooltip'
 
 export type PanelCardProps = Record & {
+    name: string
     networkHistory: NetworkIO[]
-}
+} & HTMLAttributes<HTMLDivElement>
 
 export default function PanelCard({
     fusion,
+    name,
     time,
     server_id,
     networkHistory,
+    className,
 }: PanelCardProps) {
     const overview = useMemo(() => fusion?.overview, [fusion?.overview])
 
@@ -61,6 +65,21 @@ export default function PanelCard({
             index,
         }))
     }, [networkHistory])
+    const networkTotal = useMemo(() => {
+        const network = networkHistory.at(-1)
+        return [
+            {
+                key: 'Transmit',
+                value: network?.tx ? formatToString(network?.tx) : 'N/A',
+                color: InfoColorEnum.Violet,
+            },
+            {
+                key: 'Receive',
+                value: network?.rx ? formatToString(network?.rx) : 'N/A',
+                color: InfoColorEnum.Green,
+            },
+        ]
+    }, [networkHistory])
 
     const disk = useMemo(() => overview?.disk_io, [overview?.disk_io])
     const diskUsage = useMemo(
@@ -75,10 +94,30 @@ export default function PanelCard({
         return total === 0 ? 0 : Math.round((used / total) * 100)
     }, [diskUsage])
 
+    const diskTotal = useMemo(() => {
+        const diskIo = overview?.disk_io
+        return [
+            {
+                key: 'Read',
+                value: diskIo?.total_read
+                    ? formatToString(diskIo?.total_read)
+                    : 'N/A',
+                color: InfoColorEnum.Teal,
+            },
+            {
+                key: 'Write',
+                value: diskIo?.total_write
+                    ? formatToString(diskIo?.total_write)
+                    : 'N/A',
+                color: InfoColorEnum.Fuchsia,
+            },
+        ]
+    }, [overview?.disk_io])
+
     return (
-        <Card className="w-[300px] space-y-4 p-4 pt-2">
+        <Card className={cn('w-[300px] space-y-4 p-4 pt-2', className)}>
             <div>
-                <Title>🇭🇰 Server1</Title>
+                <Title>{name}</Title>
                 <Divider className="my-1" />
             </div>
             <Flex className="truncate" justifyContent="between">
@@ -169,7 +208,7 @@ export default function PanelCard({
                             <Network className="h-4 w-4" />
                             <Bold>Net</Bold>
                         </Text>
-                        <NetworkTooltip network={networkHistory.at(-1)} />
+                        <InfoTooltip data={networkTotal} />
                     </Flex>
                     <div className="flex gap-2">
                         <Text
@@ -227,6 +266,7 @@ export default function PanelCard({
                             <HardDrive className="h-4 w-4" />
                             <Bold>Disk</Bold>
                         </Text>
+                        <InfoTooltip data={diskTotal} />
                     </Flex>
                     <div className="flex gap-2">
                         <div className="flex items-center justify-center space-x-2">
@@ -270,35 +310,36 @@ export default function PanelCard({
     )
 }
 
-const NetworkTooltip: FC<{ network?: NetworkIO }> = ({ network }) => {
+enum InfoColorEnum {
+    Violet = 'bg-[#8b5cf6]',
+    Green = 'bg-[#22c55e]',
+    Teal = 'bg-[#14b8a6]',
+    Fuchsia = 'bg-[#d946ef]',
+}
+
+const InfoTooltip: FC<{
+    data: { key: string; value: string; color: InfoColorEnum }[]
+}> = ({ data }) => {
     return (
         <STooltip
             content={
                 <div>
                     <Text className="mx-2">Total Usage</Text>
                     <div className="bg-muted my-1 w-full border" />
-                    <div className="mx-2 flex flex-row items-center space-x-2">
-                        <div className="h-2 w-2 rounded-full bg-[#8b5cf6]"></div>
-                        <Flex alignItems="center" className="gap-1">
-                            <Text>Transmit</Text>
-                            <Bold>
-                                {network?.ttl_tx
-                                    ? formatToString(network?.ttl_tx)
-                                    : 'N/A'}
-                            </Bold>
-                        </Flex>
-                    </div>
-                    <div className="mx-2 flex flex-row items-center space-x-2">
-                        <div className="h-2 w-2 rounded-full bg-[#22c55e]" />
-                        <Flex alignItems="center" className="gap-1">
-                            <Text>Receive</Text>
-                            <Bold>
-                                {network?.ttl_rx
-                                    ? formatToString(network?.ttl_rx)
-                                    : 'N/A'}
-                            </Bold>
-                        </Flex>
-                    </div>
+                    {data?.map(({ key, value, color }) => (
+                        <div
+                            key={key}
+                            className="mx-2 flex flex-row items-center space-x-2"
+                        >
+                            <div
+                                className={`h-2 w-2 rounded-full ${color}`}
+                            ></div>
+                            <Flex alignItems="center" className="gap-1">
+                                <Text>{key}</Text>
+                                <Bold>{value}</Bold>
+                            </Flex>
+                        </div>
+                    ))}
                 </div>
             }
             className="px-0"
