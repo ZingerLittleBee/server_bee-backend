@@ -1,6 +1,11 @@
 import { useMemo, type FC, type HTMLAttributes } from 'react'
+import { InfoColorEnum } from '@/constant/enum/color'
+import { StatusEnum } from '@/constant/enum/status'
+import { StatusOnlineIcon } from '@heroicons/react/solid'
+import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
 import { type NetworkIO, type Record } from '@serverbee/types'
 import {
+    Badge,
     Bold,
     Card,
     CategoryBar,
@@ -13,6 +18,7 @@ import {
     Title,
     Tracker,
 } from '@tremor/react'
+import { format } from 'date-fns'
 import {
     Activity,
     ArrowDownCircle,
@@ -133,10 +139,25 @@ export default function PanelCard({
         ]
     }, [overview?.disk_io])
 
+    const status = useMemo(() => {
+        if (!time) return StatusEnum.Pending
+        if (Math.floor(Date.now() / 1000) - time > 60) return StatusEnum.Offline
+        return StatusEnum.Online
+    }, [time])
+
     return (
         <Card className={cn('w-[300px] space-y-4 p-4 pt-2', className)}>
             <div>
-                <Title>{name}</Title>
+                <Flex justifyContent="between">
+                    <Title>{name}</Title>
+                    <STooltip
+                        content={format(time * 1000, 'yyyy-MM-dd HH:mm:ss')}
+                    >
+                        <div>
+                            <StatusBadge status={status} />
+                        </div>
+                    </STooltip>
+                </Flex>
                 <Divider className="my-1" />
             </div>
             <Flex className="truncate" justifyContent="between">
@@ -325,15 +346,6 @@ export default function PanelCard({
     )
 }
 
-enum InfoColorEnum {
-    Violet = 'bg-[#8b5cf6]',
-    Green = 'bg-[#22c55e]',
-    Teal = 'bg-[#14b8a6]',
-    Fuchsia = 'bg-[#d946ef]',
-    Emerald = 'bg-[#10b981]',
-    Amber = 'bg-[#f59e0b]',
-}
-
 const InfoTooltip: FC<{
     title?: string
     data: { key: string; value: string; color: InfoColorEnum }[]
@@ -365,4 +377,23 @@ const InfoTooltip: FC<{
             <Info className="h-3 w-3 self-start text-slate-500" />
         </STooltip>
     )
+}
+
+const StatusBadge: FC<{ status: StatusEnum }> = ({ status }) => {
+    switch (status) {
+        case StatusEnum.Online:
+            return <Badge icon={StatusOnlineIcon}>Online</Badge>
+        case StatusEnum.Offline:
+            return (
+                <Badge icon={QuestionMarkCircledIcon} color="red">
+                    Offline
+                </Badge>
+            )
+        default:
+            return (
+                <Badge icon={QuestionMarkCircledIcon} color="orange">
+                    Pending
+                </Badge>
+            )
+    }
 }
