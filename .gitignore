@@ -4,6 +4,12 @@
 .history
 .env
 
+# log
+pino-logger.log
+
+# web
+db/**
+
 # front-end
 .turbo
 build/**
