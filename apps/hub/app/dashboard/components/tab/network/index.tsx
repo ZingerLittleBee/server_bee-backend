@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 import Selector from '../selector'
 import NetworkDetail from './detail'
@@ -8,7 +8,7 @@ import NetworkDetail from './detail'
 const sortKey = ['eth0', 'en0']
 
 export default function NetworkTabView() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
 
     const data = useMemo(() => {
         return fusion?.realtime?.network

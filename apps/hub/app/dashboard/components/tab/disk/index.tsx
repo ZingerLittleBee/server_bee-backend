@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 import Selector from '../selector'
 import DiskDetail from './detail'
 
 export default function DiskTabView() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
 
     const data = useMemo(() => {
         return fusion?.realtime?.disk?.map((d, index) => ({

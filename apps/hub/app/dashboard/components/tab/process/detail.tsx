@@ -11,13 +11,13 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { STooltip } from '@/components/s-tooltip'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
 export default function ProcessDetail() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
 
     const process = useMemo(
         () => fusion?.current_process,

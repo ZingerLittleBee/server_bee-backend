@@ -7,12 +7,12 @@ import { formatToString } from '@/lib/unit'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { STooltip } from '@/components/s-tooltip'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 import { ProcessListHeader } from './header'
 
 export default function ProcessList() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
     const process = fusion?.process
 
     const processes = useMemo(() => {
