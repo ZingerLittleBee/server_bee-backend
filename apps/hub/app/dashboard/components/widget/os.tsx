@@ -10,10 +10,10 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Icons } from '@/components/icons'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 export const OsWidget = ({ className }: { className?: string }) => {
-    const { fusion } = useStore()
+    const fusion = useFusion()
     const os = fusion?.os
 
     return (

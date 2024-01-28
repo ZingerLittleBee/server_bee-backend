@@ -12,7 +12,7 @@ interface PanelLayoutProps {
 
 export default function PanelLayout({ children }: PanelLayoutProps) {
     return (
-        <section className="container relative grid items-center gap-6">
+        <section className="container relative grid items-center p-6">
             {children}
         </section>
     )

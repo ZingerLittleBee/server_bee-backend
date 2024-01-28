@@ -34,19 +34,20 @@ import { formatToString, toGiB, toMiB } from '@/lib/unit'
 import { cn } from '@/lib/utils'
 import { STooltip } from '@/components/s-tooltip'
 
-export type PanelCardProps = Record & {
+export type PanelCardProps = {
+    id: string
     name: string
+    record: Record
     networkHistory: NetworkIO[]
 } & HTMLAttributes<HTMLDivElement>
 
 export default function PanelCard({
-    fusion,
     name,
-    time,
-    server_id,
+    record,
     networkHistory,
     className,
 }: PanelCardProps) {
+    const { fusion, time } = useMemo(() => record, [record])
     const overview = useMemo(() => fusion?.overview, [fusion?.overview])
 
     const memValues = useMemo(() => {
@@ -144,6 +145,8 @@ export default function PanelCard({
         if (Math.floor(Date.now() / 1000) - time > 60) return StatusEnum.Offline
         return StatusEnum.Online
     }, [time])
+
+    if (!record) return <></>
 
     return (
         <Card className={cn('w-[300px] space-y-4 p-4 pt-2', className)}>

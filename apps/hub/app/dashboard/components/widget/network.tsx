@@ -3,17 +3,17 @@ import { ArrowDownCircle, ArrowUpCircle, Sigma } from 'lucide-react'
 
 import { formatToString } from '@/lib/unit'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 export default function NetworkWidget() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
     const network = fusion?.overview?.network_io
 
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Network</CardTitle>
-                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-muted-foreground text-sm">Total</p>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 justify-between">

@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { useMemo, type FC } from 'react'
 import { Card as TremorCard } from '@tremor/react'
 import {
     Cell,
@@ -6,7 +6,7 @@ import {
     PieChart,
     ResponsiveContainer,
     Tooltip,
-    TooltipProps,
+    type TooltipProps,
 } from 'recharts'
 
 import {
@@ -15,7 +15,7 @@ import {
     toGiB,
 } from '@/lib/unit'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 const colors = [
     {
@@ -33,7 +33,7 @@ const colors = [
 ]
 
 export const MemoryWidget = () => {
-    const { fusion } = useStore()
+    const fusion = useFusion()
 
     const memoryUsage = fusion?.overview?.memory_usage
 
@@ -64,7 +64,7 @@ export const MemoryWidget = () => {
         active,
         payload,
     }) => {
-        if (active && payload && payload.length) {
+        if (active && payload?.length) {
             const key: 'free' | 'used' | 'swap_total' =
                 payload?.[0]?.payload.payload.key
             const color = colors.find((c) => c.name === payload[0]?.name)?.color
@@ -76,7 +76,7 @@ export const MemoryWidget = () => {
                             backgroundColor: color,
                         }}
                     ></div>
-                    <p className="text-[12px] text-muted-foreground">
+                    <p className="text-muted-foreground text-[12px]">
                         {payload[0]?.name}
                     </p>
                     <p className="text-[12px]">
@@ -99,7 +99,7 @@ export const MemoryWidget = () => {
                 <div className="text-2xl font-bold">{`${computedMemoryUsagePercentage(
                     memoryUsage
                 )}%`}</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                     {memoryUsage?.total
                         ? formatToString(memoryUsage?.total)
                         : 'N/A'}{' '}

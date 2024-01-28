@@ -12,7 +12,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
-        <section className="container relative grid items-center gap-6">
+        <section className="container relative grid items-center gap-6 py-6">
             {children}
         </section>
     )

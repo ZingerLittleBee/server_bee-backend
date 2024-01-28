@@ -6,6 +6,7 @@ import {
     type NetworkHistorySlice,
 } from '@/store/networkHistory'
 import { createRecordSlice, type RecordSlice } from '@/store/record'
+import { creatServerSlice, ServerSlice } from '@/store/server'
 import { create, type StateCreator } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
@@ -28,7 +29,8 @@ export type ImmerStateCreator<T> = StateCreator<
 type BoundStore = ServerFormDialogSlice &
     TokenDialogSlice &
     RecordSlice &
-    NetworkHistorySlice
+    NetworkHistorySlice &
+    ServerSlice
 
 const useBoundStoreBase = create<BoundStore>()(
     immer((...a) => ({
@@ -36,6 +38,7 @@ const useBoundStoreBase = create<BoundStore>()(
         ...createTokenDialogSlice(...a),
         ...createRecordSlice(...a),
         ...createNetworkHistorySlice(...a),
+        ...creatServerSlice(...a),
     }))
 )
 

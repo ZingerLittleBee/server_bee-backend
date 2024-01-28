@@ -7,7 +7,7 @@ import { Cable, HelpCircle, PlugZap, Unplug, Wifi } from 'lucide-react'
 import useWebsocket from '@/hooks/useWebsocket'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { StoreProvider, useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 import { CpuActivity } from './components/activity/cpu'
 import { NetworkActivity } from './components/activity/network'
@@ -22,9 +22,9 @@ import NetworkWidget from './components/widget/network'
 import { OsWidget } from './components/widget/os'
 
 export default function DashboardPage() {
-    const { requestProcess, status } = useWebsocket()
+    const { status } = useWebsocket()
 
-    const { fusion } = useStore()
+    const fusion = useFusion()
 
     const os = useMemo(() => fusion?.os, [fusion])
 
@@ -53,13 +53,7 @@ export default function DashboardPage() {
                     {statusText[2]}
                 </Badge>
             </div>
-            <Tabs
-                defaultValue="overview"
-                className="mt-3 space-y-4"
-                onValueChange={(value) => {
-                    value === 'process' && requestProcess()
-                }}
-            >
+            <Tabs defaultValue="overview" className="mt-3 space-y-4">
                 <TabsList>
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="process">Process</TabsTrigger>

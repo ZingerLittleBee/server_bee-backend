@@ -52,7 +52,7 @@ export async function UserNav() {
                         <p className="text-sm font-medium leading-none">
                             {session?.user.username}
                         </p>
-                        <p className="text-xs leading-none text-muted-foreground">
+                        <p className="text-muted-foreground text-xs leading-none">
                             {session?.user.email}
                         </p>
                     </div>

@@ -1,19 +1,32 @@
+import { useCallback, useEffect } from 'react'
+import { useBoundStore } from '@/store'
 import { type processSortKey } from '@serverbee/types'
 
 import { useStore } from '@/app/dashboard/store'
 
 const useWebsocket = () => {
     const { ws } = useStore()
+    const currentServerId = useBoundStore.use.currentServerId()
 
-    const sendMessage = (message: string) => {
-        ws.instance?.send(message)
-    }
+    const sendMessage = useCallback(
+        (message: string) => {
+            if (ws?.instance?.readyState === WebSocket.OPEN) {
+                ws.instance?.send(message)
+            }
+        },
+        [ws]
+    )
 
-    const requestMore = () => {
-        sendMessage('/more')
-    }
+    const requestDetail = useCallback(
+        (id: string) => sendMessage(`/detail ${id}`),
+        [sendMessage]
+    )
 
-    const requestLess = () => sendMessage('/less')
+    useEffect(() => {
+        currentServerId && requestDetail(currentServerId)
+    }, [currentServerId, requestDetail])
+
+    const requestOverview = () => sendMessage(`/overview`)
 
     const requestProcess = (pid?: string) =>
         sendMessage(pid ? `/process ${pid}` : '/process')
@@ -24,8 +37,8 @@ const useWebsocket = () => {
     const sortDown = (key: processSortKey) => sendMessage(`/down ${key}`)
 
     return {
-        requestMore,
-        requestLess,
+        requestOverview,
+        requestDetail,
         requestProcess,
         sortUp,
         sortDown,

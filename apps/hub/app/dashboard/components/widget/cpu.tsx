@@ -2,10 +2,10 @@ import { useEffect, useRef } from 'react'
 import { BadgeDelta } from '@tremor/react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 export default function CpuWidget() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
     const cpuUsage = fusion?.overview?.cpu_usage
     const loadAverage = fusion?.overview?.load_avg
 

@@ -3,10 +3,10 @@ import { Sigma } from 'lucide-react'
 
 import { formatToString } from '@/lib/unit'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useStore } from '@/app/dashboard/store'
+import useFusion from '@/app/dashboard/hooks/useFusion'
 
 export function DiskWidget() {
-    const { fusion } = useStore()
+    const fusion = useFusion()
     const disk = fusion?.overview?.disk_io
 
     return (

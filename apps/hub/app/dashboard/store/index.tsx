@@ -70,19 +70,16 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             }
             instance.onmessage = (e) => {
                 try {
-                    const records = JSON.parse(e.data) as Record[]
-                    // fusionDispatch({ type: kSetFusion, payload: fusion })
-                    // historyDispatch({
-                    //     type: kHistoryAdd,
-                    //     payload: fusion.overview,
-                    // })
-                    updateRecord(records)
-                    addNetworkHistory(
-                        records?.map((r) => ({
-                            serverId: r.server_id,
-                            network: r.fusion.overview.network_io,
-                        }))
-                    )
+                    const records = JSON.parse(e.data) as Record | Record[]
+                    updateRecord(Array.isArray(records) ? records : [records])
+                    if (Array.isArray(records)) {
+                        addNetworkHistory(
+                            records?.map((r) => ({
+                                serverId: r.server_id,
+                                network: r.fusion.overview.network_io,
+                            }))
+                        )
+                    }
                 } catch (e) {
                     console.error('Error parsing websocket message', e)
                 }
