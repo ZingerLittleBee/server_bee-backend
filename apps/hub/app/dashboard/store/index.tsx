@@ -46,12 +46,6 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     const [ws, wsDispatch] = useReducer(wsReducer, {} as WsState)
 
     useEffect(() => {
-        if (fusion) {
-            historyDispatch({ type: kHistoryAdd, payload: fusion.overview })
-        }
-    }, [fusion])
-
-    useEffect(() => {
         if (
             ws.status !== WebSocket.OPEN &&
             ws.status !== WebSocket.CONNECTING &&
@@ -81,7 +75,10 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
                         if (record?.fusion?.overview) {
                             historyDispatch({
                                 type: kHistoryAdd,
-                                payload: record.fusion.overview,
+                                payload: {
+                                    ...record.fusion.overview,
+                                    time: record.time,
+                                },
                             })
                         }
                     }

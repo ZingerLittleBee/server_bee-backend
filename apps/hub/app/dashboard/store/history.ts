@@ -13,7 +13,7 @@ export type HistoryState = {
 
 export interface HistoryAction {
     type: typeof kHistoryAdd
-    payload: Overview
+    payload: Overview & { time: number }
 }
 
 export interface HistoryContext {
@@ -27,7 +27,7 @@ export const historyReducer = (
 ): HistoryState => {
     switch (action.type) {
         case kHistoryAdd: {
-            const time = Math.floor(Date.now() / 1000)
+            const time = action.payload?.time
             return {
                 ...state,
                 cpu: [
