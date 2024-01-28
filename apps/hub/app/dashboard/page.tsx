@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, type ElementType } from 'react'
+import { useBoundStore } from '@/store'
 import { Badge, type Color } from '@tremor/react'
 import { Cable, HelpCircle, PlugZap, Unplug, Wifi } from 'lucide-react'
 

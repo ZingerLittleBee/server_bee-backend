@@ -71,7 +71,20 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             instance.onmessage = (e) => {
                 try {
                     const records = JSON.parse(e.data) as Record | Record[]
-                    updateRecord(Array.isArray(records) ? records : [records])
+                    const recordArray = Array.isArray(records)
+                        ? records
+                        : [records]
+                    updateRecord(recordArray)
+                    // update cpu activity and network activity
+                    if (recordArray.length === 1) {
+                        const record = recordArray[0]
+                        if (record?.fusion?.overview) {
+                            historyDispatch({
+                                type: kHistoryAdd,
+                                payload: record.fusion.overview,
+                            })
+                        }
+                    }
                     if (Array.isArray(records)) {
                         addNetworkHistory(
                             records?.map((r) => ({
