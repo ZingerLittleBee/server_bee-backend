@@ -1,15 +1,19 @@
 use actix::fut::wrap_future;
+use std::env;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+use crate::auth::Auth;
+use crate::constant::env::SERVICE_URL;
 use crate::vo::record::Record;
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
+use actix_web_actors::ws::start;
 use anyhow::Result;
 use bytestring::ByteString;
 use futures_util::TryStreamExt;
-use log::{error, warn};
+use log::{error, info, warn};
 use mongodb::bson::doc;
 use mongodb::{bson, Collection};
 
@@ -33,14 +37,16 @@ pub struct MyWebSocket {
     hb: Instant,
     collection: Arc<Collection<Record>>,
     message: HubMessage,
+    server_ids: Vec<String>,
 }
 
 impl MyWebSocket {
-    pub fn new(collection: Arc<Collection<Record>>) -> Self {
+    pub fn new(collection: Arc<Collection<Record>>, server_ids: Vec<String>) -> Self {
         Self {
             hb: Instant::now(),
             collection,
             message: HubMessage::Overview,
+            server_ids,
         }
     }
 
@@ -59,13 +65,13 @@ impl MyWebSocket {
     fn task(&self, ctx: &mut <Self as Actor>::Context) {
         ctx.run_interval(TASK_INTERVAL, move |act, ctx| {
             let collection = act.collection.clone();
-
             let message = act.message.clone();
+            let server_ids = act.server_ids.clone();
 
             match message {
                 HubMessage::Overview => {
                     ctx.spawn(
-                        wrap_future::<_, Self>(Self::overview(collection.clone())).map(
+                        wrap_future::<_, Self>(Self::overview(collection, server_ids)).map(
                             |result, _, ctx| match result {
                                 Ok(records) => {
                                     let json_string = serde_json::to_string(&records)
@@ -81,8 +87,8 @@ impl MyWebSocket {
                 }
                 HubMessage::Detail(server_id) => {
                     ctx.spawn(
-                        wrap_future::<_, Self>(Self::detail(collection.clone(), server_id.clone()))
-                            .map(move |result, _, ctx| match result {
+                        wrap_future::<_, Self>(Self::detail(collection, server_id.clone())).map(
+                            move |result, _, ctx| match result {
                                 Some(record) => {
                                     let json_string = serde_json::to_string(&record)
                                         .expect("Failed to serialize record");
@@ -91,7 +97,8 @@ impl MyWebSocket {
                                 None => {
                                     error!("failed to execute detail: {:?}", server_id);
                                 }
-                            }),
+                            },
+                        ),
                     );
                 }
                 HubMessage::Process => {}
@@ -122,8 +129,16 @@ impl MyWebSocket {
         }
     }
 
-    async fn overview(collection: Arc<Collection<Record>>) -> Result<Vec<Record>> {
+    async fn overview(
+        collection: Arc<Collection<Record>>,
+        server_ids: Vec<String>,
+    ) -> Result<Vec<Record>> {
         let pipeline = vec![
+            doc! {
+                "$match": {
+                    "server_id": { "$in": server_ids }
+                }
+            },
             doc! {
                 "$sort": { "time": -1 }
             },
@@ -216,9 +231,28 @@ pub async fn echo_ws(
     stream: web::Payload,
     record_collection: web::Data<Collection<Record>>,
 ) -> Result<HttpResponse, Error> {
-    ws::start(
-        MyWebSocket::new(record_collection.into_inner()),
+    let cookie = Auth::extract_from_cookie(&req);
+    let server_ids = get_server_ids(cookie).await.unwrap_or(Vec::new());
+    info!("server_ids: {:?}", server_ids);
+    start(
+        MyWebSocket::new(record_collection.into_inner(), server_ids),
         &req,
         stream,
     )
+}
+
+async fn get_server_ids(cookie: String) -> Result<Vec<String>> {
+    let service_url = env::var(SERVICE_URL).expect("SERVICE_URL must be set");
+    match reqwest::Client::new()
+        .get(&service_url)
+        .header("Cookie", cookie)
+        .send()
+        .await
+    {
+        Ok(response) => Ok(response.json::<Vec<String>>().await?),
+        Err(e) => {
+            error!("Failed to validate token: {:?}", e);
+            Ok(Vec::new())
+        }
+    }
 }

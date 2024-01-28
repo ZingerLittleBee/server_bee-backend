@@ -34,7 +34,7 @@ impl Auth {
         }
     }
 
-    fn extract_from_cookie(req: &HttpRequest) -> String {
+    pub fn extract_from_cookie(req: &HttpRequest) -> String {
         let cookie_header = req
             .headers()
             .get(header::COOKIE)
