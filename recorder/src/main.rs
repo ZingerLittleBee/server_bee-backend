@@ -1,23 +1,21 @@
 mod constant;
+mod mongo_helper;
 mod vo;
 
 use dotenvy::dotenv;
 use std::collections::HashSet;
 use std::env;
 
-use crate::constant::db::{
-    DATABASE_NAME, INVALID_COLLECTION_INDEX, INVALID_COLLECTION_NAME, RECORD_COLLECTION_NAME,
-};
 use crate::constant::default_value::DEFAULT_PORT;
 use crate::constant::env::{MONGODB_URI, PORT, SERVER_JWT_SECRET};
+use crate::mongo_helper::DbConnector;
 use crate::vo::record::Record;
 use actix_web::http::StatusCode;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use jsonwebtoken::{decode, DecodingKey, Validation};
 use log::{debug, error, info, warn};
 use mongodb::bson::doc;
-use mongodb::options::IndexOptions;
-use mongodb::{bson, Client, Collection, IndexModel};
+use mongodb::{bson, Collection};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -112,6 +110,26 @@ async fn version() -> impl Responder {
     HttpResponse::Ok()
 }
 
+pub async fn run_server(
+    port: u16,
+    server_jwt_secret: String,
+    record_collection: Collection<Record>,
+    invalid_collection: Collection<bson::Document>,
+) -> std::io::Result<()> {
+    info!("listening on port {}", port);
+    HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(server_jwt_secret.clone()))
+            .app_data(web::Data::new(record_collection.clone()))
+            .app_data(web::Data::new(invalid_collection.clone()))
+            .service(recorder)
+            .service(version)
+    })
+    .bind(("0.0.0.0", port))?
+    .run()
+    .await
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -125,58 +143,25 @@ async fn main() -> std::io::Result<()> {
 
     let server_jwt_secret = env::var(SERVER_JWT_SECRET).expect("SERVER_JWT_SECRET must be set");
 
-    let client = Client::with_uri_str(uri).await.unwrap();
-    let database = client.database(DATABASE_NAME);
-    let record_collection: Collection<Record> = database.collection(RECORD_COLLECTION_NAME);
-    let invalid_collection: Collection<bson::Document> =
-        database.collection(INVALID_COLLECTION_NAME);
-
-    let collection_names = if let Ok(collection_names) = database.list_collection_names(None).await
-    {
-        collection_names
-    } else {
-        vec![]
-    };
-    if !collection_names.contains(&INVALID_COLLECTION_NAME.to_string()) {
-        let initial_document = doc! { INVALID_COLLECTION_INDEX: "test" };
-        match database
-            .collection(INVALID_COLLECTION_NAME)
-            .insert_one(initial_document, None)
-            .await
-        {
-            Ok(_) => {}
-            Err(e) => {
-                error!("failed to insert initial document: {:?}", e);
-            }
-        }
-
-        let index_model = IndexModel::builder()
-            .keys(doc! { INVALID_COLLECTION_INDEX: 1 })
-            .options(
-                IndexOptions::builder()
-                    .name(Some(INVALID_COLLECTION_INDEX.to_string()))
-                    .unique(true)
-                    .build(),
+    match DbConnector::connect(uri.clone()).await {
+        Ok(connector) => {
+            info!("Connected to mongodb: {}", uri);
+            let record_collection = connector.record_collection;
+            let invalid_collection = connector.invalid_collection;
+            run_server(
+                port,
+                server_jwt_secret,
+                record_collection,
+                invalid_collection,
             )
-            .build();
-        match invalid_collection.create_index(index_model, None).await {
-            Ok(_) => {}
-            Err(e) => {
-                error!("failed to create index: {:?}", e);
-            }
+            .await
+        }
+        Err(e) => {
+            error!("Failed to connect to mongodb: {}", e);
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Failed to connect to mongodb",
+            ))
         }
     }
-
-    info!("listening on port {}", port);
-    HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(server_jwt_secret.clone()))
-            .app_data(web::Data::new(record_collection.clone()))
-            .app_data(web::Data::new(invalid_collection.clone()))
-            .service(recorder)
-            .service(version)
-    })
-    .bind(("0.0.0.0", port))?
-    .run()
-    .await
 }

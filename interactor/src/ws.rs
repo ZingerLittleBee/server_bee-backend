@@ -13,7 +13,7 @@ use actix_web_actors::ws::start;
 use anyhow::Result;
 use bytestring::ByteString;
 use futures_util::TryStreamExt;
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 use mongodb::bson::doc;
 use mongodb::{bson, Collection};
 
@@ -133,6 +133,7 @@ impl MyWebSocket {
         collection: Arc<Collection<Record>>,
         server_ids: Vec<String>,
     ) -> Result<Vec<Record>> {
+        let start = Instant::now();
         let pipeline = vec![
             doc! {
                 "$match": {
@@ -169,6 +170,8 @@ impl MyWebSocket {
             let record: Record = bson::from_document(result)?;
             records.push(record);
         }
+        let duration = start.elapsed();
+        debug!("overview func executed in: {:?}", duration);
         Ok(records)
     }
 }
