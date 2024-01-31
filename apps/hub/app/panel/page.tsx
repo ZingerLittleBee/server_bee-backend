@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useBoundStore } from '@/store'
 
 import useServerList from '@/hooks/useServerList'
-import PanelCard from '@/app/panel/components/card'
+import PanelCard, { PanelCardSkeleton } from '@/app/panel/components/card'
 
 export default function PanelPage() {
     const records = useBoundStore.use.records()
@@ -39,7 +39,7 @@ export default function PanelPage() {
                         className="w-full"
                     />
                 ) : (
-                    <></>
+                    <PanelCardSkeleton key={id} />
                 )
             )}
         </div>

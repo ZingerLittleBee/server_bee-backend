@@ -32,6 +32,7 @@ import {
 
 import { formatToString, toGiB, toMiB } from '@/lib/unit'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 import { STooltip } from '@/components/s-tooltip'
 
 export type PanelCardProps = {
@@ -399,4 +400,92 @@ const StatusBadge: FC<{ status: StatusEnum }> = ({ status }) => {
                 </Badge>
             )
     }
+}
+
+export const PanelCardSkeleton = () => {
+    return (
+        <Card className="w-[300px] space-y-4 p-4 pt-2">
+            <div>
+                <Flex justifyContent="between">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-4 w-[50px]" />
+                </Flex>
+                <Divider className="my-1" />
+            </div>
+            <Flex className="truncate" justifyContent="between">
+                <Flex className="truncate" justifyContent="start">
+                    <Text className="flex items-center gap-1">
+                        <Activity className="h-4 w-4" />
+                        <Bold>Load</Bold>
+                    </Text>
+                </Flex>
+                <Skeleton className="h-4 w-[50px]" />
+            </Flex>
+            <div className="flex flex-col gap-2">
+                <Flex className="truncate" justifyContent="between">
+                    <Flex className="truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1">
+                            <Cpu className="h-4 w-4" />
+                            <Bold>CPU</Bold>
+                        </Text>
+                    </Flex>
+                    <Skeleton className="h-4 w-[50px]" />
+                </Flex>
+                <Skeleton className="h-4 w-full" />
+            </div>
+            <div className="flex flex-col gap-2">
+                <Flex className="gap-4 truncate" justifyContent="between">
+                    <Flex className="truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1">
+                            <MemoryStick className="h-4 w-4" />
+                            <Bold>Mem</Bold>
+                        </Text>
+                    </Flex>
+                    <div className="flex gap-2">
+                        <Skeleton className="h-4 w-[50px]" />
+                        <Skeleton className="h-4 w-[50px]" />
+                    </div>
+                </Flex>
+
+                <Skeleton className="h-4 w-full" />
+            </div>
+            <div className="flex flex-col gap-2">
+                <Flex className="truncate" justifyContent="between">
+                    <Flex className="truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1">
+                            <Network className="h-4 w-4" />
+                            <Bold>Net</Bold>
+                        </Text>
+                    </Flex>
+                    <div className="flex gap-2">
+                        <Skeleton className="h-4 w-[50px]" />
+                        <Skeleton className="h-4 w-[50px]" />
+                    </div>
+                </Flex>
+                <Flex className="gap-4">
+                    <Skeleton className="h-12 w-full" />
+                </Flex>
+            </div>
+            <div
+                className="flex flex-col gap-2"
+                style={{
+                    marginTop: '0',
+                }}
+            >
+                <Flex className="gap-4 truncate" justifyContent="between">
+                    <Flex className="truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1">
+                            <HardDrive className="h-4 w-4" />
+                            <Bold>Disk</Bold>
+                        </Text>
+                    </Flex>
+                    <div className="flex items-center gap-2">
+                        <Skeleton className="h-4 w-[50px]" />
+                        <Skeleton className="h-4 w-[50px]" />
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                    </div>
+                </Flex>
+            </div>
+        </Card>
+    )
 }

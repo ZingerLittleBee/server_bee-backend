@@ -1,12 +1,15 @@
 import { env } from '@/env'
 import { NotLoggedInError } from '@/server/api/error'
-import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
+import {
+    createTRPCRouter,
+    protectedProcedure,
+    publicProcedure,
+} from '@/server/api/trpc'
 import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
 
 export const serverRouter = createTRPCRouter({
-    list: protectedProcedure.query(({ ctx }) => {
-        if (!ctx.session.user) throw NotLoggedInError
+    list: publicProcedure.query(({ ctx }) => {
         return ctx.db.server.findMany({
             select: {
                 id: true,
