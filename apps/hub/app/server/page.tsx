@@ -2,9 +2,11 @@ import * as React from 'react'
 import { Group } from '@/server/api/routers/group'
 import { api } from '@/trpc/server'
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AddServer from '@/app/server/add-server'
 import { columns, type Server } from '@/app/server/columns'
 import FormDialog from '@/app/server/components/form-dialog'
+import GroupTabContent from '@/app/server/components/group'
 import { TokenDialog } from '@/app/server/components/token-dialog'
 import { DataTable } from '@/app/server/data-table'
 
@@ -32,7 +34,7 @@ async function getData(): Promise<{
 }
 
 export default async function ServerPage() {
-    const servers = await getData()
+    const { servers, groups } = await getData()
 
     return (
         <div className="h-full flex-1 flex-col space-y-8 py-8">
@@ -49,7 +51,19 @@ export default async function ServerPage() {
                     <AddServer />
                 </div>
             </div>
-            <DataTable data={servers} columns={columns} />
+
+            <Tabs defaultValue="account" className="w-full">
+                <TabsList className="grid w-[200px] grid-cols-2">
+                    <TabsTrigger value="server">Server</TabsTrigger>
+                    <TabsTrigger value="group">Group</TabsTrigger>
+                </TabsList>
+                <TabsContent value="server" className="w-full">
+                    <DataTable data={servers} columns={columns} />
+                </TabsContent>
+                <TabsContent value="group">
+                    <GroupTabContent groups={groups} />
+                </TabsContent>
+            </Tabs>
             <FormDialog />
             <TokenDialog />
         </div>

@@ -1,9 +1,9 @@
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
 
 export type Group = {
-    id: number
+    id: string
     name: string
-    description: string
+    description?: string
     sortWeight: number
 }
 export const groupRouter = createTRPCRouter({
