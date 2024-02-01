@@ -77,7 +77,7 @@ model Group {
     id        String   @id @default(cuid())
     name      String
     description String?
-    sortWeigt Int     @default(0)
+    sortWeight Int     @default(0)
     servers Server[]
 }
 
