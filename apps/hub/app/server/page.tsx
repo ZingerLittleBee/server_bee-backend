@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Group } from '@/server/api/routers/group'
 import { api } from '@/trpc/server'
 
 import AddServer from '@/app/server/add-server'
@@ -7,15 +8,27 @@ import FormDialog from '@/app/server/components/form-dialog'
 import { TokenDialog } from '@/app/server/components/token-dialog'
 import { DataTable } from '@/app/server/data-table'
 
-async function getData(): Promise<Server[]> {
+async function getData(): Promise<{
+    servers: Server[]
+    groups: Group[]
+}> {
     const servers = await api.server.list.query()
+    const groups = await api.group.list.query()
 
-    return servers.map<Server>((server) => ({
-        id: server.id,
-        name: server.name,
-        description: server.description ?? undefined,
-        createdAt: server.createdAt,
-    }))
+    return {
+        servers: servers.map<Server>((server) => ({
+            id: server.id,
+            name: server.name,
+            description: server.description ?? undefined,
+            createdAt: server.createdAt,
+        })),
+        groups: groups.map((group) => ({
+            id: group.id,
+            name: group.name,
+            description: group.description ?? undefined,
+            sortWeight: group.sortWeight,
+        })),
+    }
 }
 
 export default async function ServerPage() {

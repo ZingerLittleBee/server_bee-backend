@@ -1,4 +1,5 @@
 import { dashboardRouter } from '@/server/api/routers/dashboard'
+import { groupRouter } from '@/server/api/routers/group'
 import { serverRouter } from '@/server/api/routers/server'
 import { createTRPCRouter } from '@/server/api/trpc'
 
@@ -10,6 +11,7 @@ import { createTRPCRouter } from '@/server/api/trpc'
 export const appRouter = createTRPCRouter({
     server: serverRouter,
     dashboard: dashboardRouter,
+    group: groupRouter,
 })
 
 // export type definition of API
