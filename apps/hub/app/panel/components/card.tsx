@@ -1,5 +1,4 @@
 import { useMemo, type FC, type HTMLAttributes } from 'react'
-import { InfoColorEnum } from '@/constant/enum/color'
 import { StatusEnum } from '@/constant/enum/status'
 import { StatusOnlineIcon } from '@heroicons/react/solid'
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
@@ -34,6 +33,7 @@ import { formatToString, toGiB, toMiB } from '@/lib/unit'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { STooltip } from '@/components/s-tooltip'
+import InfoTooltip, { InfoColorEnum } from '@/app/panel/components/info-tooltip'
 
 export type PanelCardProps = {
     id: string
@@ -347,39 +347,6 @@ export default function PanelCard({
                 </Flex>
             </div>
         </Card>
-    )
-}
-
-const InfoTooltip: FC<{
-    title?: string
-    data: { key: string; value: string; color: InfoColorEnum }[]
-}> = ({ title = 'Total Usage', data }) => {
-    return (
-        <STooltip
-            content={
-                <div>
-                    <Text className="mx-2">{title}</Text>
-                    <div className="bg-muted my-1 w-full border" />
-                    {data?.map(({ key, value, color }) => (
-                        <div
-                            key={key}
-                            className="mx-2 flex flex-row items-center space-x-2"
-                        >
-                            <div
-                                className={`h-2 w-2 rounded-full ${color}`}
-                            ></div>
-                            <Flex alignItems="center" className="gap-1">
-                                <Text>{key}</Text>
-                                <Bold>{value}</Bold>
-                            </Flex>
-                        </div>
-                    ))}
-                </div>
-            }
-            className="px-0"
-        >
-            <Info className="h-3 w-3 self-start text-slate-500" />
-        </STooltip>
     )
 }
 
