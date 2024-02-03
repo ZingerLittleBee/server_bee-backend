@@ -1,37 +1,11 @@
-import * as React from 'react'
-import { Group } from '@/server/api/routers/group'
-import { api } from '@/trpc/server'
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AddServer from '@/app/server/add-server'
-import { columns, type Server } from '@/app/server/columns'
+import { columns } from '@/app/server/columns'
 import FormDialog from '@/app/server/components/form-dialog'
 import GroupTabContent from '@/app/server/components/group'
 import { TokenDialog } from '@/app/server/components/token-dialog'
 import { DataTable } from '@/app/server/data-table'
-
-async function getData(): Promise<{
-    servers: Server[]
-    groups: Group[]
-}> {
-    const servers = await api.server.list.query()
-    const groups = await api.group.list.query()
-
-    return {
-        servers: servers.map<Server>((server) => ({
-            id: server.id,
-            name: server.name,
-            description: server.description ?? undefined,
-            createdAt: server.createdAt,
-        })),
-        groups: groups.map((group) => ({
-            id: group.id,
-            name: group.name,
-            description: group.description ?? undefined,
-            sortWeight: group.sortWeight,
-        })),
-    }
-}
+import { getData } from '@/app/server/server-action'
 
 export default async function ServerPage() {
     const { servers, groups } = await getData()
@@ -52,7 +26,7 @@ export default async function ServerPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="account" className="w-full">
+            <Tabs defaultValue="server" className="w-full">
                 <TabsList className="grid w-[200px] grid-cols-2">
                     <TabsTrigger value="server">Server</TabsTrigger>
                     <TabsTrigger value="group">Group</TabsTrigger>

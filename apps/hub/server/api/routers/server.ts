@@ -5,6 +5,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from '@/server/api/trpc'
+import { type Prisma } from '@prisma/client'
 import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
 
@@ -24,17 +25,27 @@ export const serverRouter = createTRPCRouter({
             z.object({
                 name: z.string().min(1),
                 description: z.string().optional(),
+                group: z.string().optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
             if (!ctx.session.user) throw NotLoggedInError
 
+            const createData: Prisma.ServerCreateInput = {
+                name: input.name,
+                description: input.description,
+                owner: { connect: { id: ctx.session.user.id } },
+            }
+            if (input.group) {
+                createData.group = {
+                    connect: {
+                        id: input.group,
+                    },
+                }
+            }
+
             const server = await ctx.db.server.create({
-                data: {
-                    name: input.name,
-                    description: input.description,
-                    owner: { connect: { id: ctx.session.user.id } },
-                },
+                data: createData,
             })
 
             const payload = {

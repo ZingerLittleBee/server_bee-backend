@@ -1,10 +1,13 @@
-import { Group } from '@/server/api/routers/group'
+'use client'
+
+import { type Group } from '@/server/api/routers/group'
+
 import {
     Accordion,
-    AccordionBody,
-    AccordionHeader,
-    AccordionList,
-} from '@tremor/react'
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion'
 
 export type GroupTabContentProps = {
     groups: Group[]
@@ -12,31 +15,22 @@ export type GroupTabContentProps = {
 
 export default function GroupTabContent({ groups }: GroupTabContentProps) {
     return (
-        <AccordionList className="w-full">
-            <Accordion>
-                <AccordionHeader>Accordion 1</AccordionHeader>
-                <AccordionBody>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Phasellus tempor lorem non est congue blandit. Praesent non
-                    lorem sodales, suscipit est sed, hendrerit dolor.
-                </AccordionBody>
-            </Accordion>
-            <Accordion>
-                <AccordionHeader>Accordion 2</AccordionHeader>
-                <AccordionBody>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Phasellus tempor lorem non est congue blandit. Praesent non
-                    lorem sodales, suscipit est sed, hendrerit dolor.
-                </AccordionBody>
-            </Accordion>
-            <Accordion>
-                <AccordionHeader>Accordion 3</AccordionHeader>
-                <AccordionBody>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Phasellus tempor lorem non est congue blandit. Praesent non
-                    lorem sodales, suscipit est sed, hendrerit dolor.
-                </AccordionBody>
-            </Accordion>
-        </AccordionList>
+        <Accordion type="multiple" className="w-full">
+            {groups?.map((g) => (
+                <AccordionItem key={g.id} value={g.id}>
+                    <AccordionTrigger className="hover:no-underline">
+                        <div className="space-x-4">
+                            <span className="hover:underline">{g.name}</span>
+                            <span className="text-muted-foreground text-sm">
+                                {g.description}
+                            </span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        Yes. It adheres to the WAI-ARIA design pattern.
+                    </AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
     )
 }
