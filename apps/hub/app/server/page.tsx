@@ -1,10 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import AddServer from '@/app/server/add-server'
-import { columns } from '@/app/server/columns'
-import FormDialog from '@/app/server/components/form-dialog'
+import AddServer from '@/app/server/components/form/add-server'
+import FormDialog from '@/app/server/components/form/form-dialog'
 import GroupTabContent from '@/app/server/components/group'
+import { columns } from '@/app/server/components/table/columns'
+import ConfirmDialog from '@/app/server/components/table/confirm-dialog'
+import { DataTable } from '@/app/server/components/table/data-table'
 import { TokenDialog } from '@/app/server/components/token-dialog'
-import { DataTable } from '@/app/server/data-table'
 import { getData } from '@/app/server/server-action'
 
 export default async function ServerPage() {
@@ -40,6 +41,7 @@ export default async function ServerPage() {
             </Tabs>
             <FormDialog />
             <TokenDialog />
+            <ConfirmDialog />
         </div>
     )
 }

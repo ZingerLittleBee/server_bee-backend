@@ -22,7 +22,7 @@ import { DataTableColumnHeader } from '@/app/_components/data-table/data-table-c
 export type Server = {
     id: string
     name: string
-    description?: string
+    description: string | null
     createdAt: Date
 }
 
@@ -56,6 +56,10 @@ export const columns: ColumnDef<Server>[] = [
         cell: ({ row }) => {
             const setIsOpen = useBoundStore.use.setIsOpenTokenDialog()
             const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
+            const setIsOpenConfirmDialog =
+                useBoundStore.use.setIsOpenConfirmDialog()
+            const setConfirmDialogProps =
+                useBoundStore.use.setConfirmDialogProps()
             const tokens = api.server.getTokens.useQuery({
                 id: row.original.id,
             })
@@ -70,7 +74,7 @@ export const columns: ColumnDef<Server>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>View</DropdownMenuLabel>
                         <DropdownMenuItem
                             onClick={async () => {
                                 await navigator.clipboard.writeText(server.id)
@@ -81,12 +85,11 @@ export const columns: ColumnDef<Server>[] = [
                         >
                             Copy server ID
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={() => {
                                 setTokenDialogProps({
                                     title: 'Token list',
-                                    tokens: [...(tokens.data ?? [])],
+                                    tokens: tokens.data ?? [],
                                 })
                                 setIsOpen(true)
                             }}
@@ -94,6 +97,35 @@ export const columns: ColumnDef<Server>[] = [
                             View tokens
                         </DropdownMenuItem>
                         <DropdownMenuItem>View server details</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setTokenDialogProps({
+                                    title: 'Token list',
+                                    tokens: tokens.data ?? [],
+                                })
+                                setIsOpen(true)
+                            }}
+                        >
+                            Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            className="text-red-600 focus:text-red-600"
+                            onClick={() => {
+                                setConfirmDialogProps({
+                                    onCancel: () => {
+                                        console.log('cancel')
+                                    },
+                                    onConfirm: async () => {
+                                        console.log('delete', server.id)
+                                    },
+                                })
+                                setIsOpenConfirmDialog(true)
+                            }}
+                        >
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

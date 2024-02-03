@@ -4,7 +4,11 @@ export type Group = {
     id: string
     name: string
     description?: string
-    sortWeight: number
+    servers: {
+        id: string
+        name: string
+        description?: string
+    }[]
 }
 export const groupRouter = createTRPCRouter({
     list: publicProcedure.query(({ ctx }) => {
@@ -13,7 +17,19 @@ export const groupRouter = createTRPCRouter({
                 id: true,
                 name: true,
                 description: true,
-                sortWeight: true,
+                servers: {
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                    },
+                    orderBy: {
+                        sortWeight: 'desc',
+                    },
+                },
+            },
+            orderBy: {
+                sortWeight: 'desc',
             },
         })
     }),

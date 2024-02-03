@@ -18,6 +18,9 @@ export const serverRouter = createTRPCRouter({
                 description: true,
                 createdAt: true,
             },
+            orderBy: {
+                sortWeight: 'desc',
+            },
         })
     }),
     create: protectedProcedure

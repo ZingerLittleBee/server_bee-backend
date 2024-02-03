@@ -10,7 +10,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { ServerForm, ServerFormMode } from '@/app/server/components/server-form'
+import {
+    ServerForm,
+    ServerFormMode,
+} from '@/app/server/components/form/server-form'
 
 export default function FormDialog() {
     const isOpen = useBoundStore.use.isOpenServerForm()

@@ -2,8 +2,8 @@ import { type StateCreator } from 'zustand'
 
 import {
     ServerFormMode,
-    type ServerFormProps,
-} from '@/app/server/components/server-form'
+    ServerFormProps,
+} from '@/app/server/components/form/server-form'
 
 type State = {
     isOpenServerForm: boolean

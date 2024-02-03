@@ -6,10 +6,14 @@ import {
     type NetworkHistorySlice,
 } from '@/store/networkHistory'
 import { createRecordSlice, type RecordSlice } from '@/store/record'
-import { creatServerSlice, ServerSlice } from '@/store/server'
+import { creatServerSlice, type ServerSlice } from '@/store/server'
 import { create, type StateCreator } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
+import {
+    createConfirmDialogSlice,
+    type ConfirmDialogSlice,
+} from '@/app/server/store/confirm-dialog'
 import {
     createServerFormDialogSlice,
     type ServerFormDialogSlice,
@@ -30,7 +34,8 @@ type BoundStore = ServerFormDialogSlice &
     TokenDialogSlice &
     RecordSlice &
     NetworkHistorySlice &
-    ServerSlice
+    ServerSlice &
+    ConfirmDialogSlice
 
 const useBoundStoreBase = create<BoundStore>()(
     immer((...a) => ({
@@ -39,6 +44,7 @@ const useBoundStoreBase = create<BoundStore>()(
         ...createRecordSlice(...a),
         ...createNetworkHistorySlice(...a),
         ...creatServerSlice(...a),
+        ...createConfirmDialogSlice(...a),
     }))
 )
 
