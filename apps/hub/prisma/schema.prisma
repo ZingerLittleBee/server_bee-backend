@@ -65,7 +65,7 @@ model Server {
     description String?
     ownerId   String
     owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-    sortWeigt Int      @default(0)
+    sortWeight Int      @default(0)
     token     ServerToken[]
     groupId   String?
     group     Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
