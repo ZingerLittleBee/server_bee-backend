@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useBoundStore } from '@/store'
 import { api } from '@/trpc/react'
 import { type ColumnDef } from '@tanstack/react-table'
@@ -18,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
 import { DataTableColumnHeader } from '@/app/_components/data-table/data-table-column-header'
+import { getData } from '@/app/server/server-action'
 
 export type Server = {
     id: string
@@ -54,6 +56,7 @@ export const columns: ColumnDef<Server>[] = [
     {
         id: 'actions',
         cell: ({ row }) => {
+            const router = useRouter()
             const setIsOpen = useBoundStore.use.setIsOpenTokenDialog()
             const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
             const setIsOpenConfirmDialog =
@@ -63,6 +66,8 @@ export const columns: ColumnDef<Server>[] = [
             const tokens = api.server.getTokens.useQuery({
                 id: row.original.id,
             })
+            const { mutateAsync: deleteServer } =
+                api.server.delete.useMutation()
             const server = row.original
 
             return (
@@ -114,11 +119,10 @@ export const columns: ColumnDef<Server>[] = [
                             className="text-red-600 focus:text-red-600"
                             onClick={() => {
                                 setConfirmDialogProps({
-                                    onCancel: () => {
-                                        console.log('cancel')
-                                    },
                                     onConfirm: async () => {
-                                        console.log('delete', server.id)
+                                        await deleteServer(server.id)
+                                        await getData()
+                                        router.refresh()
                                     },
                                 })
                                 setIsOpenConfirmDialog(true)

@@ -93,4 +93,21 @@ export const serverRouter = createTRPCRouter({
         })
         return result.map((item) => item.id)
     }),
+    delete: protectedProcedure
+        .input(z.string())
+        .mutation(async ({ input, ctx }) => {
+            if (!ctx.session.user) throw NotLoggedInError
+            const server = await ctx.db.server.findFirst({
+                where: {
+                    id: input,
+                    ownerId: ctx.session.user.id,
+                },
+            })
+            if (!server) return
+            await ctx.db.server.delete({
+                where: {
+                    id: input,
+                },
+            })
+        }),
 })
