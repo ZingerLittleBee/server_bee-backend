@@ -141,7 +141,7 @@ impl MyWebSocket {
                 }
             },
             doc! {
-                "$sort": { "time": -1 }
+                "$sort":{ "server_id": 1, "time": -1 }
             },
             doc! {
                 "$group": {
