@@ -16,7 +16,6 @@ export const serverRouter = createTRPCRouter({
                 id: true,
                 name: true,
                 description: true,
-                createdAt: true,
             },
             orderBy: {
                 sortWeight: 'desc',

@@ -39,7 +39,7 @@ export default function PanelPage() {
                         className="w-full"
                     />
                 ) : (
-                    <PanelCardSkeleton key={id} />
+                    <PanelCardSkeleton key={id} name={name} />
                 )
             )}
         </div>

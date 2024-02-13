@@ -24,7 +24,6 @@ import {
     ArrowUpCircle,
     Cpu,
     HardDrive,
-    Info,
     MemoryStick,
     Network,
 } from 'lucide-react'
@@ -369,12 +368,16 @@ const StatusBadge: FC<{ status: StatusEnum }> = ({ status }) => {
     }
 }
 
-export const PanelCardSkeleton = () => {
+export const PanelCardSkeleton = ({ name }: { name?: string }) => {
     return (
-        <Card className="w-[300px] space-y-4 p-4 pt-2">
+        <Card className="w-full space-y-4 p-4 pt-2">
             <div>
                 <Flex justifyContent="between">
-                    <Skeleton className="h-4 w-[100px]" />
+                    {name ? (
+                        <Title>{name}</Title>
+                    ) : (
+                        <Skeleton className="h-4 w-[100px]" />
+                    )}
                     <Skeleton className="h-4 w-[50px]" />
                 </Flex>
                 <Divider className="my-1" />
