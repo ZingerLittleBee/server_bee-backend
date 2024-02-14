@@ -28,7 +28,7 @@ export type Server = {
     group?: {
         id: string
         name: string
-    }
+    } | null
 }
 
 const Actions = ({ row }: { row: Row<Server> }) => {

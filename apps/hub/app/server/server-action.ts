@@ -4,9 +4,7 @@ import { api } from '@/trpc/server'
 import { type RouterOutputs } from '@/trpc/shared'
 
 export async function getData(): Promise<{
-    servers: RouterOutputs['server']['list'] & {
-        group?: string
-    }
+    servers: RouterOutputs['server']['list']
     groups: RouterOutputs['group']['list']
 }> {
     const servers = await api.server.list.query()
