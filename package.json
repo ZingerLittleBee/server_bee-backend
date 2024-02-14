@@ -11,6 +11,8 @@
   },
   "homepage": "https://github.com/ZingerLittleBee/server_bee-backend#readme",
   "scripts": {
+    "dev": "node script/dev.mjs",
+    "stop": "node script/stop.mjs",
     "dev:hub": "dotenv -- turbo dev --filter hub",
     "dev:view": "dotenv -- turbo dev --filter view",
     "build": "dotenv -- turbo build"
