@@ -6,6 +6,7 @@ import { api } from '@/trpc/react'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -24,6 +25,7 @@ export type Server = {
     id: string
     name: string
     description: string | null
+    group?: string | null
 }
 
 const Actions = ({ row }: { row: Row<Server> }) => {
@@ -146,6 +148,18 @@ export const columns: ColumnDef<Server>[] = [
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Description" />
         ),
+    },
+    {
+        id: 'group',
+        header: 'Group',
+        cell: ({ row }) => {
+            const group = row.original.group
+            return (
+                group && (
+                    <Badge variant="secondary">{group ? group : '—'}</Badge>
+                )
+            )
+        },
     },
     {
         id: 'actions',

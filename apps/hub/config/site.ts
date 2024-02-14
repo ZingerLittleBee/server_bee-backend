@@ -1,9 +1,8 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-    name: 'ServerBeeHub',
-    description:
-        'Beautifully designed components built with Radix UI and Tailwind CSS.',
+    name: 'ServerHub',
+    description: 'Hub for ServerBee.',
     mainNav: {
         home: {
             title: 'Panel',
