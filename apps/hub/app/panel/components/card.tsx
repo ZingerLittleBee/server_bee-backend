@@ -195,42 +195,44 @@ export default function PanelCard({
                 />
             </div>
             <div className="flex flex-col gap-2">
-                <Flex className="gap-4 truncate" justifyContent="between">
-                    <Flex className="truncate" justifyContent="start">
+                <Flex className="flex-wrap gap-x-4" justifyContent="between">
+                    <Flex className="w-auto truncate" justifyContent="start">
                         <Text className="flex items-center gap-1">
                             <MemoryStick className="h-4 w-4" />
                             <Bold>Mem</Bold>
                         </Text>
                         <InfoTooltip data={memoryTotal} title="Swap" />
                     </Flex>
-                    <STooltip content="Used">
-                        <div className="flex items-center gap-1">
-                            <div className="flex h-4 w-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400">
-                                U
+                    <Flex justifyContent="start" className="w-auto gap-4">
+                        <STooltip content="Used">
+                            <div className="flex items-center gap-1">
+                                <div className="flex h-4 w-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400">
+                                    U
+                                </div>
+                                <Text color="amber">
+                                    <Bold>
+                                        {memory?.used
+                                            ? formatToString(memory?.used)
+                                            : 'N/A'}
+                                    </Bold>
+                                </Text>
                             </div>
-                            <Text color="amber">
-                                <Bold>
-                                    {memory?.used
-                                        ? formatToString(memory?.used)
-                                        : 'N/A'}
-                                </Bold>
-                            </Text>
-                        </div>
-                    </STooltip>
-                    <STooltip content="Total">
-                        <div className="flex items-center gap-1">
-                            <div className="flex h-4 w-4 items-center justify-center rounded-full border border-emerald-200 text-[10px] font-bold text-emerald-600 dark:border-emerald-600 dark:text-emerald-400">
-                                T
+                        </STooltip>
+                        <STooltip content="Total">
+                            <div className="flex items-center gap-1">
+                                <div className="flex h-4 w-4 items-center justify-center rounded-full border border-emerald-200 text-[10px] font-bold text-emerald-600 dark:border-emerald-600 dark:text-emerald-400">
+                                    T
+                                </div>
+                                <Text color="emerald">
+                                    <Bold>
+                                        {memory?.used
+                                            ? formatToString(memory?.total)
+                                            : 'N/A'}
+                                    </Bold>
+                                </Text>
                             </div>
-                            <Text color="emerald">
-                                <Bold>
-                                    {memory?.used
-                                        ? formatToString(memory?.total)
-                                        : 'N/A'}
-                                </Bold>
-                            </Text>
-                        </div>
-                    </STooltip>
+                        </STooltip>
+                    </Flex>
                 </Flex>
                 <CategoryBar
                     values={memValues}
@@ -241,9 +243,9 @@ export default function PanelCard({
                 />
             </div>
             <div className="flex flex-col gap-2">
-                <Flex className="truncate" justifyContent="between">
-                    <Flex className="truncate" justifyContent="start">
-                        <Text className="flex items-center gap-1">
+                <Flex className="flex-wrap" justifyContent="between">
+                    <Flex className="w-auto truncate" justifyContent="start">
+                        <Text className="flex items-center gap-1 ">
                             <Network className="h-4 w-4" />
                             <Bold>Net</Bold>
                         </Text>
@@ -299,50 +301,54 @@ export default function PanelCard({
                     marginTop: '0',
                 }}
             >
-                <Flex className="gap-4 truncate" justifyContent="between">
-                    <Flex className="truncate" justifyContent="start">
+                <Flex className="flex-wrap gap-x-4" justifyContent="between">
+                    <Flex justifyContent="start" className="w-auto truncate">
                         <Text className="flex items-center gap-1">
                             <HardDrive className="h-4 w-4" />
                             <Bold>Disk</Bold>
                         </Text>
                         <InfoTooltip data={diskTotal} />
                     </Flex>
-                    <div className="flex gap-2">
-                        <div className="flex items-center justify-center space-x-2">
-                            <Tracker
-                                data={[{ color: 'cyan', tooltip: 'Read' }]}
-                                className="flex h-3 w-2 items-center justify-center"
-                            />
-                            <Text color="cyan">
-                                {disk?.read
-                                    ? formatToString(disk?.read)
-                                    : 'N/A'}
-                            </Text>
+                    <Flex justifyContent="start" className="w-auto gap-x-4">
+                        <div className="flex gap-2">
+                            <div className="flex items-center justify-center space-x-2">
+                                <Tracker
+                                    data={[{ color: 'cyan', tooltip: 'Read' }]}
+                                    className="flex h-3 w-2 items-center justify-center"
+                                />
+                                <Text color="cyan">
+                                    {disk?.read
+                                        ? formatToString(disk?.read)
+                                        : 'N/A'}
+                                </Text>
+                            </div>
+                            <div className="flex items-center justify-center space-x-2">
+                                <Tracker
+                                    data={[
+                                        { color: 'fuchsia', tooltip: 'Write' },
+                                    ]}
+                                    className="flex h-3 w-2 items-center justify-center"
+                                />
+                                <Text color="fuchsia">
+                                    {disk?.write
+                                        ? formatToString(disk?.write)
+                                        : 'N/A'}
+                                </Text>
+                            </div>
                         </div>
-                        <div className="flex items-center justify-center space-x-2">
-                            <Tracker
-                                data={[{ color: 'fuchsia', tooltip: 'Write' }]}
-                                className="flex h-3 w-2 items-center justify-center"
-                            />
-                            <Text color="fuchsia">
-                                {disk?.write
-                                    ? formatToString(disk?.write)
-                                    : 'N/A'}
-                            </Text>
-                        </div>
-                    </div>
-                    <ProgressCircle
-                        value={diskUsedPercent}
-                        radius={20}
-                        strokeWidth={4}
-                        tooltip={`Used: ${formatToString(
-                            diskUsage?.used
-                        )}, Total: ${formatToString(diskUsage?.total)}`}
-                    >
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                            {diskUsedPercent}%
-                        </span>
-                    </ProgressCircle>
+                        <ProgressCircle
+                            value={diskUsedPercent}
+                            radius={20}
+                            strokeWidth={4}
+                            tooltip={`Used: ${formatToString(
+                                diskUsage?.used
+                            )}, Total: ${formatToString(diskUsage?.total)}`}
+                        >
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                {diskUsedPercent}%
+                            </span>
+                        </ProgressCircle>
+                    </Flex>
                 </Flex>
             </div>
         </Card>
@@ -401,7 +407,7 @@ export const PanelCardSkeleton = ({ name }: { name?: string }) => {
                     </Flex>
                     <Skeleton className="h-4 w-[50px]" />
                 </Flex>
-                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-2 w-full" />
             </div>
             <div className="flex flex-col gap-2">
                 <Flex className="gap-4 truncate" justifyContent="between">
@@ -417,7 +423,7 @@ export const PanelCardSkeleton = ({ name }: { name?: string }) => {
                     </div>
                 </Flex>
 
-                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-2 w-full" />
             </div>
             <div className="flex flex-col gap-2">
                 <Flex className="truncate" justifyContent="between">
@@ -442,7 +448,7 @@ export const PanelCardSkeleton = ({ name }: { name?: string }) => {
                     marginTop: '0',
                 }}
             >
-                <Flex className="gap-4 truncate" justifyContent="between">
+                <Flex className="gap-4" justifyContent="between">
                     <Flex className="truncate" justifyContent="start">
                         <Text className="flex items-center gap-1">
                             <HardDrive className="h-4 w-4" />
@@ -452,7 +458,7 @@ export const PanelCardSkeleton = ({ name }: { name?: string }) => {
                     <div className="flex items-center gap-2">
                         <Skeleton className="h-4 w-[50px]" />
                         <Skeleton className="h-4 w-[50px]" />
-                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <Skeleton className="h-9 w-9 rounded-full" />
                     </div>
                 </Flex>
             </div>
