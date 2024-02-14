@@ -10,16 +10,29 @@ import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
 
 export const serverRouter = createTRPCRouter({
-    list: publicProcedure.query(({ ctx }) => {
+    list: publicProcedure.query(async ({ ctx }) => {
         return ctx.db.server.findMany({
             select: {
                 id: true,
                 name: true,
                 description: true,
+                group: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
             },
-            orderBy: {
-                sortWeight: 'desc',
-            },
+            orderBy: [
+                {
+                    group: {
+                        sortWeight: 'desc',
+                    },
+                },
+                {
+                    sortWeight: 'desc',
+                },
+            ],
         })
     }),
     create: protectedProcedure

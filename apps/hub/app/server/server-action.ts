@@ -13,14 +13,7 @@ export async function getData(): Promise<{
     const groups = await api.group.list.query()
 
     return {
-        servers: servers.map((s) => ({
-            ...s,
-            group:
-                groups.find(
-                    (g) =>
-                        g.servers.findIndex((server) => server.id === s.id) > -1
-                )?.name ?? undefined,
-        })),
+        servers: servers,
         groups: groups,
     }
 }

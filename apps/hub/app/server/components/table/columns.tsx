@@ -25,7 +25,10 @@ export type Server = {
     id: string
     name: string
     description: string | null
-    group?: string | null
+    group?: {
+        id: string
+        name: string
+    }
 }
 
 const Actions = ({ row }: { row: Row<Server> }) => {
@@ -156,7 +159,9 @@ export const columns: ColumnDef<Server>[] = [
             const group = row.original.group
             return (
                 group && (
-                    <Badge variant="secondary">{group ? group : '—'}</Badge>
+                    <Badge variant="secondary">
+                        {group ? group.name : '—'}
+                    </Badge>
                 )
             )
         },
