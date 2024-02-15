@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { useBoundStore } from '@/store'
 import { Check, ChevronsUpDown } from 'lucide-react'
 
@@ -20,7 +21,19 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 
+const enablePathname = ['/dashboard']
+
 export default function ServerSelect() {
+    const pathname = usePathname()
+
+    if (enablePathname.includes(pathname)) {
+        return <_ServerSelect />
+    }
+
+    return null
+}
+
+function _ServerSelect() {
     const serverList = useServerList()
 
     const currentServerId = useBoundStore.use.currentServerId()
