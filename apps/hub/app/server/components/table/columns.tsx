@@ -19,6 +19,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
 import { DataTableColumnHeader } from '@/app/_components/data-table/data-table-column-header'
+import {
+    ServerFormMode,
+    type FormValues,
+} from '@/app/server/components/form/server-form'
 import { getData } from '@/app/server/server-action'
 
 export type Server = {
@@ -37,6 +41,8 @@ const Actions = ({ row }: { row: Row<Server> }) => {
     const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
     const setIsOpenConfirmDialog = useBoundStore.use.setIsOpenConfirmDialog()
     const setConfirmDialogProps = useBoundStore.use.setConfirmDialogProps()
+    const setIsOpenServerForm = useBoundStore.use.setIsOpenServerForm()
+    const setServerFormProps = useBoundStore.use.setServerFormProps()
     const tokens = api.server.getTokens.useQuery({
         id: row.original.id,
     })
@@ -79,11 +85,15 @@ const Actions = ({ row }: { row: Row<Server> }) => {
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem
                     onClick={() => {
-                        setTokenDialogProps({
-                            title: 'Token list',
-                            tokens: tokens.data ?? [],
+                        setServerFormProps({
+                            mode: ServerFormMode.Edit,
+                            id: server.id,
+                            server: {
+                                ...server,
+                                group: server.group?.id,
+                            } as FormValues,
                         })
-                        setIsOpen(true)
+                        setIsOpenServerForm(true)
                     }}
                 >
                     Edit

@@ -2,7 +2,7 @@ import { type StateCreator } from 'zustand'
 
 import {
     ServerFormMode,
-    ServerFormProps,
+    type ServerFormProps,
 } from '@/app/server/components/form/server-form'
 
 type State = {

@@ -9,6 +9,10 @@ import { type Prisma } from '@prisma/client'
 import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
 
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('server.ts')
+
 export const serverRouter = createTRPCRouter({
     list: publicProcedure.query(async ({ ctx }) => {
         return ctx.db.server.findMany({
@@ -77,6 +81,41 @@ export const serverRouter = createTRPCRouter({
                 },
             })
             return serverToken.token
+        }),
+    update: protectedProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                name: z.string().optional(),
+                description: z.string().optional(),
+                group: z.string().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            if (!ctx.session.user) throw NotLoggedInError
+
+            try {
+                await ctx.db.server.update({
+                    where: {
+                        id: input.id,
+                    },
+                    data: {
+                        name: input.name,
+                        description: input.description,
+                        group: input.group
+                            ? {
+                                  connect: {
+                                      id: input.group,
+                                  },
+                              }
+                            : undefined,
+                    },
+                })
+                return true
+            } catch (e) {
+                logger.error(`Failed to update server: ${JSON.stringify(e)}`)
+                return false
+            }
         }),
     getTokens: protectedProcedure
         .input(

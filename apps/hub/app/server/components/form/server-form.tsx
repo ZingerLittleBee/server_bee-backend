@@ -40,41 +40,63 @@ const formSchema = z.object({
     group: z.string().optional(),
 })
 
-type FormValues = z.infer<typeof formSchema>
+export type FormValues = z.infer<typeof formSchema>
 
 export type ServerFormProps = {
     mode: ServerFormMode
+    id?: string
     server?: FormValues
     onSubmit?: () => void
 }
 
 const NoGroup = 'no-group'
 
-export function ServerForm({ mode, onSubmit }: ServerFormProps) {
+export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
     const router = useRouter()
     const { data: groups } = api.group.list.useQuery()
     const { mutateAsync } = api.server.create.useMutation()
+    const { mutateAsync: updateServer } = api.server.update.useMutation()
     const setIsOpen = useBoundStore.use.setIsOpenServerForm()
     const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
+    const setIsOpenTokenDialog = useBoundStore.use.setIsOpenTokenDialog()
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: '',
-            description: undefined,
-            group: undefined,
-        },
+        defaultValues:
+            mode === ServerFormMode.Edit
+                ? {
+                      name: server?.name,
+                      description: server?.description,
+                      group: server?.group ?? NoGroup,
+                  }
+                : {
+                      name: '',
+                      description: undefined,
+                      group: undefined,
+                  },
     })
 
     async function onFormSubmit(data: z.infer<typeof formSchema>) {
-        const token = await mutateAsync(
+        const params =
             data.group === NoGroup ? { ...data, group: undefined } : data
-        )
-        setTokenDialogProps({
-            title: 'Server created!',
-            description: 'Copy the token for communication with the node',
-            tokens: [token],
-        })
-        setIsOpen(true)
+
+        if (mode === ServerFormMode.Create) {
+            const token = await mutateAsync(params)
+            setTokenDialogProps({
+                title: 'Server created!',
+                description: 'Copy the token for communication with the node',
+                tokens: [token],
+            })
+            setIsOpen(false)
+            setIsOpenTokenDialog(true)
+        }
+
+        if (mode === ServerFormMode.Edit && id) {
+            await updateServer({
+                ...params,
+                id: id,
+            })
+            setIsOpen(false)
+        }
         onSubmit?.()
         await getData()
         router.refresh()
