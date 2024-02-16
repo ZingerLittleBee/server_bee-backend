@@ -11,6 +11,10 @@ import { create, type StateCreator } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
 import {
+    createPanelFilterSlice,
+    type PanelFilterSlice,
+} from '@/app/panel/components/filter/store'
+import {
     createConfirmDialogSlice,
     type ConfirmDialogSlice,
 } from '@/app/server/store/confirm-dialog'
@@ -35,7 +39,8 @@ type BoundStore = ServerFormDialogSlice &
     RecordSlice &
     NetworkHistorySlice &
     ServerSlice &
-    ConfirmDialogSlice
+    ConfirmDialogSlice &
+    PanelFilterSlice
 
 const useBoundStoreBase = create<BoundStore>()(
     immer((...a) => ({
@@ -45,6 +50,7 @@ const useBoundStoreBase = create<BoundStore>()(
         ...createNetworkHistorySlice(...a),
         ...creatServerSlice(...a),
         ...createConfirmDialogSlice(...a),
+        ...createPanelFilterSlice(...a),
     }))
 )
 

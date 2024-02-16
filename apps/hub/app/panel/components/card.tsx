@@ -38,12 +38,14 @@ export type PanelCardProps = {
     id: string
     name: string
     record: Record
+    status: StatusEnum
     networkHistory: NetworkIO[]
 } & HTMLAttributes<HTMLDivElement>
 
 export default function PanelCard({
     name,
     record,
+    status,
     networkHistory,
     className,
 }: PanelCardProps) {
@@ -139,12 +141,6 @@ export default function PanelCard({
             },
         ]
     }, [overview?.disk_io])
-
-    const status = useMemo(() => {
-        if (!time) return StatusEnum.Pending
-        if (Math.floor(Date.now() / 1000) - time > 60) return StatusEnum.Offline
-        return StatusEnum.Online
-    }, [time])
 
     if (!record) return <></>
 
@@ -243,7 +239,7 @@ export default function PanelCard({
                 />
             </div>
             <div className="flex flex-col gap-2">
-                <Flex className="flex-wrap" justifyContent="between">
+                <Flex className="flex-wrap gap-x-4" justifyContent="between">
                     <Flex className="w-auto truncate" justifyContent="start">
                         <Text className="flex items-center gap-1 ">
                             <Network className="h-4 w-4" />
@@ -400,7 +396,7 @@ export const PanelCardSkeleton = ({ name }: { name?: string }) => {
                     ) : (
                         <Skeleton className="h-4 w-[100px]" />
                     )}
-                    <Skeleton className="h-4 w-[50px]" />
+                    <Text>No Data</Text>
                 </Flex>
                 <Divider className="my-1" />
             </div>
