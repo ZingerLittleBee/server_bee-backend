@@ -336,18 +336,34 @@ export default function PanelCard({
                                 </Text>
                             </div>
                         </div>
-                        <ProgressCircle
-                            value={diskUsedPercent}
-                            radius={20}
-                            strokeWidth={4}
-                            tooltip={`Used: ${formatToString(
-                                diskUsage?.used
-                            )}, Total: ${formatToString(diskUsage?.total)}`}
+                        <STooltip
+                            content={
+                                <Flex className="flex-col items-start">
+                                    <Flex className="gap-1">
+                                        <Text>Used</Text>
+                                        <Bold>
+                                            {formatToString(diskUsage?.used)}
+                                        </Bold>
+                                    </Flex>
+                                    <Flex className="gap-1">
+                                        <Text>Total</Text>
+                                        <Bold>
+                                            {formatToString(diskUsage?.total)}
+                                        </Bold>
+                                    </Flex>
+                                </Flex>
+                            }
                         >
-                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                {diskUsedPercent}%
-                            </span>
-                        </ProgressCircle>
+                            <ProgressCircle
+                                value={diskUsedPercent}
+                                radius={20}
+                                strokeWidth={4}
+                            >
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    {diskUsedPercent}%
+                                </span>
+                            </ProgressCircle>
+                        </STooltip>
                     </Flex>
                 </Flex>
             </div>

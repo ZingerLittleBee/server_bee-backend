@@ -1,6 +1,5 @@
 import {
     AlertTriangle,
-    Antenna,
     ArrowRight,
     Check,
     ChevronLeft,
@@ -8,6 +7,7 @@ import {
     ClipboardCheck,
     Copy,
     CreditCard,
+    GanttChartSquare,
     HelpCircle,
     Laptop,
     Loader2,
@@ -29,7 +29,7 @@ import {
 export type Icon = LucideIcon
 
 export const Icons = {
-    logo: Antenna,
+    logo: GanttChartSquare,
     close: X,
     spinner: Loader2,
     chevronLeft: ChevronLeft,
