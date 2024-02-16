@@ -1,13 +1,13 @@
 import { PanelFilter } from '@/constant/enum/filter'
 import { StatusEnum } from '@/constant/enum/status'
-import { useBoundStore } from '@/store'
+import { usePersistStore } from '@/store/persist-store'
 
 import useServerList from '@/hooks/useServerList'
 
 export default function useFilterServerList() {
     const serverList = useServerList()
 
-    const panelFilter = useBoundStore.use.panelFilter()
+    const panelFilter = usePersistStore.use.panelFilter()
 
     switch (panelFilter) {
         case PanelFilter.HasData:

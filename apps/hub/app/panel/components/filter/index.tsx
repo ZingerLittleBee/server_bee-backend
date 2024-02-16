@@ -1,7 +1,8 @@
 import { PanelFilter } from '@/constant/enum/filter'
-import { useBoundStore } from '@/store'
+import { usePersistStore } from '@/store/persist-store'
 import { Flex } from '@tremor/react'
 
+import { useHydrationStore } from '@/hooks/useHydrationStore'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -25,13 +26,19 @@ export default function FilterTool() {
         },
     ]
 
-    const setPanelFilter = useBoundStore.use.setPanelFilter()
+    const panelFilter = useHydrationStore(
+        usePersistStore,
+        (state) => state.panelFilter
+    )
+
+    const setPanelFilter = usePersistStore.use.setPanelFilter()
 
     return (
         <div className="py-3">
             <Flex className="w-auto" justifyContent="end">
                 <RadioGroup
-                    defaultValue={PanelFilter.All}
+                    defaultValue={panelFilter}
+                    value={panelFilter}
                     className="flex items-center gap-4"
                     onValueChange={(value) => {
                         setPanelFilter(value as PanelFilter)

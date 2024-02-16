@@ -6,7 +6,7 @@ import { useBoundStore } from '@/store'
 import { Check, ChevronsUpDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import useServerList from '@/hooks/useServerList'
+import useFilterServerList from '@/hooks/useFilterServerList'
 import { Button } from '@/components/ui/button'
 import {
     Command,
@@ -34,7 +34,7 @@ export default function ServerSelect() {
 }
 
 function _ServerSelect() {
-    const serverList = useServerList()
+    const serverList = useFilterServerList()
 
     const currentServerId = useBoundStore.use.currentServerId()
     const setCurrentServerId = useBoundStore.use.setCurrentServerId()
