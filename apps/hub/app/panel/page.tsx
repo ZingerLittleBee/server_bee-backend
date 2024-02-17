@@ -64,61 +64,60 @@ export default ({ groups }: PanelPageProps) => {
 
     return (
         <div className="grid h-full">
-            <FilterTool />
+            <FilterTool className="container" />
             {data.length === 0 ? (
                 <EmptyDataView className="h-[calc(100vh-65px-40px)]" />
             ) : (
                 <ScrollArea className="h-[calc(100vh-65px-40px)]">
                     <Accordion
                         type="multiple"
-                        className="w-full px-4 space-y-4 pb-8"
+                        className="container px-8 space-y-4 pb-8"
                         defaultValue={data.map((d) =>
                             d.group ? d.group.name : 'No Group'
                         )}
                     >
-                        {data.map((d) => {
-                            return (
-                                <AccordionItem
-                                    value={d.group ? d.group.name : 'No Group'}
-                                    className=" border border-slate-200 px-2 rounded-lg"
-                                >
-                                    <AccordionTrigger className="px-2">
-                                        {d.group ? d.group.name : 'No Group'}
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="p-1 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                                            {d.servers?.map(
-                                                ({
-                                                    id,
-                                                    name,
-                                                    record,
-                                                    status,
-                                                    networkHistory,
-                                                }) =>
-                                                    record ? (
-                                                        <PanelCard
-                                                            key={id}
-                                                            id={id}
-                                                            name={name}
-                                                            record={record}
-                                                            status={status}
-                                                            networkHistory={
-                                                                networkHistory
-                                                            }
-                                                            className="w-full"
-                                                        />
-                                                    ) : (
-                                                        <PanelCardSkeleton
-                                                            key={id}
-                                                            name={name}
-                                                        />
-                                                    )
-                                            )}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            )
-                        })}
+                        {data.map((d) => (
+                            <AccordionItem
+                                key={d.group?.id || 'no-group'}
+                                value={d.group ? d.group.name : 'No Group'}
+                                className="border border-slate-200 dark:border-slate-800 px-2 rounded-lg"
+                            >
+                                <AccordionTrigger className="px-2">
+                                    {d.group ? d.group.name : 'No Group'}
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="grid grid-cols-1 gap-4 p-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                                        {d.servers?.map(
+                                            ({
+                                                id,
+                                                name,
+                                                record,
+                                                status,
+                                                networkHistory,
+                                            }) =>
+                                                record ? (
+                                                    <PanelCard
+                                                        key={id}
+                                                        id={id}
+                                                        name={name}
+                                                        record={record}
+                                                        status={status}
+                                                        networkHistory={
+                                                            networkHistory
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                ) : (
+                                                    <PanelCardSkeleton
+                                                        key={id}
+                                                        name={name}
+                                                    />
+                                                )
+                                        )}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
                     </Accordion>
                 </ScrollArea>
             )}

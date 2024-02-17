@@ -25,6 +25,7 @@ export async function SiteHeader() {
                             href={siteConfig.links.github}
                             target="_blank"
                             rel="noreferrer"
+                            className="hidden sm:block"
                         >
                             <div
                                 className={buttonVariants({
@@ -40,6 +41,7 @@ export async function SiteHeader() {
                             href={siteConfig.links.twitter}
                             target="_blank"
                             rel="noreferrer"
+                            className="hidden sm:block"
                         >
                             <div
                                 className={buttonVariants({

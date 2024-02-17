@@ -11,9 +11,5 @@ interface PanelLayoutProps {
 }
 
 export default function PanelLayout({ children }: PanelLayoutProps) {
-    return (
-        <section className="container relative grid items-center px-0">
-            {children}
-        </section>
-    )
+    return <section className="relative grid items-center">{children}</section>
 }
