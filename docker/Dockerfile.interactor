@@ -1,0 +1,17 @@
+FROM rust:alpine3.17 as builder
+
+WORKDIR /usr/src/serverbee
+
+COPY . .
+
+# https://github.com/hound-search/hound/issues/238
+RUN apk add --no-cache musl-dev
+
+RUN cargo build --bin serverbee-interactor --release
+
+
+FROM alpine:3.17
+
+COPY --from=builder /usr/src/serverbee/target/release/serverbee-interactor /usr/local/bin/serverbee-interactor
+
+ENTRYPOINT [ "serverbee-interactor" ]

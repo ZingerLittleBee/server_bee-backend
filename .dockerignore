@@ -1,5 +1,5 @@
-view/node_modules
-view/dist
+node_modules
+dist
 pkg
 .git
 db

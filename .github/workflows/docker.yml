@@ -2,11 +2,20 @@ name: Docker Images CI
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Dockerfile.web
+            tag: serverbee-web:latest
+          - dockerfile: Dockerfile.interactor
+            tag: serverbee-interactor:latest
+          - dockerfile: Dockerfile.recorder
+            tag: serverbee-recorder:latest
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
@@ -19,7 +28,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push server 📲
+      - name: Build and push ${{ matrix.tag }} 📲
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -43,8 +52,8 @@ jobs:
           # `docker manifest inspect zingerbee/serverbee-web`
           # 5. Push manifest
           # `docker manifest push zingerbee/serverbee-web`
-          file: ./docker/Dockerfile
+          file: ./docker/${{ matrix.dockerfile }}
           push: true
           # `zingerbee/arm64-serverbee-web:latest` need manually compile and publish
-          tags: zingerbee/serverbee-web:latest
+          tags: zingerbee/${{ matrix.tag }}
           # tags: zingerbee/amd64-serverbee-web:latest
