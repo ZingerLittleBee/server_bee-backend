@@ -34,7 +34,7 @@ export default function FilterTool() {
     const setPanelFilter = usePersistStore.use.setPanelFilter()
 
     return (
-        <div className="py-3">
+        <div className="py-3 px-8">
             <Flex className="w-auto" justifyContent="end">
                 <RadioGroup
                     defaultValue={panelFilter}

@@ -1,10 +1,13 @@
 import PanelLayout from '@/app/panel/layout'
 import PanelPage from '@/app/panel/page'
+import { getData } from '@/app/server/server-action'
 
-export default function Home() {
+export default async function Home() {
+    const { groups } = await getData()
+
     return (
         <PanelLayout>
-            <PanelPage />
+            <PanelPage groups={groups} />
         </PanelLayout>
     )
 }
