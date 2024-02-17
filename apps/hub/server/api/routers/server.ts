@@ -20,6 +20,7 @@ export const serverRouter = createTRPCRouter({
                 id: true,
                 name: true,
                 description: true,
+                sortWeight: true,
                 group: {
                     select: {
                         id: true,
@@ -44,6 +45,7 @@ export const serverRouter = createTRPCRouter({
             z.object({
                 name: z.string().min(1),
                 description: z.string().optional(),
+                sortWeight: z.number().optional(),
                 group: z.string().optional(),
             })
         )
@@ -53,6 +55,7 @@ export const serverRouter = createTRPCRouter({
             const createData: Prisma.ServerCreateInput = {
                 name: input.name,
                 description: input.description,
+                sortWeight: input.sortWeight,
                 owner: { connect: { id: ctx.session.user.id } },
             }
             if (input.group) {
@@ -88,6 +91,7 @@ export const serverRouter = createTRPCRouter({
                 id: z.string(),
                 name: z.string().optional(),
                 description: z.string().optional(),
+                sortWeight: z.number().optional(),
                 group: z.string().optional(),
             })
         )
@@ -102,6 +106,7 @@ export const serverRouter = createTRPCRouter({
                     data: {
                         name: input.name,
                         description: input.description,
+                        sortWeight: input.sortWeight,
                         group: input.group
                             ? {
                                   connect: {

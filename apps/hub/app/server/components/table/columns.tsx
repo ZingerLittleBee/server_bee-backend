@@ -29,6 +29,7 @@ export type Server = {
     id: string
     name: string
     description: string | null
+    sortWeight: number
     group?: {
         id: string
         name: string
@@ -91,6 +92,7 @@ const Actions = ({ row }: { row: Row<Server> }) => {
                             server: {
                                 ...server,
                                 group: server.group?.id,
+                                sortWeight: server.sortWeight.toString(),
                             } as FormValues,
                         })
                         setIsOpenServerForm(true)
@@ -160,6 +162,12 @@ export const columns: ColumnDef<Server>[] = [
         accessorKey: 'description',
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Description" />
+        ),
+    },
+    {
+        accessorKey: 'sortWeight',
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="SortWeight" />
         ),
     },
     {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useBoundStore } from '@/store'
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { NumberInput } from '@tremor/react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -38,6 +40,7 @@ const formSchema = z.object({
     name: z.string().min(1),
     description: z.string().optional(),
     group: z.string().optional(),
+    sortWeight: z.string().optional(),
 })
 
 export type FormValues = z.infer<typeof formSchema>
@@ -67,17 +70,22 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
                       name: server?.name,
                       description: server?.description,
                       group: server?.group ?? NoGroup,
+                      sortWeight: server?.sortWeight,
                   }
                 : {
                       name: '',
                       description: undefined,
                       group: undefined,
+                      sortWeight: '0',
                   },
     })
 
     async function onFormSubmit(data: z.infer<typeof formSchema>) {
-        const params =
-            data.group === NoGroup ? { ...data, group: undefined } : data
+        const params = {
+            ...data,
+            group: data.group === NoGroup ? undefined : data.group,
+            sortWeight: data.sortWeight ? +data.sortWeight : 0,
+        }
 
         if (mode === ServerFormMode.Create) {
             const token = await mutateAsync(params)
@@ -106,7 +114,7 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onFormSubmit)}
-                className="space-y-8"
+                className="space-y-4"
             >
                 <FormField
                     control={form.control}
@@ -131,6 +139,32 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
                                 <Textarea
                                     {...field}
                                     placeholder="Type description here."
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="sortWeight"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>SortWeight</FormLabel>
+                            <FormDescription>
+                                <p>
+                                    The higher the weight, the higher the sort
+                                    order.
+                                </p>
+                                <p>
+                                    First, sort by the weight of the group, and
+                                    then sort by the weight of the server.
+                                </p>
+                            </FormDescription>
+                            <FormControl>
+                                <NumberInput
+                                    className="mx-auto max-w-sm"
+                                    {...field}
                                 />
                             </FormControl>
                             <FormMessage />
