@@ -10,6 +10,7 @@ import { creatServerSlice, type ServerSlice } from '@/store/server'
 import { create, type StateCreator } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
+import { createServerPageSlice, type ServerPageSlice } from '@/app/server/store'
 import {
     createConfirmDialogSlice,
     type ConfirmDialogSlice,
@@ -30,7 +31,8 @@ export type ImmerStateCreator<T> = StateCreator<
     T
 >
 
-type BoundStore = ServerFormDialogSlice &
+type BoundStore = ServerPageSlice &
+    ServerFormDialogSlice &
     TokenDialogSlice &
     RecordSlice &
     NetworkHistorySlice &
@@ -39,6 +41,7 @@ type BoundStore = ServerFormDialogSlice &
 
 export const useBoundStoreBase = create<BoundStore>()(
     immer((...a) => ({
+        ...createServerPageSlice(...a),
         ...createServerFormDialogSlice(...a),
         ...createTokenDialogSlice(...a),
         ...createRecordSlice(...a),

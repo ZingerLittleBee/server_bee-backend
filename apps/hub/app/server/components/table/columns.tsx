@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { FormMode } from '@/constant/enum/mode'
 import { useBoundStore } from '@/store'
 import { api } from '@/trpc/react'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
@@ -19,10 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
 import { DataTableColumnHeader } from '@/app/_components/data-table/data-table-column-header'
-import {
-    ServerFormMode,
-    type FormValues,
-} from '@/app/server/components/form/server-form'
+import { type FormValues } from '@/app/server/components/form/server-form'
 import { getData } from '@/app/server/server-action'
 
 export type Server = {
@@ -87,7 +85,7 @@ const Actions = ({ row }: { row: Row<Server> }) => {
                 <DropdownMenuItem
                     onClick={() => {
                         setServerFormProps({
-                            mode: ServerFormMode.Edit,
+                            mode: FormMode.Edit,
                             id: server.id,
                             server: {
                                 ...server,

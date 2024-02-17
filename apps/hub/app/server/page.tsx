@@ -1,10 +1,7 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import AddServer from '@/app/server/components/form/add-server'
+import AddOne from '@/app/server/components/form/add-one'
 import FormDialog from '@/app/server/components/form/form-dialog'
-import GroupTabContent from '@/app/server/components/group'
-import { columns } from '@/app/server/components/table/columns'
+import ServerTabBlock from '@/app/server/components/tab'
 import ConfirmDialog from '@/app/server/components/table/confirm-dialog'
-import { DataTable } from '@/app/server/components/table/data-table'
 import { TokenDialog } from '@/app/server/components/token-dialog'
 import { getData } from '@/app/server/server-action'
 
@@ -23,22 +20,11 @@ export default async function ServerPage() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <AddServer />
+                    <AddOne />
                 </div>
             </div>
 
-            <Tabs defaultValue="server" className="w-full">
-                <TabsList className="grid w-[200px] grid-cols-2">
-                    <TabsTrigger value="server">Server</TabsTrigger>
-                    <TabsTrigger value="group">Group</TabsTrigger>
-                </TabsList>
-                <TabsContent value="server" className="w-full">
-                    <DataTable data={servers} columns={columns} />
-                </TabsContent>
-                <TabsContent value="group">
-                    <GroupTabContent groups={groups} />
-                </TabsContent>
-            </Tabs>
+            <ServerTabBlock servers={servers} groups={groups} />
             <FormDialog />
             <TokenDialog />
             <ConfirmDialog />
