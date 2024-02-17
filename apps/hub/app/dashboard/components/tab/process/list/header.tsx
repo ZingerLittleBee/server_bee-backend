@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 

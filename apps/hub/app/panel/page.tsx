@@ -22,7 +22,7 @@ export type PanelPageProps = {
     groups: RouterOutputs['group']['list']
 }
 
-export default ({ groups }: PanelPageProps) => {
+const PanelPage = ({ groups }: PanelPageProps) => {
     const servers = useFilterServerList()
 
     const data = useMemo<
@@ -138,3 +138,5 @@ const EmptyDataView = ({ className }: HTMLAttributes<HTMLDivElement>) => {
         </div>
     )
 }
+
+export default PanelPage

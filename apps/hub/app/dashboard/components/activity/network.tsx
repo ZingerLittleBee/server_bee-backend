@@ -73,10 +73,18 @@ export function NetworkActivity() {
     )
 }
 
-const CustomizedYAxisTick = ({ x, y, payload }: any) => {
-    let [value, unit] = kiBToMaxUnit(payload.value, 0)
+const CustomizedYAxisTick = ({
+    x,
+    y,
+    payload,
+}: {
+    x?: number
+    y?: number
+    payload?: { value: number }
+}) => {
+    let [value, unit] = kiBToMaxUnit(payload?.value, 0)
 
-    if (payload.value === 0) {
+    if (payload?.value === 0) {
         value = ''
         unit = ''
     }
@@ -110,7 +118,7 @@ const CustomTooltip: FC<TooltipProps<string, number>> = ({
     payload,
 }) => {
     if (active) {
-        const time = payload?.[0]?.payload.name
+        const time = payload?.[0]?.payload.name as string
         const tx = formatToString(kiBToMaxUnit(payload?.[0]?.value))
         const rx = formatToString(kiBToMaxUnit(payload?.[1]?.value))
 
