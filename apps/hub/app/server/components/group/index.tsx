@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { FormMode } from '@/constant/enum/mode'
 import { useBoundStore } from '@/store'
+import { api } from '@/trpc/react'
 import { type RouterOutputs } from '@/trpc/shared'
 import { Bold, Flex, Italic, Subtitle, Text } from '@tremor/react'
 import { MoreHorizontal } from 'lucide-react'
@@ -85,6 +86,8 @@ const GroupAction = ({
     const setIsOpenConfirmDialog = useBoundStore.use.setIsOpenConfirmDialog()
     const setConfirmDialogProps = useBoundStore.use.setConfirmDialogProps()
 
+    const { mutateAsync: deleteGroup } = api.group.delete.useMutation()
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -121,7 +124,7 @@ const GroupAction = ({
                         setConfirmDialogProps({
                             onConfirm: () =>
                                 void (async () => {
-                                    // DELETE GROUP
+                                    await deleteGroup(group.id)
                                     await getData()
                                     router.refresh()
                                 })(),

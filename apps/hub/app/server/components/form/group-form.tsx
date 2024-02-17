@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { FormMode } from '@/constant/enum/mode'
-import { useBoundStore } from '@/store'
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { NumberInput } from '@tremor/react'
@@ -41,9 +40,8 @@ export type GroupFormProps = {
 
 export function GroupForm({ mode, id, group, onSubmit }: GroupFormProps) {
     const router = useRouter()
-    const { mutateAsync } = api.group.create.useMutation()
-    const { mutateAsync: updateServer } = api.group.update.useMutation()
-    const setIsOpen = useBoundStore.use.setIsOpenServerForm()
+    const { mutateAsync: createGroup } = api.group.create.useMutation()
+    const { mutateAsync: updateGroup } = api.group.update.useMutation()
     const form = useForm<GroupFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues:
@@ -67,15 +65,14 @@ export function GroupForm({ mode, id, group, onSubmit }: GroupFormProps) {
         }
 
         if (mode === FormMode.Create) {
-            await mutateAsync(params)
+            await createGroup(params)
         }
 
         if (mode === FormMode.Edit && id) {
-            await updateServer({
+            await updateGroup({
                 ...params,
                 id: id,
             })
-            setIsOpen(false)
         }
         onSubmit?.()
         await getData()
