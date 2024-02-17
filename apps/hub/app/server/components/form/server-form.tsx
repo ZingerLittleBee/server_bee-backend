@@ -159,7 +159,7 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
                             </FormDescription>
                             <FormControl>
                                 <NumberInput
-                                    className="mx-auto max-w-sm"
+                                    className="mx-auto max-w-sm cn-input"
                                     {...field}
                                 />
                             </FormControl>
@@ -178,7 +178,7 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition">
                                         <SelectValue placeholder="Select a group" />
                                     </SelectTrigger>
                                     <SelectContent>

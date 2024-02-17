@@ -131,10 +131,7 @@ export function GroupForm({ mode, id, group, onSubmit }: GroupFormProps) {
                                 </span>
                             </FormDescription>
                             <FormControl>
-                                <NumberInput
-                                    className="mx-auto max-w-sm"
-                                    {...field}
-                                />
+                                <NumberInput className="cn-input" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

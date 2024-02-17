@@ -64,10 +64,7 @@ function _ServerSelect() {
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
                 <Command>
-                    <CommandInput
-                        className="border-none focus:border-none focus:outline-none focus:ring-0"
-                        placeholder="Search server..."
-                    />
+                    <CommandInput placeholder="Search server..." />
                     <CommandEmpty>No framework found.</CommandEmpty>
                     <CommandGroup>
                         {serverList.map((s) => (
