@@ -66,7 +66,7 @@ const Actions = ({ row }: { row: Row<Server> }) => {
                         })
                     }}
                 >
-                    Copy server ID
+                    Copy ID
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => {
@@ -79,7 +79,6 @@ const Actions = ({ row }: { row: Row<Server> }) => {
                 >
                     View tokens
                 </DropdownMenuItem>
-                <DropdownMenuItem>View server details</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem
