@@ -68,7 +68,7 @@ model Server {
     sortWeight Int      @default(0)
     token     ServerToken[]
     groupId   String?
-    group     Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    group     Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
