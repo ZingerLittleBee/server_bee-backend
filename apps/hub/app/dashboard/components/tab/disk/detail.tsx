@@ -1,6 +1,6 @@
-import { DiskDetail } from '@serverbee/types'
-import { BarList, Color, Flex, Icon, Text, Title } from '@tremor/react'
-import { HardDrive, Usb } from 'lucide-react'
+import { type DiskDetail } from '@serverbee/types'
+import { BarList, Flex, Icon, Text, Title, type Color } from '@tremor/react'
+import { HardDrive, LucideIcon, Usb } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { formatToString, toGiB } from '@/lib/unit'
@@ -22,7 +22,7 @@ interface Data {
 interface Category {
     title: string
     value: number
-    icon: any
+    icon: LucideIcon
     color: Color
     date: string
     data: Data[]
@@ -35,7 +35,7 @@ export type DiskDetailProp = {
 export default function DiskDetailBlock({ detail }: DiskDetailProp) {
     const { theme } = useTheme()
 
-    let usedPercentage =
+    const usedPercentage =
         toGiB(detail.total_space) === 0
             ? 0
             : Math.floor(
@@ -87,7 +87,7 @@ export default function DiskDetailBlock({ detail }: DiskDetailProp) {
                     />
                     <Title className="truncate">{card.title}</Title>
                 </Flex>
-                <Flex justifyContent="start" className="space-x-3 mt-3">
+                <Flex justifyContent="start" className="mt-3 space-x-3">
                     <Badge variant="outline">{detail.disk_type}</Badge>
                     {detail.is_removable && RemoveableView()}
                     {detail.file_system && FileSystemView(detail.file_system)}
@@ -103,7 +103,6 @@ export default function DiskDetailBlock({ detail }: DiskDetailProp) {
                     key={card.title}
                     data={card.data}
                     className="mt-2"
-                    // @ts-ignore
                     // https://github.com/tremorlabs/tremor/issues/612
                     color={theme === 'dark' ? `${card.color}-500 ` : card.color}
                     valueFormatter={dataFormatter}

@@ -65,13 +65,13 @@ export const MemoryWidget = () => {
         payload,
     }) => {
         if (active && payload?.length) {
-            const key: 'free' | 'used' | 'swap_total' =
-                payload?.[0]?.payload.payload.key
+            const key: 'free' | 'used' | 'swap_total' = payload?.[0]?.payload
+                .payload.key as 'free' | 'used' | 'swap_total'
             const color = colors.find((c) => c.name === payload[0]?.name)?.color
             return (
                 <TremorCard className="flex flex-row items-center space-x-1.5 p-2">
                     <div
-                        className="h-2 w-2 rounded-full"
+                        className="size-2 rounded-full"
                         style={{
                             backgroundColor: color,
                         }}

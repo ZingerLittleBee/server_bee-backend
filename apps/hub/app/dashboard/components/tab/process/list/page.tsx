@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { SimpleProcess } from '@serverbee/types'
+import { type SimpleProcess } from '@serverbee/types'
 import { clsx } from 'clsx'
 import { Virtuoso } from 'react-virtuoso'
 
@@ -50,10 +50,7 @@ export default function ProcessList() {
                                     })}
                                 >
                                     <div className="grid grid-cols-6 pl-2 text-[14px]">
-                                        <p
-                                            className="col-span-1 cursor-pointer truncate"
-                                            onClick={() => {}}
-                                        >
+                                        <p className="col-span-1 cursor-pointer truncate">
                                             {process.pid}
                                         </p>
                                         <STooltip content={process.name}>

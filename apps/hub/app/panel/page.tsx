@@ -1,6 +1,7 @@
 'use client'
 
-import { HTMLAttributes, useMemo } from 'react'
+import { useMemo, type HTMLAttributes } from 'react'
+import { StaticImport } from 'next/dist/shared/lib/get-img-props'
 import Image from 'next/image'
 import NoDataIcon from '@/public/assets/no-data.svg'
 import type { RouterOutputs } from '@/trpc/shared'
@@ -71,16 +72,16 @@ const PanelPage = ({ groups }: PanelPageProps) => {
                 <ScrollArea className="h-[calc(100vh-65px-40px)]">
                     <Accordion
                         type="multiple"
-                        className="container px-8 space-y-4 pb-8"
+                        className="container space-y-4 px-8 pb-8"
                         defaultValue={data.map((d) =>
                             d.group ? d.group.name : 'No Group'
                         )}
                     >
                         {data.map((d) => (
                             <AccordionItem
-                                key={d.group?.id || 'no-group'}
+                                key={d.group?.id ?? 'no-group'}
                                 value={d.group ? d.group.name : 'No Group'}
-                                className="border border-slate-200 dark:border-slate-800 px-2 rounded-lg"
+                                className="rounded-lg border border-slate-200 px-2 dark:border-slate-800"
                             >
                                 <AccordionTrigger className="px-2">
                                     {d.group ? d.group.name : 'No Group'}
@@ -133,7 +134,12 @@ const EmptyDataView = ({ className }: HTMLAttributes<HTMLDivElement>) => {
                 className
             )}
         >
-            <Image src={NoDataIcon} alt="no data" width={180} height={180} />
+            <Image
+                src={NoDataIcon as StaticImport}
+                alt="no data"
+                width={180}
+                height={180}
+            />
             <Text className="text-center">No Data</Text>
         </div>
     )
