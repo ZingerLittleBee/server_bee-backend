@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo } from 'react'
 import { type SimpleProcess } from '@serverbee/types'
 import { clsx } from 'clsx'
