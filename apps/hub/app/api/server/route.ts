@@ -34,16 +34,14 @@ export async function GET(req: NextRequest) {
 }
 
 const getServerIdsByUserId = async (userId: string): Promise<string[]> => {
-    return (
-        (
-            await db.server.findMany({
-                where: {
-                    ownerId: userId,
-                },
-                select: {
-                    id: true,
-                },
-            })
-        )?.map((server) => server.id) ?? []
-    )
+    const servers: { id: string }[] = await db.server.findMany({
+        where: {
+            ownerId: userId,
+        },
+        select: {
+            id: true,
+        },
+    })
+
+    return servers?.map((server) => server.id) ?? []
 }

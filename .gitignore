@@ -17,3 +17,5 @@ dist/**
 .next/**
 node_modules/**
 *.log
+
+out

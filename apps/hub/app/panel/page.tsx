@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, type HTMLAttributes } from 'react'
-import { StaticImport } from 'next/dist/shared/lib/get-img-props'
+import { type StaticImport } from 'next/dist/shared/lib/get-img-props'
 import Image from 'next/image'
 import NoDataIcon from '@/public/assets/no-data.svg'
 import type { RouterOutputs } from '@/trpc/shared'
