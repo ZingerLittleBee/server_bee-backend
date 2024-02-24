@@ -1,5 +1,5 @@
 import { env } from '@/env'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@serverbee/db'
 import { MongoClient } from 'mongodb'
 
 const globalForDatabase = globalThis as unknown as {

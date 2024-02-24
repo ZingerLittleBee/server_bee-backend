@@ -1,25 +1,58 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDotEnv": [".env"],
+  "globalDotEnv": [
+    ".env"
+  ],
   "pipeline": {
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
     "build": {
-      "dotEnv": [ ".env"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "dependsOn": [
+        "^db:generate"
+      ],
+      "dotEnv": [
+        ".env"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ]
     },
     "type-check": {
       "cache": false
     },
     "deploy": {
-      "dependsOn": ["build", "test", "lint"]
+      "dependsOn": [
+        "build",
+        "test",
+        "lint"
+      ]
     },
     "format:write": {},
     "test": {
-      "dependsOn": ["build"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+      "dependsOn": [
+        "build"
+      ],
+      "inputs": [
+        "src/**/*.tsx",
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "test/**/*.tsx"
+      ]
     },
     "lint": {},
     "dev": {
-      "dotEnv": [ ".env"],
+      "dependsOn": [
+        "^db:generate"
+      ],
+      "dotEnv": [
+        ".env"
+      ],
       "cache": false,
       "persistent": true
     }

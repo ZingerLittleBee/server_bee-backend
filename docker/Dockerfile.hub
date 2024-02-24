@@ -32,8 +32,6 @@ COPY turbo.json turbo.json
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
 
-ARG DISABLE_ESLINT_PLUGIN=true
-
 RUN turbo build --filter hub
 
 # Runner
