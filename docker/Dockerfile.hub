@@ -32,7 +32,7 @@ COPY turbo.json turbo.json
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
 
-RUN turbo build --filter hub
+RUN turbo build
 
 # Runner
 FROM node:alpine AS runner
@@ -48,7 +48,8 @@ COPY --from=installer /app/apps/hub/package.json .
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/packages/db/prisma/ .
 COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/.next/static ./apps/hub/.next/static
 # COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/public ./apps/hub/public
 
-CMD node apps/hub/server.js
+CMD node /app/apps/hub/server.js

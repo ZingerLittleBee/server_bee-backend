@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  hub:
+    container_name: serverbee-hub
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.hub
+    image: zingerbee/serverhub:latest
+    # volumes:
+    #   - ./db/:/app/db/
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
