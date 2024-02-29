@@ -1,3 +1,5 @@
+import { unstable_noStore as noStore } from 'next/cache'
+
 import AddOne from '@/app/server/components/form/add-one'
 import FormDialog from '@/app/server/components/form/form-dialog'
 import ServerTabBlock from '@/app/server/components/tab'
@@ -6,6 +8,7 @@ import { TokenDialog } from '@/app/server/components/token-dialog'
 import { getData } from '@/app/server/server-action'
 
 export default async function ServerPage() {
+    noStore()
     const { servers, groups } = await getData()
 
     return (

@@ -5,7 +5,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from '@/server/api/trpc'
-import { type Prisma } from '@prisma/client'
+import { type Prisma } from '@serverbee/db'
 import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
 

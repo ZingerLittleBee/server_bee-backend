@@ -2,7 +2,6 @@ import '@/styles/globals.css'
 
 import type { ReactNode } from 'react'
 import { type Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { TRPCReactProvider } from '@/trpc/react'
 
 import { siteConfig } from '@/config/site'
@@ -37,7 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     fontSans.variable
                 )}
             >
-                <TRPCReactProvider cookies={cookies().toString()}>
+                <TRPCReactProvider>
                     <StoreProvider>
                         <ThemeProvider
                             attribute="class"

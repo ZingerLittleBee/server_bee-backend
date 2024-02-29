@@ -10,9 +10,13 @@
     "db:push": {
       "cache": false
     },
+    "db:deploy": {
+      "cache": false
+    },
     "build": {
       "dependsOn": [
-        "^db:generate"
+        "^db:generate",
+        "^db:deploy"
       ],
       "dotEnv": [
         ".env"
