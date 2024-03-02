@@ -7,8 +7,8 @@ services:
       context: ../
       dockerfile: docker/Dockerfile.hub
     image: zingerbee/serverhub:latest
-    # volumes:
-    #   - ./db/:/app/db/
+    volumes:
+      - ../packages/db/prisma/serverhub.db:/app/serverhub.db
     ports:
       - "3000:3000"
     env_file:
