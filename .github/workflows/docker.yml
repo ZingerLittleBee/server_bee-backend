@@ -10,6 +10,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - dockerfile: Dockerfile.hub
+            tag: serverbee-hub:latest
           - dockerfile: Dockerfile.web
             tag: serverbee-web:latest
           - dockerfile: Dockerfile.interactor

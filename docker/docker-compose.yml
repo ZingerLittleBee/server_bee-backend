@@ -67,12 +67,14 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile.web
-    image: zingerbee/serverbee-recorder:latest
-    container_name: serverbee-recorder
+    image: zingerbee/serverbee-web:latest
+    container_name: serverbee-web
     restart: unless-stopped
+    command: [ "-h", "$SERVER_HOST", "-s", "$SERVER_TOKEN" ]
+    ports:
+      - "9527:9527"
     environment:
-      - RUST_LOG=${RUST_LOG}
-      - SERVER_JWT_SECRET=${SERVER_JWT_SECRET}
-      - MONGODB_URI=${MONGODB_URI}
+      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_TOKEN=${SERVER_TOKEN}
     depends_on:
       - recorder

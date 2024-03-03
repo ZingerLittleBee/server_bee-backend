@@ -2,7 +2,7 @@ FROM node:lts-alpine3.17 as frontend
 
 WORKDIR /usr/src/serverbee
 
-COPY view/ .
+COPY ./apps/view/ .
 
 RUN npm install -g pnpm
 
@@ -17,7 +17,7 @@ WORKDIR /usr/src/serverbee
 
 COPY . .
 
-COPY --from=frontend /usr/src/serverbee/dist /usr/src/serverbee/view/dist
+COPY --from=frontend /usr/src/serverbee/dist /usr/src/serverbee/apps/view/dist
 
 # https://github.com/hound-search/hound/issues/238
 RUN apk add --no-cache musl-dev
