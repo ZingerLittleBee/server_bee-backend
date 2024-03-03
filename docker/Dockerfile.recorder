@@ -14,4 +14,6 @@ FROM alpine:3.17
 
 COPY --from=builder /usr/src/serverbee/target/release/serverbee-recorder /usr/local/bin/serverbee-recorder
 
+EXPOSE 9528
+
 ENTRYPOINT [ "serverbee-recorder" ]

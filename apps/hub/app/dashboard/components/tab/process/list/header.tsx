@@ -7,7 +7,7 @@ import useWebsocket from '@/hooks/useWebsocket'
 export function ProcessListHeader() {
     const { sortUp, sortDown } = useWebsocket()
 
-    const [sort, setSort] = useState(new Array(8).fill(false))
+    const [sort, setSort] = useState<boolean[]>(new Array(8).fill(false))
 
     const sortHandler = (sortKey: string, [up, down]: [number, number]) => {
         if (sort[up]) {

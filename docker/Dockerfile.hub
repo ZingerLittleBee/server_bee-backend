@@ -52,4 +52,6 @@ COPY --from=installer --chown=nextjs:nodejs /app/packages/db/prisma/ .
 COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/.next/static ./apps/hub/.next/static
 # COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/public ./apps/hub/public
 
+EXPOSE 3000
+
 CMD node /app/apps/hub/server.js

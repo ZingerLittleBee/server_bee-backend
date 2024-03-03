@@ -20,11 +20,6 @@ export const dashboardRouter = createTRPCRouter({
     fetch: protectedProcedure.query(async ({ ctx }) => {
         if (!ctx.session.user) throw NotLoggedInError
 
-        const caller = await getCaller({ headers: ctx.headers })
-
-        // const serverIds = await caller.server.getOwnServerIds()
-        const serverId = 'clqv3p0v00000c4av8opjhhkm'
-
         try {
             const database = mongo.db('serverbee')
             const recordCollection = database.collection<Record>('record')
@@ -41,24 +36,5 @@ export const dashboardRouter = createTRPCRouter({
         } catch (e) {
             logger.error(`Error fetching record: ${e}`)
         }
-    }),
-    stream: protectedProcedure.subscription(async ({ ctx }) => {
-        if (!ctx.session.user) throw NotLoggedInError
-
-        const caller = await getCaller({ headers: ctx.headers })
-
-        return observable<Record>((emit) => {
-            const message = (data: Record) => {
-                emit.next(data)
-            }
-            const task = setInterval(async () => {
-                console.log('This will run every second!')
-                message(caller.dashboard.fetch())
-            }, 1000)
-
-            return () => {
-                clearInterval(task)
-            }
-        })
     }),
 })

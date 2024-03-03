@@ -14,4 +14,6 @@ FROM alpine:3.17
 
 COPY --from=builder /usr/src/serverbee/target/release/serverbee-interactor /usr/local/bin/serverbee-interactor
 
+EXPOSE 9529
+
 ENTRYPOINT [ "serverbee-interactor" ]

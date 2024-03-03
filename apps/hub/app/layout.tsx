@@ -1,18 +1,18 @@
 import '@/styles/globals.css'
 
-import type {ReactNode} from 'react'
-import {type Metadata} from 'next'
-import {TRPCReactProvider} from '@/trpc/react'
+import type { ReactNode } from 'react'
+import { type Metadata } from 'next'
+import { TRPCReactProvider } from '@/trpc/react'
 
-import {siteConfig} from '@/config/site'
-import {fontSans} from '@/lib/fonts'
-import {cn} from '@/lib/utils'
-import {Toaster} from '@/components/ui/toaster'
-import {SiteHeader} from '@/components/header/site-header'
-import {TailwindIndicator} from '@/components/tailwind-indicator'
-import {ThemeProvider} from '@/components/theme-provider'
+import { siteConfig } from '@/config/site'
+import { fontSans } from '@/lib/fonts'
+import { cn } from '@/lib/utils'
+import { Toaster } from '@/components/ui/toaster'
+import { SiteHeader } from '@/components/header/site-header'
+import { TailwindIndicator } from '@/components/tailwind-indicator'
+import { ThemeProvider } from '@/components/theme-provider'
 
-import {StoreProvider} from './dashboard/store'
+import { StoreProvider } from './dashboard/store'
 
 export const metadata: Metadata = {
     title: {
@@ -27,32 +27,32 @@ export const metadata: Metadata = {
     },
 }
 
-export default function RootLayout({children}: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
-        <body
-            className={cn(
-                'min-h-screen bg-background font-sans antialiased',
-                fontSans.variable
-            )}
-        >
-        <TRPCReactProvider>
-            <StoreProvider>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                >
-                    <div className="relative flex min-h-screen flex-col">
-                        <SiteHeader/>
-                        <div className="flex-1">{children}</div>
-                        <Toaster/>
-                    </div>
-                    <TailwindIndicator/>
-                </ThemeProvider>
-            </StoreProvider>
-        </TRPCReactProvider>
-        </body>
+            <body
+                className={cn(
+                    'min-h-screen bg-background font-sans antialiased',
+                    fontSans.variable
+                )}
+            >
+                <TRPCReactProvider>
+                    <StoreProvider>
+                        <ThemeProvider
+                            attribute="class"
+                            defaultTheme="system"
+                            enableSystem
+                        >
+                            <div className="relative flex min-h-screen flex-col">
+                                <SiteHeader />
+                                <div className="flex-1">{children}</div>
+                                <Toaster />
+                            </div>
+                            <TailwindIndicator />
+                        </ThemeProvider>
+                    </StoreProvider>
+                </TRPCReactProvider>
+            </body>
         </html>
     )
 }

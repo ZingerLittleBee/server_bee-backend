@@ -29,4 +29,6 @@ FROM alpine:3.17
 
 COPY --from=builder /usr/src/serverbee/target/release/serverbee-web /usr/local/bin/serverbee-web
 
+EXPOSE 9527
+
 ENTRYPOINT [ "serverbee-web" ]
