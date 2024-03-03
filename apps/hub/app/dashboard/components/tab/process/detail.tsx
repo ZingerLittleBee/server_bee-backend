@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { DiskIO } from '@serverbee/types'
+import { type DiskIO } from '@serverbee/types'
 import { Bold, Italic, Text, Card as TremorCard } from '@tremor/react'
 import dayjs, { unix } from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -66,7 +66,7 @@ export default function ProcessDetail() {
     }, [process])
 
     return process ? (
-        <Card className="h-full w-full border shadow-none">
+        <Card className="size-full border shadow-none">
             <CardHeader className="sticky top-0 z-[100] w-full rounded-t-lg bg-muted px-6 py-1.5">
                 <div className="flex flex-row flex-wrap items-center justify-between">
                     <p className="w-fit max-w-full break-words text-lg font-bold">
@@ -175,8 +175,8 @@ export default function ProcessDetail() {
 const NoDataView = () => {
     return (
         <div className="flex h-full items-center space-x-2">
-            <CornerUpLeft className="hidden h-6 w-6 lg:block lg:animate-bounce" />
-            <CornerLeftUp className="block h-6 w-6 animate-bounce lg:hidden" />
+            <CornerUpLeft className="hidden size-6 lg:block lg:animate-bounce" />
+            <CornerLeftUp className="block size-6 animate-bounce lg:hidden" />
 
             <Text>Click</Text>
             <Italic>PID</Italic>

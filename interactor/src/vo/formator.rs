@@ -109,3 +109,40 @@ impl Formator {
 pub trait Convert<V> {
     fn convert(&self) -> V;
 }
+
+pub enum DeFormatorFormat {
+    Byte,
+    KiloByte,
+    MegaByte,
+    GigaByte,
+    TeraByte,
+    PetaByte,
+    EtaByte,
+    Celsius,
+}
+pub struct DeFormator(DeFormatorFormat);
+
+impl DeFormator {
+    pub fn new(format: DeFormatorFormat) -> DeFormator {
+        DeFormator(format)
+    }
+
+    pub fn de_format(&self, format_data: &FormatData) -> f64 {
+        match self.0 {
+            DeFormatorFormat::Byte => {
+                let value = format_data.value.parse::<f64>().unwrap_or(0.0);
+                match format_data.unit.as_str() {
+                    "KiB" => value * 1024.0,
+                    "MiB" => value * 1024.0 * 1024.0,
+                    "GiB" => value * 1024.0 * 1024.0 * 1024.0,
+                    "TiB" => value * 1024.0 * 1024.0 * 1024.0 * 1024.0,
+                    "PiB" => value * 1024.0 * 1024.0 * 1024.0 * 1024.0 * 1024.0,
+                    "EiB" => value,
+                    _ => value,
+                };
+                value
+            }
+            _ => 0.0,
+        }
+    }
+}

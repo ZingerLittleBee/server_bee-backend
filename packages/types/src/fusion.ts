@@ -1,6 +1,6 @@
 export type FormatData = [
     string,
-    'B' | 'KiB' | 'MiB' | 'GiB' | 'TiB' | 'PiB' | 'EiB' | '°C',
+        'B' | 'KiB' | 'MiB' | 'GiB' | 'TiB' | 'PiB' | 'EiB' | '°C',
 ]
 
 export type DiskIO = {
@@ -114,7 +114,7 @@ export type Process = {
 }
 
 export type SimpleProcessKey = 'name' | 'pid' | 'cpu' | 'memory'
-export type processSortKey = Omit<SimpleProcessKey, 'memory'> | 'mem'
+export type ProcessSortKey = Omit<SimpleProcessKey, 'memory'> | 'mem'
 
 export type SimpleProcess = Pick<Process, SimpleProcessKey>
 

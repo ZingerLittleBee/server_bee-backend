@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useBoundStore } from '@/store'
-import { type processSortKey } from '@serverbee/types'
+import { type ProcessSortKey } from '@serverbee/types'
 
 import { useStore } from '@/app/dashboard/store'
 
@@ -31,10 +31,10 @@ const useWebsocket = () => {
     const requestProcess = (pid?: string) =>
         sendMessage(pid ? `/process ${pid}` : '/process')
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    const sortUp = (key: processSortKey) => sendMessage(`/up ${key}`)
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    const sortDown = (key: processSortKey) => sendMessage(`/down ${key}`)
+    const sortUp = (key: ProcessSortKey) =>
+        sendMessage(`/up ${key} ${currentServerId}`)
+    const sortDown = (key: ProcessSortKey) =>
+        sendMessage(`/down ${key} ${currentServerId}`)
 
     return {
         requestOverview,

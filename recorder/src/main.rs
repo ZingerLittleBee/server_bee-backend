@@ -95,9 +95,9 @@ async fn recorder(
     let mut record = record.into_inner();
     record.set_server_id(server_id);
 
-    let fusion_bytes = serde_json::to_vec(&record).unwrap();
-    let size_kb = fusion_bytes.len() as f32 / 1024.0;
-    info!("Received data size: {} KB", size_kb);
+    // let fusion_bytes = serde_json::to_vec(&record).unwrap();
+    // let size_kb = fusion_bytes.len() as f32 / 1024.0;
+    // info!("Received data size: {} KB", size_kb);
 
     collection.insert_one(record, None).await.unwrap();
 

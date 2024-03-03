@@ -52,7 +52,7 @@ export default function ProcessList() {
                                     })}
                                 >
                                     <div className="grid grid-cols-6 pl-2 text-[14px]">
-                                        <p className="col-span-1 cursor-pointer truncate">
+                                        <p className="col-span-1 truncate">
                                             {process.pid}
                                         </p>
                                         <STooltip content={process.name}>

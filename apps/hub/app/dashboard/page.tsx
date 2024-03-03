@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo, type ElementType } from 'react'
-import { useBoundStore } from '@/store'
 import { Badge, type Color } from '@tremor/react'
 import { Cable, HelpCircle, PlugZap, Unplug, Wifi } from 'lucide-react'
 
@@ -88,10 +87,7 @@ export default function DashboardPage() {
                     </div>
                 </TabsContent>
                 <TabsContent value="process" className="space-y-4">
-                    <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 lg:grid-cols-7 lg:gap-x-4">
-                        <div className="col-span-3">{<ProcessList />}</div>
-                        <div className="col-span-4">{<ProcessDetail />}</div>
-                    </div>
+                    <ProcessList />
                 </TabsContent>
                 <TabsContent value="detail" className="space-y-4">
                     <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 lg:grid-cols-7 lg:gap-x-4">

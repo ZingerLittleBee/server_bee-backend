@@ -33,16 +33,16 @@ export default function InitPage() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    // useEffect(() => {
-    //     if (isLoading || isInitialLoading) return
-    //     if (hasInit) {
-    //         router.push('/')
-    //     } else {
-    //         setShouldRender(true)
-    //     }
-    // }, [hasInit, isLoading, isInitialLoading, router])
-    //
-    // if (!shouldRender) return <>Loading...</>
+    useEffect(() => {
+        if (isLoading || isInitialLoading) return
+        if (hasInit) {
+            router.push('/')
+        } else {
+            setShouldRender(true)
+        }
+    }, [hasInit, isLoading, isInitialLoading, router])
+
+    if (!shouldRender) return <>Loading...</>
 
     const onSubmit = async () => {
         console.log('username', username)

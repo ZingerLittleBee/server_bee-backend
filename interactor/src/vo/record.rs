@@ -1,4 +1,5 @@
 use crate::vo::fusion::Fusion;
+use crate::ws::Sort;
 use bytestring::ByteString;
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +19,14 @@ impl Record {
         Self {
             server_id: self.server_id,
             fusion: self.fusion,
+            time: self.time,
+        }
+    }
+
+    pub fn sort_process(self, sort: Sort) -> Self {
+        Self {
+            server_id: self.server_id,
+            fusion: self.fusion.sort_process(sort),
             time: self.time,
         }
     }

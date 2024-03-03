@@ -25,12 +25,49 @@ const TASK_INTERVAL: Duration = Duration::from_secs(1);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+#[derive(Copy, Clone, Debug, Default)]
+pub enum SortBy {
+    #[default]
+    Pid,
+    Name,
+    Cpu,
+    Memory,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum SortOrder {
+    Up,
+    Down,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Sort {
+    pub order: SortOrder,
+    pub by: SortBy,
+}
+
+impl SortBy {
+    fn from(s: &str) -> SortBy {
+        match s {
+            "pid" => SortBy::Pid,
+            "name" => SortBy::Name,
+            "cpu" => SortBy::Cpu,
+            "mem" => SortBy::Memory,
+            _ => {
+                warn!("Unknown sort by: {}", s);
+                SortBy::Pid
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 enum HubMessage {
     Overview,
     Detail(String),
     Process,
     ProcessDetail(String),
+    Sort(Sort, String),
 }
 
 pub struct MyWebSocket {
@@ -92,6 +129,24 @@ impl MyWebSocket {
                                 Some(record) => {
                                     let json_string = serde_json::to_string(&record)
                                         .expect("Failed to serialize record");
+                                    ctx.text(ByteString::from(json_string));
+                                }
+                                None => {
+                                    error!("failed to execute detail: {:?}", server_id);
+                                }
+                            },
+                        ),
+                    );
+                }
+                HubMessage::Sort(sort, server_id) => {
+                    info!("sort: {:?}", sort);
+                    ctx.spawn(
+                        wrap_future::<_, Self>(Self::detail(collection, server_id.clone())).map(
+                            move |result, _, ctx| match result {
+                                Some(record) => {
+                                    let json_string =
+                                        serde_json::to_string(&record.sort_process(sort))
+                                            .expect("Failed to serialize record");
                                     ctx.text(ByteString::from(json_string));
                                 }
                                 None => {
@@ -214,6 +269,30 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                             if let Some(cmd) = command.next() {
                                 self.message = HubMessage::ProcessDetail(cmd.to_string());
                             }
+                        }
+                        Some(cmd @ "/up") | Some(cmd @ "/down") => {
+                            command.next().map(|s| {
+                                let mut p = s.splitn(2, ' ');
+                                info!("cmd: {:?}", cmd);
+                                let sort = p
+                                    .next()
+                                    .map(|sort_by| SortBy::from(sort_by))
+                                    .unwrap_or_default();
+                                if let Some(server_id) = p.next() {
+                                    let s = HubMessage::Sort(
+                                        Sort {
+                                            order: if cmd == "/up" {
+                                                SortOrder::Up
+                                            } else {
+                                                SortOrder::Down
+                                            },
+                                            by: sort,
+                                        },
+                                        server_id.to_string(),
+                                    );
+                                    self.message = s;
+                                }
+                            });
                         }
                         _ => {}
                     }
