@@ -46,16 +46,12 @@ impl Recorder {
 
     async fn task(&self) {
         let client = reqwest::Client::new();
-        let url = format!("http://localhost:{}{}", 9528, RECORD_ENDPOINT);
-        info!("Recorder url: {}", url);
-
         let config = self.config.clone();
-
         actix_rt::spawn(async move {
             let mut sys = SystemInfo::new();
             loop {
-                let token = match config.read() {
-                    Ok(config) => config.server_token(),
+                let server_config = match config.read() {
+                    Ok(config) => config.server_config(),
                     Err(err) => {
                         error!("Failed reading config, error: {:?}", err);
                         sleep(Duration::from_secs(1)).await;
@@ -63,18 +59,24 @@ impl Recorder {
                     }
                 };
 
-                if token.is_none() {
+                if server_config.token().is_none() || server_config.host().is_none() {
                     sleep(Duration::from_secs(SLEEP_TIME_SECOND_RETRY)).await;
                     warn!(
-                        "Token is none, retry after {} seconds",
+                        "Host or Token is none, retry after {} seconds",
                         SLEEP_TIME_SECOND_RETRY
                     );
                     continue;
                 }
 
+                let url = format!("{}{}", server_config.host().unwrap(), RECORD_ENDPOINT);
+                info!("Recorder url: {}", url);
+
+                let token = server_config.token().unwrap();
+                info!("Token is: {}", token);
+
                 match Recorder::recorder_fusion_data(
                     &client,
-                    token.unwrap(),
+                    token,
                     &url,
                     sys.get_fusion_with_simple_process(),
                 )
@@ -85,6 +87,7 @@ impl Recorder {
                     }
                     Err(err) => {
                         error!("Record data failed, error: {:?}", err);
+                        sleep(Duration::from_secs(SLEEP_TIME_SECOND_RETRY)).await;
                     }
                 }
             }

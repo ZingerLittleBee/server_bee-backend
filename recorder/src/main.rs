@@ -106,8 +106,7 @@ async fn recorder(
 
 #[get("/version")]
 async fn version() -> impl Responder {
-    info!("version");
-    HttpResponse::Ok()
+    env!("CARGO_PKG_VERSION")
 }
 
 pub async fn run_server(
