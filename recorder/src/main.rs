@@ -90,14 +90,13 @@ async fn recorder(
 
     let server_id = token_data.claims.server_id;
 
-    debug!("server_id: {}", server_id);
-
     let mut record = record.into_inner();
-    record.set_server_id(server_id);
+    record.set_server_id(server_id.clone());
 
-    // let fusion_bytes = serde_json::to_vec(&record).unwrap();
-    // let size_kb = fusion_bytes.len() as f32 / 1024.0;
-    // info!("Received data size: {} KB", size_kb);
+    let fusion_bytes = serde_json::to_vec(&record).unwrap();
+    let size_kb = fusion_bytes.len() as f32 / 1024.0;
+
+    info!("request from server id: {server_id} with data size: {size_kb} KB");
 
     collection.insert_one(record, None).await.unwrap();
 
