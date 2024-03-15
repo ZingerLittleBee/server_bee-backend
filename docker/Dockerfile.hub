@@ -13,6 +13,9 @@ FROM node:alpine AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
 
+# Hacked for build
+ENV MONGODB_URI=mongodb://mongoadmin:secret@mongo:27017/
+
 WORKDIR /app
 RUN yarn global add pnpm
 RUN yarn global add turbo
