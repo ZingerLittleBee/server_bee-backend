@@ -15,7 +15,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile.hub
     image: zingerbee/serverhub:latest
-    container_name: serverbee-hub
+    container_name: serverhub
     restart: unless-stopped
     volumes:
       - ../packages/db/prisma/serverhub.db:/app/serverhub.db

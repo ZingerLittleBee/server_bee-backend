@@ -11,7 +11,7 @@ jobs:
       matrix:
         include:
           - dockerfile: Dockerfile.hub
-            tag: serverbee-hub:latest
+            tag: serverhub:latest
           - dockerfile: Dockerfile.web
             tag: serverbee-web:latest
           - dockerfile: Dockerfile.interactor
