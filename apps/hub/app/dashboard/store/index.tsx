@@ -53,7 +53,12 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         ) {
             wsDispatch({ type: kSetWsStatus, payload: WebSocket.CONNECTING })
 
-            const instance = new WebSocket(`ws://localhost:5173/api/i/ws`)
+            const { protocol, host } = window.location
+            const isSecure = protocol === 'https:'
+
+            const instance = new WebSocket(
+                `${isSecure ? 'wss' : 'ws'}://${host}/api/i/ws`
+            )
 
             wsDispatch({ type: kSetWs, payload: instance })
 

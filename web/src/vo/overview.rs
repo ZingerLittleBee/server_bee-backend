@@ -32,7 +32,7 @@ impl Convert<OverviewVo> for Overview {
                 .load_avg
                 .clone()
                 .iter()
-                .map(|x| format!("{:.1}", x).parse::<f64>().unwrap_or_default())
+                .map(|x| (x * 10.0).round() / 10.0)
                 .collect(),
             cpu_usage: format!("{:.1}", self.cpu_usage),
             memory_usage: self.memory_usage.convert(),
