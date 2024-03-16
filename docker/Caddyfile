@@ -9,9 +9,10 @@
     @recorder host recorder.serverbee.app
     reverse_proxy @recorder recorder:9528
 
-    @api path /api/i/*
-    uri strip_prefix /api/i
-    reverse_proxy @api interactor:9529
+    route /api/i/* {
+        uri strip_prefix /api/i
+        reverse_proxy interactor:9529
+    }
 
     reverse_proxy hub:3000
 }

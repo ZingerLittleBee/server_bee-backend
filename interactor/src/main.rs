@@ -3,7 +3,6 @@ mod constant;
 mod vo;
 mod ws;
 
-use crate::auth::Auth;
 use crate::constant::db::{
     DATABASE_NAME, INVALID_COLLECTION_INDEX, INVALID_COLLECTION_NAME, RECORD_COLLECTION_NAME,
 };
@@ -11,7 +10,7 @@ use crate::constant::default_value::DEFAULT_PORT;
 use crate::constant::env::{AUTH_SERVER_URL, MONGODB_URI, PORT, SERVER_JWT_SECRET};
 use crate::vo::record::Record;
 use crate::ws::echo_ws;
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use dotenvy::dotenv;
 use log::{error, info};
 use mongodb::bson::doc;
@@ -82,7 +81,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(server_jwt_secret.clone()))
             .app_data(web::Data::new(record_collection.clone()))
             .app_data(web::Data::new(invalid_collection.clone()))
-            .service(web::resource("/").route(web::get().to(index)))
+            .service(web::resource("/health").route(web::get().to(|| HttpResponse::Ok())))
+            .service(web::resource("/version").route(web::get().to(version)))
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
     })
     .bind(("0.0.0.0", port))?
@@ -90,6 +90,6 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-async fn index(_auth: Auth) -> &'static str {
-    "Hello world!"
+pub async fn version() -> impl Responder {
+    env!("CARGO_PKG_VERSION")
 }
