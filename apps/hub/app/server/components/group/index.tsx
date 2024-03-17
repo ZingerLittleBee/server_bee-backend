@@ -8,6 +8,7 @@ import { type RouterOutputs } from '@/trpc/shared'
 import { Bold, Flex, Italic, Subtitle, Text } from '@tremor/react'
 import { MoreHorizontal } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import {
     Accordion,
     AccordionContent,
@@ -15,7 +16,7 @@ import {
     AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -44,7 +45,7 @@ export default function GroupTabContent({ groups }: GroupTabContentProps) {
                             <span className="hover:underline">
                                 {group.name}
                             </span>
-                            <span className="text-muted-foreground text-sm">
+                            <span className="text-sm text-muted-foreground">
                                 {group.description}
                             </span>
                         </div>
@@ -91,10 +92,18 @@ const GroupAction = ({
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <div
+                    className={cn(
+                        buttonVariants({
+                            size: 'sm',
+                            variant: 'ghost',
+                        }),
+                        'size-8 p-0'
+                    )}
+                >
                     <span className="sr-only">Open group actions</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
+                    <MoreHorizontal className="size-4" />
+                </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="right">
                 <DropdownMenuLabel onClick={(e) => e.stopPropagation()}>

@@ -147,19 +147,19 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>SortWeight</FormLabel>
-                            <FormDescription>
-                                <p>
+                            <FormDescription className="flex flex-col">
+                                <span>
                                     The higher the weight, the higher the sort
                                     order.
-                                </p>
-                                <p>
+                                </span>
+                                <span>
                                     First, sort by the weight of the group, and
                                     then sort by the weight of the server.
-                                </p>
+                                </span>
                             </FormDescription>
                             <FormControl>
                                 <NumberInput
-                                    className="mx-auto max-w-sm cn-input"
+                                    className="cn-input mx-auto max-w-sm"
                                     {...field}
                                 />
                             </FormControl>

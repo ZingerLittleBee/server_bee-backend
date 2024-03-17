@@ -1,3 +1,5 @@
+import { HOMEPAGE_URL } from '@/constant/github'
+
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
@@ -19,6 +21,6 @@ export const siteConfig = {
     },
     links: {
         twitter: 'https://twitter.com/zinger_bee',
-        github: 'https://github.com/ZingerLittleBee/server-octopus',
+        github: HOMEPAGE_URL,
     },
 }

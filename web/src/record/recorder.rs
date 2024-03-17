@@ -2,7 +2,7 @@ use crate::config::config::Config;
 use crate::record::constant::{RECORD_ENDPOINT, SLEEP_TIME_SECOND_RETRY};
 use crate::system_info::SystemInfo;
 use crate::vo::fusion::Fusion;
-use log::{error, info, warn};
+use log::{debug, error, warn};
 use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -69,10 +69,10 @@ impl Recorder {
                 }
 
                 let url = format!("{}{}", server_config.host().unwrap(), RECORD_ENDPOINT);
-                info!("Recorder url: {}", url);
+                debug!("Recorder url: {}", url);
 
                 let token = server_config.token().unwrap();
-                info!("Token is: {}", token);
+                debug!("Token is: {}", token);
 
                 match Recorder::recorder_fusion_data(
                     &client,

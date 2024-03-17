@@ -1,21 +1,7 @@
 import Link from 'next/link'
+import { DISCUSSION_URL, ISSUE_URL } from '@/constant/github'
 import { getServerAuthSession } from '@/server/auth'
-import {
-    Cloud,
-    CreditCard,
-    Github,
-    Keyboard,
-    LifeBuoy,
-    LogOut,
-    Mail,
-    MessageSquare,
-    Plus,
-    PlusCircle,
-    Settings,
-    User,
-    UserPlus,
-    Users,
-} from 'lucide-react'
+import { Bug, Cloud, Github, LifeBuoy, LogOut } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -23,15 +9,9 @@ import { buttonVariants } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuPortal,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -41,7 +21,7 @@ export async function UserNav() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Avatar className="h-9 w-9 cursor-pointer">
+                <Avatar className="size-9 cursor-pointer">
                     <AvatarImage alt="account" />
                     <AvatarFallback>{session?.user.username}</AvatarFallback>
                 </Avatar>
@@ -52,81 +32,40 @@ export async function UserNav() {
                         <p className="text-sm font-medium leading-none">
                             {session?.user.username}
                         </p>
-                        <p className="text-muted-foreground text-xs leading-none">
+                        <p className="text-xs leading-none text-muted-foreground">
                             {session?.user.email}
                         </p>
                     </div>
                 </DropdownMenuLabel>
 
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        <span>Billing</span>
-                        <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                        <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <Keyboard className="mr-2 h-4 w-4" />
-                        <span>Keyboard shortcuts</span>
-                        <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <Users className="mr-2 h-4 w-4" />
-                        <span>Team</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            <span>Invite users</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuPortal>
-                            <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                    <Mail className="mr-2 h-4 w-4" />
-                                    <span>Email</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    <span>Message</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    <span>More...</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuSubContent>
-                        </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                    <DropdownMenuItem>
-                        <Plus className="mr-2 h-4 w-4" />
-                        <span>New Team</span>
-                        <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                    <Github className="mr-2 h-4 w-4" />
+                    <Github className="mr-2 size-4" />
                     <span>GitHub</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                    <LifeBuoy className="mr-2 h-4 w-4" />
-                    <span>Support</span>
+                    <Link
+                        href={ISSUE_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center"
+                    >
+                        <Bug className="mr-2 size-4" />
+                        <span>Bug</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                    <Link
+                        href={DISCUSSION_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center"
+                    >
+                        <LifeBuoy className="mr-2 size-4" />
+                        <span>Support</span>
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
-                    <Cloud className="mr-2 h-4 w-4" />
+                    <Cloud className="mr-2 size-4" />
                     <span>API</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -141,7 +80,7 @@ export async function UserNav() {
                             })
                         )}
                     >
-                        <LogOut className="mr-2 h-4 w-4" />
+                        <LogOut className="mr-2 size-4" />
                         <span>Log out</span>
                     </Link>
                 </DropdownMenuItem>
