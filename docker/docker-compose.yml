@@ -11,14 +11,14 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
   hub:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile.hub
+    # build:
+    #   context: ../
+    #   dockerfile: docker/Dockerfile.hub
     image: zingerbee/serverhub:latest
     container_name: serverhub
     restart: unless-stopped
-    volumes:
-      - ../packages/db/prisma/serverhub.db:/app/serverhub.db
+    # volumes:
+    #   - ../packages/db/prisma/serverhub.db:/app/serverhub.db
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MONGODB_URI=${MONGODB_URI}
@@ -36,9 +36,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
   interactor:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile.interactor
+    # build:
+    #   context: ../
+    #   dockerfile: docker/Dockerfile.interactor
     image: zingerbee/serverbee-interactor:latest
     container_name: serverbee-interactor
     restart: unless-stopped
@@ -51,9 +51,9 @@ services:
     depends_on:
       - mongo
   recorder:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile.recorder
+    # build:
+    #   context: ../
+    #   dockerfile: docker/Dockerfile.recorder
     image: zingerbee/serverbee-recorder:latest
     container_name: serverbee-recorder
     restart: unless-stopped
@@ -64,9 +64,9 @@ services:
     depends_on:
       - mongo
   web:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile.web
+    # build:
+    #   context: ../
+    #   dockerfile: docker/Dockerfile.web
     image: zingerbee/serverbee-web:latest
     container_name: serverbee-web
     restart: unless-stopped

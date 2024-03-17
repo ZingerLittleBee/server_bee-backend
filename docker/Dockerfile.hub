@@ -42,19 +42,15 @@ RUN SKIP_ENV_VALIDATION=1 turbo build
 FROM node:alpine AS runner
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-USER nextjs
-
 COPY --from=installer /app/apps/hub/next.config.js .
 COPY --from=installer /app/apps/hub/package.json .
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/packages/db/prisma/ .
-COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/.next/static ./apps/hub/.next/static
-# COPY --from=installer --chown=nextjs:nodejs /app/apps/hub/public ./apps/hub/public
+COPY --from=installer /app/apps/hub/.next/standalone ./
+COPY --from=installer /app/packages/db/prisma/ .
+COPY --from=installer /app/apps/hub/.next/static ./apps/hub/.next/static
+# COPY --from=installer /app/apps/hub/public ./apps/hub/public
 
 EXPOSE 3000
 
