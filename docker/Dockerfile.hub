@@ -13,6 +13,7 @@ FROM node:alpine AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
 
+ENV DATABASE_URL="file:./serverhub.db"
 # Hacked for build
 ENV MONGODB_URI=mongodb://mongoadmin:secret@mongo:27017/
 
