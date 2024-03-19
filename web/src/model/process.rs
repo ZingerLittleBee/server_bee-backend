@@ -38,7 +38,6 @@ pub struct Process {
     pub disk_usage: DiskIO,
 
     pub user_id: Option<String>,
-
     // pub group_id: Option<String>,
 }
 

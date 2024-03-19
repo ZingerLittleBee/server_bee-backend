@@ -1,9 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::model::device_info::DeviceInfo;
 use crate::vo::disk::DiskDetailVo;
 use crate::vo::formator::{Convert, FormatData, Formator};
 use crate::vo::network::NetworkInfoVo;
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeviceInfoVo {

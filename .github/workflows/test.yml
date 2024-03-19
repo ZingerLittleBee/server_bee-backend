@@ -11,6 +11,8 @@ on:
       - .github/**
       - view/**
       - snapshots/**
+      - docker/**
+      - packages/**
   pull_request:
     branches: [main]
 

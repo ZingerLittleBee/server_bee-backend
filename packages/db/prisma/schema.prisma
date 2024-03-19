@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    // Further reading:
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
+}
+
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?   @unique
+    email         String?   @unique
+    emailVerified DateTime?
+    password      String
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+    servers       Server[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+model Server {
+    id        String   @id @default(cuid())
+    name      String
+    description String?
+    ownerId   String
+    owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    sortWeight Int      @default(0)
+    token     ServerToken[]
+    groupId   String?
+    group     Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Group {
+    id        String   @id @default(cuid())
+    name      String
+    description String?
+    sortWeight Int     @default(0)
+    servers Server[]
+}
+
+model ServerToken {
+    id         Int  @id @default(autoincrement())
+    token      String  @unique
+    isExpires  Boolean @default(false)
+
+    serverId   String
+    server     Server  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+    @@unique([token, id])
+}

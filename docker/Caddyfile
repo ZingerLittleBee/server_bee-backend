@@ -1,0 +1,21 @@
+{
+    # turn on if your want SSL
+    auto_https off
+}
+
+:80, :443 {
+    # replace host with your interactor domain
+    @interactor host interactor.serverbee.app
+    reverse_proxy @interactor interactor:9529
+
+    # replace host with your recorder domain
+    @recorder host recorder.serverbee.app
+    reverse_proxy @recorder recorder:9528
+
+    route /api/i/* {
+        uri strip_prefix /api/i
+        reverse_proxy interactor:9529
+    }
+
+    reverse_proxy hub:3000
+}

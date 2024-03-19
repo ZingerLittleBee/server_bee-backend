@@ -1,6 +1,6 @@
+use crate::model::component::ComponentTemperature;
 use crate::vo::formator::{Convert, FormatData, Formator};
 use serde::{Deserialize, Serialize};
-use crate::model::component::ComponentTemperature;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct ComponentTemperatureVo {

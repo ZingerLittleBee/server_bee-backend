@@ -1,9 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::model::disk::DiskDetail;
 use crate::model::memory::MemoryUsage;
 use crate::model::network::NetworkInfo;
 use crate::model::overview::OsOverview;
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeviceInfo {
@@ -22,7 +21,13 @@ pub struct DeviceInfo {
 }
 
 impl DeviceInfo {
-    pub fn new(os_overview: OsOverview, mem: MemoryUsage, network_info: Vec<NetworkInfo>, disk_detail: Vec<DiskDetail>, version: String) -> DeviceInfo {
+    pub fn new(
+        os_overview: OsOverview,
+        mem: MemoryUsage,
+        network_info: Vec<NetworkInfo>,
+        disk_detail: Vec<DiskDetail>,
+        version: String,
+    ) -> DeviceInfo {
         let cpu_info = os_overview.cpu_info;
         DeviceInfo {
             name: os_overview.name,

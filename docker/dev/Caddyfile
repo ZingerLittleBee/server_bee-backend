@@ -1,0 +1,10 @@
+:80 {
+    route /api/i/* {
+        uri strip_prefix /api/i
+        reverse_proxy host.docker.internal:9529
+    }
+
+    route /* {
+        reverse_proxy host.docker.internal:3000
+    }
+}

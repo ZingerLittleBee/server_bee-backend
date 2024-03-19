@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use crate::model::simple_process::SimpleProcess;
 use crate::vo::formator::{Convert, FormatData, Formator};
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct SimpleProcessVo {
