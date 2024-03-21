@@ -75,7 +75,8 @@ set_mongo_variables() {
         MONGODB_URI="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/"
     else
         # Prompt user for MONGODB_URI
-        read -p "Enter the MongoDB URI: " MONGODB_URI
+        echo -e "${WARNING}Enter the MongoDB URI:${NC}" 
+        read MONGODB_URI
 
         # Remove MONGO_INITDB_ROOT_USERNAME and MONGO_INITDB_ROOT_PASSWORD
         unset MONGO_INITDB_ROOT_USERNAME
@@ -115,43 +116,49 @@ echo -e "${INFO}Starting application installation...${NC}"
 # Call the function to set MongoDB variables
 set_mongo_variables
 
-read -p "Enter the recorder domain:" RECORDER_DOMAIN
-
-# Call the function to set Caddy configuration
-write_to_caddy_file "$RECORDER_DOMAIN"
+echo -e "${WARNING}Enter the recorder domain (Example: recorder.serverhub.app):${NC}"
+read RECORDER_DOMAIN
 
 # Generate random values
 NEXTAUTH_SECRET=$(openssl rand -base64 32)
 SERVER_JWT_SECRET=$(openssl rand -base64 32)
 SERVER_TOKEN=$(openssl rand -base64 32)
 
-# Print user input variables for confirmation
-echo -e "${INFO}Your input variables:${NC}"
-echo -e "========================================================"
-if [[ -n $MONGO_INITDB_ROOT_USERNAME ]]; then
-    echo -e "${INFO}MONGO_INITDB_ROOT_USERNAME:${NC} ${WARNING}$MONGO_INITDB_ROOT_USERNAME${NC}"
-fi
-if [[ -n $MONGO_INITDB_ROOT_PASSWORD ]]; then
-    echo -e "${INFO}MONGO_INITDB_ROOT_PASSWORD:${NC} ${WARNING}$MONGO_INITDB_ROOT_PASSWORD${NC}"
-fi
-echo -e "${INFO}MONGODB_URI:${NC} ${WARNING}$MONGODB_URI${NC}"
-echo -e "${INFO}NEXTAUTH_SECRET:${NC} ${WARNING}$NEXTAUTH_SECRET${NC}"
-echo -e "${INFO}SERVER_JWT_SECRET:${NC} ${WARNING}$SERVER_JWT_SECRET${NC}"
-echo -e "${INFO}SERVER_TOKEN:${NC} ${WARNING}$SERVER_TOKEN${NC}"
-echo -e "${INFO}RECORDER_DOMAIN:${NC} ${WARNING}$RECORDER_DOMAIN${NC}"
-echo -e "========================================================"
+# Function to print and confirm user input variables
+print_and_confirm_variables() {
+    echo -e "${INFO}Your input variables:${NC}"
+    echo -e "========================================================"
+    if [[ -n $MONGO_INITDB_ROOT_USERNAME ]]; then
+        echo -e "${INFO}MONGO_INITDB_ROOT_USERNAME:${NC} ${WARNING}$MONGO_INITDB_ROOT_USERNAME${NC}"
+    fi
+    if [[ -n $MONGO_INITDB_ROOT_PASSWORD ]]; then
+        echo -e "${INFO}MONGO_INITDB_ROOT_PASSWORD:${NC} ${WARNING}$MONGO_INITDB_ROOT_PASSWORD${NC}"
+    fi
+    echo -e "${INFO}MONGODB_URI:${NC} ${WARNING}$MONGODB_URI${NC}"
+    echo -e "${INFO}NEXTAUTH_SECRET:${NC} ${WARNING}$NEXTAUTH_SECRET${NC}"
+    echo -e "${INFO}SERVER_JWT_SECRET:${NC} ${WARNING}$SERVER_JWT_SECRET${NC}"
+    echo -e "${INFO}SERVER_TOKEN:${NC} ${WARNING}$SERVER_TOKEN${NC}"
+    echo -e "${INFO}RECORDER_DOMAIN:${NC} ${WARNING}$RECORDER_DOMAIN${NC}"
+    echo -e "========================================================"
 
-# Ask user for confirmation
-read -p "Are the variables correct? (y/n): " confirm_variables
+    # Ask user for confirmation
+    read -p "Are the variables correct? (y/n): " confirm_variables
 
-if [[ $confirm_variables != "y" ]]; then
-    echo -e "${ERROR}Installation aborted.${NC}"
-    exit 1
-fi
+    if [[ $confirm_variables != "y" ]]; then
+        echo -e "${ERROR}Installation aborted.${NC}"
+        exit 1
+    fi
+}
+
+# Call the function to print and confirm variables
+print_and_confirm_variables
 
 # Clone GitHub repository
 git clone https://github.com/ZingerLittleBee/server_bee-backend.git
 cd server_bee-backend/docker || exit
+
+# Call the function to set Caddy configuration
+write_to_caddy_file "$RECORDER_DOMAIN"
 
 # Write the generated values to .env file using the function
 write_to_env_file "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET" "$SERVER_TOKEN"
