@@ -58,7 +58,7 @@ write_to_env_file() {
 
     cat <<EOF >.env
 RUST_LOG=waring
-DATABASE_URL="file:./serverhub.db"
+DATABASE_URL="file:/app/serverhub.db"
 NEXTAUTH_SECRET="${nextauth_secret}"
 NEXTAUTH_URL="hub:3000"
 MONGO_INITDB_ROOT_USERNAME="${mongo_initdb_root_username}"
