@@ -182,6 +182,9 @@ installation() {
     fi
 
     docker-compose up -d
+
+    echo -e "${INFO}Installation completed.${NC}"
+    echo -e "${INFO} If you are login for the first time, please route to ${WARNING} localhost/init ${INFO}to create an admin account.${NC}"
 }
 
 uninstallation() {
