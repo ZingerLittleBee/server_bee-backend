@@ -10,6 +10,13 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
+  mongo:
+    image: mongo
+    container_name: serverbee-mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
   hub:
     # build:
     #   context: ../
@@ -28,13 +35,6 @@ services:
       - SALT_ROUNDS=${SALT_ROUNDS}
     depends_on:
       - mongo
-  mongo:
-    image: mongo
-    container_name: serverbee-mongo
-    restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
   interactor:
     # build:
     #   context: ../
