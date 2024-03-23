@@ -76,8 +76,9 @@ EOF
 # Function to set MongoDB variables
 set_mongo_variables() {
     read -p "Will you be using an external MongoDB service? (y/n): " use_external_mongo
-    # to lowercase
-    use_external_mongo=${use_external_mongo,,}
+
+    use_external_mongo=${use_external_mongo:-n}
+    use_external_mongo=$(echo "$use_external_mongo" | tr '[:upper:]' '[:lower:]')
 
     if [[ $use_external_mongo == "n" ]]; then
         # Generate random values for MONGO_INITDB_ROOT_USERNAME and MONGO_INITDB_ROOT_PASSWORD
@@ -184,13 +185,13 @@ installation() {
 }
 
 uninstallation() {
-    echo -e "${Waring}Starting application uninstallation...${NC}"
+    echo -e "${WARNING}Starting application uninstallation...${NC}"
 
     cd server_bee-backend/docker || exit
 
     docker-compose down
 
-    echo -e "${ERROR}Whether to remove all data?${NC}"
+    echo -e "${ERROR}Whether to remove all data? (y/n)${NC}"
     read confirm_remove_data
 
     if [[ $confirm_remove_data == "y" ]]; then
@@ -203,6 +204,10 @@ uninstallation() {
 
 update() {
     echo -e "${INFO}Starting application update...${NC}"
+
+    if [[ -f docker-compose.yml ]]; then
+        cd ../..
+    fi
 
     cd server_bee-backend || exit
 
