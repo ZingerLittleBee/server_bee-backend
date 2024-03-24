@@ -7,14 +7,15 @@ ERROR='\033[1;31m'
 NC='\033[0m' # No Color
 
 # Declare variables
+
 use_external_mongo=""
+SERVERHUB_URL=""
+RECORDER_DOMAIN=""
 MONGO_INITDB_ROOT_USERNAME=""
 MONGO_INITDB_ROOT_PASSWORD=""
 MONGODB_URI=""
 NEXTAUTH_SECRET=""
 SERVER_JWT_SECRET=""
-SERVER_TOKEN=""
-RECORDER_DOMAIN=""
 
 # Function to check system type
 check_system_type() {
@@ -49,30 +50,29 @@ check_tools_installed() {
 
 # Function to write values to .env file
 write_to_env_file() {
-    local nextauth_secret=$1
-    local mongo_initdb_root_username=$2
-    local mongo_initdb_root_password=$3
-    local mongodb_uri=$4
-    local server_jwt_secret=$5
-    local server_token=$6
+    local serverhub_url=$1
+    local nextauth_secret=$2
+    local mongo_initdb_root_username=$3
+    local mongo_initdb_root_password=$4
+    local mongodb_uri=$5
+    local server_jwt_secret=$6
 
     cat <<EOF >.env
 RUST_LOG=waring
 DATABASE_URL="file:/app/serverhub.db"
 NEXTAUTH_SECRET="${nextauth_secret}"
-NEXTAUTH_URL="hub:3000"
+NEXTAUTH_URL="${serverhub_url}"
 MONGO_INITDB_ROOT_USERNAME="${mongo_initdb_root_username}"
 MONGO_INITDB_ROOT_PASSWORD="${mongo_initdb_root_password}"
 MONGODB_URI="${mongodb_uri}"
 SERVER_JWT_SECRET="${server_jwt_secret}"
 SERVER_HOST="recorder:9528"
-SERVER_TOKEN="${server_token}"
 EOF
 }
 
 # Function to set MongoDB variables
 set_mongo_variables() {
-    read -p "Will you be using an external MongoDB service? (y/n): " use_external_mongo
+    read -pr "Will you be using an external MongoDB service? (y/n): " use_external_mongo
 
     use_external_mongo=${use_external_mongo:-n}
     use_external_mongo=$(echo "$use_external_mongo" | tr '[:upper:]' '[:lower:]')
@@ -87,7 +87,7 @@ set_mongo_variables() {
     else
         # Prompt user for MONGODB_URI
         echo -e "${WARNING}Enter the MongoDB URI:${NC}"
-        read MONGODB_URI
+        read -r MONGODB_URI
 
         # Remove MONGO_INITDB_ROOT_USERNAME and MONGO_INITDB_ROOT_PASSWORD
         unset MONGO_INITDB_ROOT_USERNAME
@@ -122,38 +122,44 @@ installation() {
     # Prompt user to start installation
     echo -e "${INFO}Starting application installation...${NC}"
 
+    echo -e "${WARNING}Enter the ServerHub URL (Example: https://serverhub.app):${NC}"
+    echo -e "${INFO}Make sure to ${WARNING}include the protocol${INFO}.${NC}"
+    read -r SERVERHUB_URL
+
+    echo -e "${WARNING}Enter the Recorder service domain (Example: recorder.serverhub.app):${NC}"
+    echo -e "${INFO}Make sure to ${WARNING}exclude the protocol${INFO}.${NC}"
+    read -r RECORDER_DOMAIN
+    echo -e "${INFO}Make sure to ${RECORDER_DOMAIN} point to the server IP address.${NC}"
+    read -pr "Press Enter to continue..."
+
     # Call the function to set MongoDB variables
     set_mongo_variables
-
-    echo -e "${WARNING}Enter the recorder domain (Example: recorder.serverhub.app):${NC}"
-    read RECORDER_DOMAIN
-    echo -e "${INFO}Make sure to ${RECORDER_DOMAIN} point to the server IP address.${NC}"
-    read -p "Press Enter to continue..."
 
     # Generate random values
     NEXTAUTH_SECRET=$(openssl rand -base64 32)
     SERVER_JWT_SECRET=$(openssl rand -base64 32)
-    SERVER_TOKEN=$(openssl rand -base64 32)
 
     # Function to print and confirm user input variables
     print_and_confirm_variables() {
         echo -e "${INFO}Please reconfirm input variable:${NC}"
         echo -e "========================================================"
+        echo -e "${INFO}SERVERHUB_URL:${NC} ${WARNING}$SERVERHUB_URL${NC}"
+        echo -e "${INFO}RECORDER_DOMAIN:${NC} ${WARNING}$RECORDER_DOMAIN${NC}"
+
         if [[ -n $MONGO_INITDB_ROOT_USERNAME ]]; then
             echo -e "${INFO}MONGO_INITDB_ROOT_USERNAME:${NC} ${WARNING}$MONGO_INITDB_ROOT_USERNAME${NC}"
         fi
         if [[ -n $MONGO_INITDB_ROOT_PASSWORD ]]; then
             echo -e "${INFO}MONGO_INITDB_ROOT_PASSWORD:${NC} ${WARNING}$MONGO_INITDB_ROOT_PASSWORD${NC}"
         fi
+
         echo -e "${INFO}MONGODB_URI:${NC} ${WARNING}$MONGODB_URI${NC}"
         echo -e "${INFO}NEXTAUTH_SECRET:${NC} ${WARNING}$NEXTAUTH_SECRET${NC}"
         echo -e "${INFO}SERVER_JWT_SECRET:${NC} ${WARNING}$SERVER_JWT_SECRET${NC}"
-        echo -e "${INFO}SERVER_TOKEN:${NC} ${WARNING}$SERVER_TOKEN${NC}"
-        echo -e "${INFO}RECORDER_DOMAIN:${NC} ${WARNING}$RECORDER_DOMAIN${NC}"
         echo -e "========================================================"
 
         # Ask user for confirmation
-        read -p "Are the variables correct? (y/n): " confirm_variables
+        read -pr "Are the variables correct? (y/n): " confirm_variables
 
         if [[ $confirm_variables != "y" ]]; then
             echo -e "${ERROR}Installation aborted.${NC}"
@@ -172,7 +178,7 @@ installation() {
     write_to_caddy_file "$RECORDER_DOMAIN"
 
     # Write the generated values to .env file using the function
-    write_to_env_file "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET" "$SERVER_TOKEN"
+    write_to_env_file "$SERVERHUB_URL" "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET"
 
     if [[ $use_external_mongo == "y" ]]; then
         sed -i '/[ \t]*mongo/,/[ \t]*hub/{/[ \t]*hub/!d}' docker-compose.yml
@@ -192,7 +198,7 @@ uninstallation() {
     docker-compose down
 
     echo -e "${ERROR}Whether to remove all data? (y/n)${NC}"
-    read confirm_remove_data
+    read -r confirm_remove_data
 
     if [[ $confirm_remove_data == "y" ]]; then
         cd ../..
