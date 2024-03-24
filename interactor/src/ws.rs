@@ -217,7 +217,7 @@ impl MyWebSocket {
             records.push(record);
         }
         let duration = start.elapsed();
-        debug!("overview func executed in: {:?}", duration);
+        info!("overview func executed in: {:?}", duration);
         Ok(records)
     }
 }
