@@ -21,15 +21,7 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from '@/components/ui/use-toast'
 
 const serverFormSchema = z.object({
-    host: z.string().refine(
-        (value) =>
-            // domain
-            /^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}$/.test(value) ||
-            // IPv4
-            /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(value) ||
-            'localhost' === value,
-        { message: 'Invalid domain name or IP address.' }
-    ),
+    host: z.string(),
     token: z.string(),
     disableSsl: z.boolean(),
 })
