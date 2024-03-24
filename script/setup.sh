@@ -72,7 +72,7 @@ EOF
 
 # Function to set MongoDB variables
 set_mongo_variables() {
-    read -pr "Will you be using an external MongoDB service? (y/n): " use_external_mongo
+    read -p -r "Will you be using an external MongoDB service? (y/n): " use_external_mongo
 
     use_external_mongo=${use_external_mongo:-n}
     use_external_mongo=$(echo "$use_external_mongo" | tr '[:upper:]' '[:lower:]')
@@ -130,7 +130,7 @@ installation() {
     echo -e "${INFO}Make sure to ${WARNING}exclude the protocol${INFO}.${NC}"
     read -r RECORDER_DOMAIN
     echo -e "${INFO}Make sure to ${RECORDER_DOMAIN} point to the server IP address.${NC}"
-    read -pr "Press Enter to continue..."
+    read -p -r "Press Enter to continue..."
 
     # Call the function to set MongoDB variables
     set_mongo_variables
@@ -159,7 +159,7 @@ installation() {
         echo -e "========================================================"
 
         # Ask user for confirmation
-        read -pr "Are the variables correct? (y/n): " confirm_variables
+        read -p -r "Are the variables correct? (y/n): " confirm_variables
 
         if [[ $confirm_variables != "y" ]]; then
             echo -e "${ERROR}Installation aborted.${NC}"
