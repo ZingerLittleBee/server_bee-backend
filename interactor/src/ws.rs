@@ -1,10 +1,7 @@
 use actix::fut::wrap_future;
-use std::env;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use crate::auth::Auth;
-use crate::constant::env::SERVICE_URL;
 use crate::vo::record::Record;
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
@@ -74,16 +71,15 @@ pub struct MyWebSocket {
     hb: Instant,
     collection: Arc<Collection<Record>>,
     message: HubMessage,
-    server_ids: Vec<String>,
+    // server_ids: Vec<String>,
 }
 
 impl MyWebSocket {
-    pub fn new(collection: Arc<Collection<Record>>, server_ids: Vec<String>) -> Self {
+    pub fn new(collection: Arc<Collection<Record>>) -> Self {
         Self {
             hb: Instant::now(),
             collection,
             message: HubMessage::Overview,
-            server_ids,
         }
     }
 
@@ -103,24 +99,22 @@ impl MyWebSocket {
         ctx.run_interval(TASK_INTERVAL, move |act, ctx| {
             let collection = act.collection.clone();
             let message = act.message.clone();
-            let server_ids = act.server_ids.clone();
+            // let server_ids = act.server_ids.clone();
 
             match message {
                 HubMessage::Overview => {
-                    ctx.spawn(
-                        wrap_future::<_, Self>(Self::overview(collection, server_ids)).map(
-                            |result, _, ctx| match result {
-                                Ok(records) => {
-                                    let json_string = serde_json::to_string(&records)
-                                        .expect("Failed to serialize records");
-                                    ctx.text(ByteString::from(json_string));
-                                }
-                                Err(e) => {
-                                    error!("failed to execute overview: {:?}", e);
-                                }
-                            },
-                        ),
-                    );
+                    ctx.spawn(wrap_future::<_, Self>(Self::overview(collection)).map(
+                        |result, _, ctx| match result {
+                            Ok(records) => {
+                                let json_string = serde_json::to_string(&records)
+                                    .expect("Failed to serialize records");
+                                ctx.text(ByteString::from(json_string));
+                            }
+                            Err(e) => {
+                                error!("failed to execute overview: {:?}", e);
+                            }
+                        },
+                    ));
                 }
                 HubMessage::Detail(server_id) => {
                     ctx.spawn(
@@ -184,17 +178,14 @@ impl MyWebSocket {
         }
     }
 
-    async fn overview(
-        collection: Arc<Collection<Record>>,
-        server_ids: Vec<String>,
-    ) -> Result<Vec<Record>> {
+    async fn overview(collection: Arc<Collection<Record>>) -> Result<Vec<Record>> {
         let start = Instant::now();
         let pipeline = vec![
-            doc! {
-                "$match": {
-                    "server_id": { "$in": server_ids }
-                }
-            },
+            // doc! {
+            //     "$match": {
+            //         "server_id": { "$in": server_ids }
+            //     }
+            // },
             doc! {
                 "$sort":{ "server_id": 1, "time": -1 }
             },
@@ -313,28 +304,28 @@ pub async fn echo_ws(
     stream: web::Payload,
     record_collection: web::Data<Collection<Record>>,
 ) -> Result<HttpResponse, Error> {
-    let cookie = Auth::extract_from_cookie(&req);
-    let server_ids = get_server_ids(cookie).await.unwrap_or(Vec::new());
-    info!("server_ids: {:?}", server_ids);
+    // let cookie = Auth::extract_from_cookie(&req);
+    // let server_ids = get_server_ids(cookie).await.unwrap_or(Vec::new());
+    // info!("server_ids: {:?}", server_ids);
     start(
-        MyWebSocket::new(record_collection.into_inner(), server_ids),
+        MyWebSocket::new(record_collection.into_inner()),
         &req,
         stream,
     )
 }
 
-async fn get_server_ids(cookie: String) -> Result<Vec<String>> {
-    let service_url = env::var(SERVICE_URL).expect("SERVICE_URL must be set");
-    match reqwest::Client::new()
-        .get(&service_url)
-        .header("Cookie", cookie)
-        .send()
-        .await
-    {
-        Ok(response) => Ok(response.json::<Vec<String>>().await?),
-        Err(e) => {
-            error!("Failed to validate token: {:?}", e);
-            Ok(Vec::new())
-        }
-    }
-}
+// async fn get_server_ids(cookie: String) -> Result<Vec<String>> {
+//     let service_url = env::var(SERVICE_URL).expect("SERVICE_URL must be set");
+//     match reqwest::Client::new()
+//         .get(&service_url)
+//         .header("Cookie", cookie)
+//         .send()
+//         .await
+//     {
+//         Ok(response) => Ok(response.json::<Vec<String>>().await?),
+//         Err(e) => {
+//             error!("Failed to validate token: {:?}", e);
+//             Ok(Vec::new())
+//         }
+//     }
+// }

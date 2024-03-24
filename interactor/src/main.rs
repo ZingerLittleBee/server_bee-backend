@@ -7,7 +7,7 @@ use crate::constant::db::{
     DATABASE_NAME, INVALID_COLLECTION_INDEX, INVALID_COLLECTION_NAME, RECORD_COLLECTION_NAME,
 };
 use crate::constant::default_value::DEFAULT_PORT;
-use crate::constant::env::{AUTH_SERVER_URL, MONGODB_URI, PORT, SERVER_JWT_SECRET};
+use crate::constant::env::{MONGODB_URI, PORT};
 use crate::vo::record::Record;
 use crate::ws::echo_ws;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
@@ -25,9 +25,9 @@ async fn main() -> std::io::Result<()> {
 
     let uri = env::var(MONGODB_URI).expect("MONGODB_URI must be set");
 
-    let server_jwt_secret = env::var(SERVER_JWT_SECRET).expect("SERVER_JWT_SECRET must be set");
+    // let server_jwt_secret = env::var(SERVER_JWT_SECRET).expect("SERVER_JWT_SECRET must be set");
 
-    env::var(AUTH_SERVER_URL).expect("AUTH_SERVER_URL must be set");
+    // env::var(AUTH_SERVER_URL).expect("AUTH_SERVER_URL must be set");
 
     let client = Client::with_uri_str(uri).await.unwrap();
     let database = client.database(DATABASE_NAME);
@@ -39,6 +39,7 @@ async fn main() -> std::io::Result<()> {
         .map(|v| v.parse().unwrap_or(DEFAULT_PORT))
         .unwrap_or(DEFAULT_PORT);
 
+    // check mongo index
     let collection_names = if let Ok(collection_names) = database.list_collection_names(None).await
     {
         collection_names
@@ -78,9 +79,9 @@ async fn main() -> std::io::Result<()> {
     info!("listening on port {}", port);
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(server_jwt_secret.clone()))
+            // .app_data(web::Data::new(server_jwt_secret.clone()))
             .app_data(web::Data::new(record_collection.clone()))
-            .app_data(web::Data::new(invalid_collection.clone()))
+            // .app_data(web::Data::new(invalid_collection.clone()))
             .service(web::resource("/health").route(web::get().to(|| HttpResponse::Ok())))
             .service(web::resource("/version").route(web::get().to(version)))
             .service(web::resource("/ws").route(web::get().to(echo_ws)))
