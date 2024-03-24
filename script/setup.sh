@@ -109,6 +109,10 @@ write_to_caddy_file() {
     @recorder host $recorder_domain
     reverse_proxy @recorder recorder:9528
 
+    # optional
+    # @web host web.serverhub.app
+    # reverse_proxy @web web:9527
+
     route /api/i/* {
         uri strip_prefix /api/i
         reverse_proxy interactor:9529
