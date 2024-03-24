@@ -44,10 +44,7 @@ services:
     restart: unless-stopped
     environment:
       - RUST_LOG=${RUST_LOG}
-      - SERVER_JWT_SECRET=${SERVER_JWT_SECRET}
       - MONGODB_URI=${MONGODB_URI}
-      - AUTH_SERVER_URL=${AUTH_SERVER_URL}
-      - SERVICE_URL=${SERVICE_URL}
     depends_on:
       - mongo
   recorder:
