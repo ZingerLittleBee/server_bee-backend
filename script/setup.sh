@@ -65,7 +65,6 @@ MONGO_INITDB_ROOT_USERNAME="${mongo_initdb_root_username}"
 MONGO_INITDB_ROOT_PASSWORD="${mongo_initdb_root_password}"
 MONGODB_URI="${mongodb_uri}"
 SERVER_JWT_SECRET="${server_jwt_secret}"
-SALT_ROUNDS=10
 SERVER_HOST="recorder:9528"
 SERVER_TOKEN="${server_token}"
 EOF
