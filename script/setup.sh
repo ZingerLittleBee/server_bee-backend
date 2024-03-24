@@ -44,7 +44,7 @@ check_tools_installed() {
         echo -e "${WARNING}Git is not installed.${NC}"
         echo -e "${WARNING}Please install Git manually.${NC}"
     else
-        echo -e "${INFO}Git is already installed.${NC}"
+        echo -e "${INFO}Git is already installed.${NC}\n"
     fi
 }
 
@@ -72,7 +72,8 @@ EOF
 
 # Function to set MongoDB variables
 set_mongo_variables() {
-    read -p -r "Will you be using an external MongoDB service? (y/n): " use_external_mongo
+    echo -e "${WARNING}Will you be using an external MongoDB service? (y/n):${NC}"
+    read -r use_external_mongo
 
     use_external_mongo=${use_external_mongo:-n}
     use_external_mongo=$(echo "$use_external_mongo" | tr '[:upper:]' '[:lower:]')
@@ -120,17 +121,19 @@ EOF
 
 installation() {
     # Prompt user to start installation
-    echo -e "${INFO}Starting application installation...${NC}"
+    echo -e "\n${INFO}Starting application installation...${NC}\n"
 
     echo -e "${WARNING}Enter the ServerHub URL (Example: https://serverhub.app):${NC}"
-    echo -e "${INFO}Make sure to ${WARNING}include the protocol${INFO}.${NC}"
+    echo -e "${INFO}(Make sure to ${WARNING}include the protocol${INFO}.)${NC}"
     read -r SERVERHUB_URL
 
-    echo -e "${WARNING}Enter the Recorder service domain (Example: recorder.serverhub.app):${NC}"
-    echo -e "${INFO}Make sure to ${WARNING}exclude the protocol${INFO}.${NC}"
+    echo -e "\n${WARNING}Enter the Recorder service domain (Example: recorder.serverhub.app):${NC}"
+    echo -e "${INFO}(Make sure to ${WARNING}exclude the protocol${INFO}.)${NC}"
     read -r RECORDER_DOMAIN
-    echo -e "${INFO}Make sure to ${RECORDER_DOMAIN} point to the server IP address.${NC}"
-    read -p -r "Press Enter to continue..."
+    echo -e "\n${INFO}Make sure to ${WARNING}${SERVERHUB_URL#http*://}${NC} and ${WARNING}${RECORDER_DOMAIN}${INFO} point to the server IP address.${NC}"
+
+    echo -e "Press Enter to continue..."
+    read -r
 
     # Call the function to set MongoDB variables
     set_mongo_variables
@@ -141,7 +144,7 @@ installation() {
 
     # Function to print and confirm user input variables
     print_and_confirm_variables() {
-        echo -e "${INFO}Please reconfirm input variable:${NC}"
+        echo -e "\n${INFO}Please reconfirm input variable:${NC}"
         echo -e "========================================================"
         echo -e "${INFO}SERVERHUB_URL:${NC} ${WARNING}$SERVERHUB_URL${NC}"
         echo -e "${INFO}RECORDER_DOMAIN:${NC} ${WARNING}$RECORDER_DOMAIN${NC}"
@@ -159,7 +162,9 @@ installation() {
         echo -e "========================================================"
 
         # Ask user for confirmation
-        read -p -r "Are the variables correct? (y/n): " confirm_variables
+        echo -e "${INFO}Installation will start after confirmation.${NC}"
+        echo -e "${WARNING}Are the variables correct? (y/n):${NC}"
+        read -r confirm_variables
 
         if [[ $confirm_variables != "y" ]]; then
             echo -e "${ERROR}Installation aborted.${NC}"
