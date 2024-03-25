@@ -59,17 +59,17 @@ impl Recorder {
                     }
                 };
 
-                if server_config.token().is_none() || server_config.host().is_none() {
+                if server_config.token().is_none() || server_config.url().is_none() {
                     sleep(Duration::from_secs(SLEEP_TIME_SECOND_RETRY)).await;
                     warn!(
-                        "Host or Token is none, retry after {} seconds",
+                        "Server URL or Token is none, retry after {} seconds",
                         SLEEP_TIME_SECOND_RETRY
                     );
                     continue;
                 }
 
-                let url = format!("{}{}", server_config.host().unwrap(), RECORD_ENDPOINT);
-                debug!("Recorder url: {}", url);
+                let url = format!("{}{}", server_config.url().unwrap(), RECORD_ENDPOINT);
+                debug!("Server URL: {}", url);
 
                 let token = server_config.token().unwrap();
                 debug!("Token is: {}", token);
@@ -107,9 +107,5 @@ impl Recorder {
             .json(&params)
             .send()
             .await
-    }
-
-    fn get_token(&self) -> Option<String> {
-        self.config.read().unwrap().server_token()
     }
 }

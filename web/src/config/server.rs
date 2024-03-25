@@ -4,17 +4,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default)]
 pub struct ServerConfig {
     token: Option<String>,
-    host: Option<String>,
-    disable_ssl: bool,
+    url: Option<String>,
 }
 
 impl ServerConfig {
-    pub fn new(token: Option<String>, host: Option<String>, disable_ssl: bool) -> Self {
-        ServerConfig {
-            token,
-            host,
-            disable_ssl,
-        }
+    pub fn new(token: Option<String>, url: Option<String>) -> Self {
+        ServerConfig { token, url }
     }
 
     /// Merge the other ServerConfig into self.
@@ -25,12 +20,8 @@ impl ServerConfig {
             self.token = other.token.clone();
             merged = true;
         }
-        if other.host.is_some() && other.host != self.host {
-            self.host = other.host.clone();
-            merged = true;
-        }
-        if other.disable_ssl != self.disable_ssl {
-            self.disable_ssl = other.disable_ssl;
+        if other.url.is_some() && other.url != self.url {
+            self.url = other.url.clone();
             merged = true;
         }
         merged
@@ -40,24 +31,8 @@ impl ServerConfig {
         self.token.clone()
     }
 
-    pub fn host(&self) -> Option<String> {
-        self.host.clone()
-    }
-
-    pub fn disable_ssl(&self) -> bool {
-        self.disable_ssl
-    }
-
-    pub fn set_token(&mut self, token: Option<String>) {
-        self.token = token;
-    }
-
-    pub fn set_host(&mut self, host: Option<String>) {
-        self.host = host;
-    }
-
-    pub fn set_disable_ssl(&mut self, disable_ssl: bool) {
-        self.disable_ssl = disable_ssl;
+    pub fn url(&self) -> Option<String> {
+        self.url.clone()
     }
 }
 

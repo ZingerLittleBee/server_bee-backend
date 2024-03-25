@@ -17,13 +17,11 @@ import {
     FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import { toast } from '@/components/ui/use-toast'
 
 const serverFormSchema = z.object({
-    host: z.string(),
+    url: z.string(),
     token: z.string(),
-    disableSsl: z.boolean(),
 })
 
 type ServerFormValues = z.infer<typeof serverFormSchema>
@@ -38,26 +36,23 @@ export function ServerForm() {
     const form = useForm<ServerFormValues>({
         resolver: zodResolver(serverFormSchema),
         defaultValues: {
-            host: serverConfig?.host ?? '',
+            url: serverConfig?.url ?? '',
             token: serverConfig?.token ?? '',
-            disableSsl: serverConfig?.disableSsl ?? false,
         },
     })
 
     useEffect(() => {
         if (form.formState.isDirty) return
-        form.setValue('host', serverConfig?.host ?? '')
+        form.setValue('url', serverConfig?.url ?? '')
         form.setValue('token', serverConfig?.token ?? '')
-        form.setValue('disableSsl', serverConfig?.disableSsl ?? false)
     }, [form, serverConfig])
 
     async function onSubmit(data: ServerFormValues) {
         setIsBtnLoading(true)
         const res = await updateServerSettings(
             {
-                host: data.host,
+                url: data.url,
                 token: data.token,
-                disable_ssl: data.disableSsl,
             },
             token.communicationToken
         )
@@ -80,15 +75,18 @@ export function ServerForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <FormField
                     control={form.control}
-                    name="host"
+                    name="url"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Host</FormLabel>
+                            <FormLabel>URL</FormLabel>
                             <FormControl>
-                                <Input placeholder="Your host" {...field} />
+                                <Input
+                                    placeholder="Your recorder service url"
+                                    {...field}
+                                />
                             </FormControl>
                             <FormDescription>
-                                Domain or IP, not including http(s)://
+                                Such as https://recorder.serverhub.app
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
@@ -108,28 +106,6 @@ export function ServerForm() {
                                 and web page.
                             </FormDescription>
                             <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="disableSsl"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                                <FormLabel className="text-base">
-                                    Enable SSL
-                                </FormLabel>
-                                <FormDescription>
-                                    Enable HTTPS or WSS for the server.
-                                </FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
                         </FormItem>
                     )}
                 />

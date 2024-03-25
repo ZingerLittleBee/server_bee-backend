@@ -1,6 +1,5 @@
 pub mod component;
 pub mod cpu;
-pub mod device_info;
 pub mod disk;
 pub mod memory;
 pub mod network;

@@ -32,8 +32,8 @@ pub struct Args {
 
     /// ServerHub address, ip or domain.
     /// 服务器地址, ip 或 domain
-    #[clap(short = 'h', long = "host")]
-    pub server_host: Option<String>,
+    #[clap(short = 'u', long = "url")]
+    pub server_url: Option<String>,
 
     /// Disable SSL
     /// 禁用 SSL

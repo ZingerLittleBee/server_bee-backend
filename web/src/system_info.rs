@@ -5,9 +5,8 @@ use std::str::FromStr;
 use systemstat::{Platform, System as Systemstat};
 
 use crate::model::component::ComponentTemperature;
-use crate::model::device_info::DeviceInfo;
 use crate::model::disk::{DiskDetail, DiskIO};
-use crate::model::network::{NetworkDetail, NetworkIO, NetworkInfo};
+use crate::model::network::{NetworkDetail, NetworkIO};
 use crate::model::overview::{OsOverview, Overview};
 use crate::model::process::Process;
 use crate::model::realtime_status::RealtimeStatus;
@@ -21,7 +20,6 @@ use crate::model::{
 use crate::server::{Sort, SortBy, SortOrder};
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
-use crate::vo::process::ProcessVo;
 use crate::vo::simple_process::SimpleProcessVo;
 use sysinfo::{
     CpuExt, DiskExt, DiskKind, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt,
@@ -252,15 +250,7 @@ impl SystemInfo {
         NetworkDetail::new_list(self.sys.networks())
     }
 
-    pub fn get_network_info(&mut self) -> Vec<NetworkInfo> {
-        NetworkInfo::from_networks(self.sys.networks())
-    }
-
     pub fn get_process(&mut self) -> Vec<SimpleProcess> {
-        self.sys.processes().iter().map(|x| x.1.into()).collect()
-    }
-
-    pub fn get_full_process(&mut self) -> Vec<Process> {
         self.sys.processes().iter().map(|x| x.1.into()).collect()
     }
 
@@ -325,23 +315,6 @@ impl SystemInfo {
     pub fn get_less_fusion(&mut self) -> Fusion {
         SystemInfo::refresh_less(self);
         Fusion::new_less(self.get_overview().convert())
-    }
-
-    pub fn get_fusion_with_full_process(&mut self) -> Fusion {
-        self.sys.refresh_all();
-
-        let processes_vo: Vec<ProcessVo> = self
-            .get_full_process()
-            .iter()
-            .map(|x| x.convert())
-            .collect();
-
-        Fusion::new_full_process(
-            self.get_overview().convert(),
-            Option::from(self.get_os_overview().convert()),
-            Option::from(self.get_realtime_status().convert()),
-            Option::from(processes_vo),
-        )
     }
 
     pub fn get_fusion_with_simple_process(&mut self) -> Fusion {
@@ -439,15 +412,6 @@ impl SystemInfo {
                 }
             },
         }
-    }
-
-    pub fn get_device_info(&mut self) -> DeviceInfo {
-        let os_overview = self.get_os_overview();
-        let network_info = self.get_network_info();
-        let disk_detail = self.get_disk_detail();
-        let memory_info = self.get_mem_usage();
-        let version = env!("CARGO_PKG_VERSION").to_string();
-        DeviceInfo::new(os_overview, memory_info, network_info, disk_detail, version)
     }
 
     // 仅刷新cpu、内存、网络、磁盘的私有函数

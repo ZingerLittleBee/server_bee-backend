@@ -24,13 +24,10 @@ export type AppConfigVo = AppConfig
 
 export type ServerConfig = {
     token?: string
-    host?: string
-    disable_ssl: boolean
+    url?: string
 }
 
-export type ServerConfigVo = Omit<ServerConfig, 'disable_ssl'> & {
-    disableSsl: boolean
-}
+export type ServerConfigVo = ServerConfig
 
 export type TerminalSettings = {
     shell?: string

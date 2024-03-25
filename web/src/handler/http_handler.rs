@@ -53,39 +53,6 @@ pub async fn check_token(_token: CommunicationToken) -> impl Responder {
     HttpResponse::Ok().finish()
 }
 
-/// private api localhost only
-// /local/token/view
-pub async fn view_token(config: web::Data<Arc<RwLock<Config>>>) -> impl Responder {
-    warn!("Local Event: view_token");
-    return match config.read() {
-        Ok(guard) => {
-            let token = guard.app_token();
-            token.unwrap_or_default()
-        }
-        Err(e) => {
-            warn!("Failed to acquire config read lock: {:?}", e);
-            "".into()
-        }
-    };
-}
-
-// /local/token/clear
-pub async fn clear_token(config: web::Data<Arc<RwLock<Config>>>) -> impl Responder {
-    warn!("Local Event: clear_token");
-
-    let res = match config.write() {
-        Ok(mut guard) => guard.set_app_token(None),
-        Err(e) => {
-            warn!("Failed to acquire config write lock: {:?}", e);
-            Err(anyhow::anyhow!(
-                "Failed to acquire config write lock: {:?}",
-                e
-            ))
-        }
-    };
-    JsonResponse(HttpResult::<()>::new(res.is_ok()))
-}
-
 // /local/token/rest
 pub async fn rest_token_local(
     config: web::Data<Arc<RwLock<Config>>>,

@@ -1,7 +1,6 @@
 pub mod component;
 pub mod config;
 pub mod cpu;
-pub mod device_info;
 pub mod disk;
 pub mod formator;
 pub mod fusion;

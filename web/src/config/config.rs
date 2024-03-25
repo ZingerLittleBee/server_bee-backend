@@ -17,7 +17,6 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use std::env;
-use std::fs::File;
 use std::path::PathBuf;
 
 #[derive(Clone, Debug)]
@@ -52,11 +51,7 @@ impl Config {
         };
 
         server
-            .merge(ServerConfig::new(
-                args.server_token,
-                args.server_host,
-                args.disable_ssl,
-            ))
+            .merge(ServerConfig::new(args.server_token, args.server_url))
             .then(|| {
                 db.set(SERVER_CONFIG, &server);
             });
@@ -119,12 +114,8 @@ impl Config {
         self.app.token()
     }
 
-    pub fn server_token(&self) -> Option<String> {
-        self.server.token()
-    }
-
-    pub fn server_host(&self) -> Option<String> {
-        self.server.host()
+    pub fn server_url(&self) -> Option<String> {
+        self.server.url()
     }
 
     pub fn last_login(&self) -> u64 {
@@ -174,25 +165,6 @@ impl Config {
         log4rs::init_config(log_config).unwrap();
     }
 
-    fn get_config_yml() -> Result<WebServerConfig> {
-        let mut config_path = PathBuf::from("config.yml");
-        if let Ok(current_exe) = env::current_exe() {
-            if let Some(parent) = current_exe.parent() {
-                config_path = parent.join("config.yml");
-            }
-        }
-
-        let config_file = File::open(config_path)?;
-        Ok(serde_yaml::from_reader::<File, WebServerConfig>(
-            config_file,
-        )?)
-    }
-
-    pub fn get_server_port() -> u16 {
-        let d = Config::get_config_yml().unwrap_or_default();
-        d.port()
-    }
-
     fn current_dir() -> PathBuf {
         if let Ok(current_exe) = env::current_exe() {
             if let Some(parent) = current_exe.parent() {
@@ -229,18 +201,6 @@ impl Config {
         self.app.merge(config).then(|| {
             self.db.set::<AppConfig>(APP_CONFIG, &self.app);
         });
-        Ok(())
-    }
-
-    pub fn set_server_token(&mut self, token: &str) -> Result<()> {
-        self.server.set_token(Some(token.to_string()));
-        self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
-        Ok(())
-    }
-
-    pub fn set_server_host(&mut self, host: &str) -> Result<()> {
-        self.server.set_host(Some(host.to_string()));
-        self.db.set::<ServerConfig>(SERVER_CONFIG, &self.server);
         Ok(())
     }
 

@@ -25,7 +25,6 @@ mod model;
 
 mod pty;
 mod record;
-mod report;
 mod route;
 mod server;
 mod system_info;
@@ -41,7 +40,7 @@ async fn main() -> std::io::Result<()> {
 
     let config = Config::new(args);
 
-    let host = config.server_host().unwrap_or_else(|| String::from(""));
+    let host = config.server_url().unwrap_or_else(|| String::from(""));
 
     let port = config.server_port();
 

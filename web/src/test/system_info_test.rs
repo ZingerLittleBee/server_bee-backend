@@ -64,7 +64,7 @@ mod system_info_test {
 
     #[test]
     fn test_get_disk_io() {
-        let mut system_info = SystemInfo::new();
+        let system_info = SystemInfo::new();
         let disk_io = system_info.get_disk_io();
         assert!(disk_io.total_read >= disk_io.read);
         assert!(disk_io.total_write >= disk_io.write);
@@ -125,13 +125,6 @@ mod system_info_test {
     }
 
     #[test]
-    fn test_get_full_process() {
-        let mut system_info = SystemInfo::new();
-        let process_list = system_info.get_full_process();
-        assert!(!process_list.is_empty());
-    }
-
-    #[test]
     fn test_get_process_by_id() {
         let mut system_info = SystemInfo::new();
         let process_list = system_info.get_process();
@@ -175,17 +168,6 @@ mod system_info_test {
     }
 
     #[test]
-    fn test_get_fusion_with_full_process() {
-        let mut system_info = SystemInfo::new();
-        let fusion = system_info.get_fusion_with_full_process();
-        assert!(fusion.current_process.is_none());
-        assert!(fusion.process.is_none());
-        assert!(fusion.os.is_some());
-        assert!(fusion.realtime.is_some());
-        assert!(fusion.full_process.is_some());
-    }
-
-    #[test]
     fn test_get_fusion_with_simple_process() {
         let mut system_info = SystemInfo::new();
         let fusion = system_info.get_fusion_with_simple_process();
@@ -206,11 +188,5 @@ mod system_info_test {
         assert!(fusion.realtime.is_none());
         assert!(fusion.process.is_some());
         assert!(fusion.current_process.is_some());
-    }
-
-    #[test]
-    fn test_get_device_info() {
-        let result = std::panic::catch_unwind(|| SystemInfo::new().get_device_info());
-        assert!(result.is_ok());
     }
 }

@@ -8,16 +8,14 @@ pub struct ServerConfigVo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub token: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub host: Option<String>,
-    pub disable_ssl: bool,
+    pub url: Option<String>,
 }
 
 impl Convert<ServerConfigVo> for ServerConfig {
     fn convert(&self) -> ServerConfigVo {
         ServerConfigVo {
             token: self.token(),
-            host: self.host(),
-            disable_ssl: self.disable_ssl(),
+            url: self.url(),
         }
     }
 }
