@@ -10,7 +10,7 @@ use actix_web_actors::ws::start;
 use anyhow::Result;
 use bytestring::ByteString;
 use futures_util::TryStreamExt;
-use log::{debug, error, info, warn};
+use log::{error, info, warn};
 use mongodb::bson::doc;
 use mongodb::{bson, Collection};
 
