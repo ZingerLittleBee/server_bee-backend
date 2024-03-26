@@ -1,44 +1,44 @@
 name: Release
 
 permissions:
-    contents: write
+  contents: write
 
 on:
-    push:
-        tags:
-            - v[0-9]+.*
+  push:
+    tags:
+      - v[0-9]+.*
 
 jobs:
-#  build:
-#    name: release ${{ matrix.target }}
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        target:
-#          [
-#            x86_64-pc-windows-gnu,
-#            x86_64-unknown-linux-musl
-#          ]
-#        package: [web, deploy]
-#    steps:
-#      - uses: actions/checkout@master
-#      - name: Compile and release
-#        id: compile
-#        uses: rust-build/rust-build.action@v1.3.2
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          RUSTTARGET: ${{ matrix.target }}
-#          SRC_DIR: ${{ matrix.package }}
-#          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}
-#          UPLOAD_MODE: none
-#      - name: Upload artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: serverbee-${{ matrix.target }}
-#          path: |
-#            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-#            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+  #  build:
+  #    name: release ${{ matrix.target }}
+  #    runs-on: ubuntu-latest
+  #    strategy:
+  #      fail-fast: false
+  #      matrix:
+  #        target:
+  #          [
+  #            x86_64-pc-windows-gnu,
+  #            x86_64-unknown-linux-musl
+  #          ]
+  #        package: [web, deploy]
+  #    steps:
+  #      - uses: actions/checkout@master
+  #      - name: Compile and release
+  #        id: compile
+  #        uses: rust-build/rust-build.action@v1.3.2
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #          RUSTTARGET: ${{ matrix.target }}
+  #          SRC_DIR: ${{ matrix.package }}
+  #          ARCHIVE_NAME: serverbee-${{ matrix.package }}-${{ matrix.target }}
+  #          UPLOAD_MODE: none
+  #      - name: Upload artifact
+  #        uses: actions/upload-artifact@v3
+  #        with:
+  #          name: serverbee-${{ matrix.target }}
+  #          path: |
+  #            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+  #            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
   build-view:
     name: Build View
     runs-on: ubuntu-latest
@@ -52,13 +52,13 @@ jobs:
           version: 8
       - name: Install dependencies and build
         run: |
-          pnpm -C view install
-          pnpm -C view build
+          pnpm -C apps/view install
+          pnpm -C apps/view build
       - name: Upload view build artifacts
         uses: actions/upload-artifact@v2
         with:
           name: view-build-artifacts
-          path: view/dist
+          path: apps/view/dist
   build:
     needs:
       - build-view
@@ -79,10 +79,10 @@ jobs:
             target: x86_64-pc-windows-msvc
             args: --no-default-features --features native-tls
           # https://github.com/briansmith/ring/issues/1614
-#          - host: windows-latest
-#            suffix: .exe
-#            target: aarch64-pc-windows-msvc
-#            args: --no-default-features --features native-tls
+          #          - host: windows-latest
+          #            suffix: .exe
+          #            target: aarch64-pc-windows-msvc
+          #            args: --no-default-features --features native-tls
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
           - host: ubuntu-latest
@@ -100,7 +100,7 @@ jobs:
         if: matrix.package == 'web'
         with:
           name: view-build-artifacts
-          path: view/dist
+          path: apps/view/dist
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -118,17 +118,17 @@ jobs:
           directory: ./target/${{ matrix.settings.target }}/release
           path: serverbee-${{ matrix.package }}${{ matrix.settings.suffix }}
           filename: serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
-#      - name: Display structure of Upload files
-#        run: ls -R
-#      - name: Upload to R2
-#        uses: randomairborne/r2-release@main
-#        with:
-#          endpoint: ${{ secrets.S3_ENDPOINT }}
-#          accesskeyid: ${{ secrets.S3_ACCESS_KEY_ID }}
-#          secretaccesskey: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-#          bucket: serverbee
-#          file: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
-#          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
+      #      - name: Display structure of Upload files
+      #        run: ls -R
+      #      - name: Upload to R2
+      #        uses: randomairborne/r2-release@main
+      #        with:
+      #          endpoint: ${{ secrets.S3_ENDPOINT }}
+      #          accesskeyid: ${{ secrets.S3_ACCESS_KEY_ID }}
+      #          secretaccesskey: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      #          bucket: serverbee
+      #          file: ./target/${{ matrix.settings.target }}/release/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
+      #          destination: cli/${{ github.ref_name }}/serverbee-${{ matrix.package }}-${{ matrix.settings.target }}.zip
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
