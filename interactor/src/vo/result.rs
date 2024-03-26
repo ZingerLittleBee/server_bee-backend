@@ -11,5 +11,3 @@ pub struct HttpResult<T> {
 pub struct Token {
     pub token: String,
 }
-
-pub type RegisterResult = HttpResult<Token>;
