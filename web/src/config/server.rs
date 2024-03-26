@@ -2,6 +2,7 @@ use crate::traits::json_response::JsonResponder;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct ServerConfig {
     enable_record: bool,
     token: Option<String>,

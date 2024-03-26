@@ -163,7 +163,7 @@ impl Config {
                 Root::builder()
                     .appender("stdout")
                     .appender("logfile")
-                    .build(LevelFilter::Info),
+                    .build(LevelFilter::Warn),
             )
             .unwrap();
 

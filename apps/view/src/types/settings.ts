@@ -23,8 +23,10 @@ export type AppConfig = {
 export type AppConfigVo = AppConfig
 
 export type ServerConfig = {
+    enableRecord?: boolean
     token?: string
     url?: string
+    recordInterval?: number
 }
 
 export type ServerConfigVo = ServerConfig
