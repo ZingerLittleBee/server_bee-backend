@@ -39,7 +39,7 @@ Mono repository for ServerBee
 - If you just want to monitor your single server or computer through a web
   page, 👉 [Click Here](https://docs.serverbee.app/startup/web)
 - If you want to monitor multiple servers or computers through a
-  webpage, 👉 [Click Here](http://localhost:3000/zh-CN/getting-started/installation)
+  webpage, 👉 [Click Here](https://docs.serverhub.app)
 
 # Snapshot
 
