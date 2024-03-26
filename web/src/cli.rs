@@ -25,20 +25,27 @@ pub struct Args {
     #[clap(short, long)]
     pub app_token: Option<String>,
 
-    /// Token used to communicate with the server
-    /// 用于和服务器通信的 Token
+    /// Token used to communicate with the recorder service
+    /// 用于和 recorder 服务通信的 Token
+    /// Get from the ServerHub
+    /// 从 ServerHub 获取
     #[clap(short, long)]
     pub server_token: Option<String>,
 
-    /// ServerHub address, ip or domain.
-    /// 服务器地址, ip 或 domain
+    /// Recorder service url, for example: https://recorder.serverhub.app
+    /// Recorder 服务 url, 例如: https://recorder.serverhub.app
     #[clap(short = 'u', long = "url")]
     pub server_url: Option<String>,
 
-    /// Disable SSL
-    /// 禁用 SSL
-    #[clap(long)]
-    pub disable_ssl: bool,
+    /// enable record, default false.
+    /// 启用 recorder, 默认 false
+    #[clap(short = 'r', long = "enable-record", default_value = "false")]
+    pub enable_record: bool,
+
+    /// record interval, unit second
+    /// 上报间隔，单位秒
+    #[clap(short = 'i', long = "record-interval", long)]
+    pub record_interval: Option<u64>,
 
     /// Print help information.
     /// 打印帮助信息
