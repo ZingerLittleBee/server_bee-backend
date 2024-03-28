@@ -49,7 +49,6 @@ async fn main() -> std::io::Result<()> {
     let report_config = Arc::clone(&config);
 
     actix_rt::spawn(async {
-        // Reporter::run(report_config).await;
         Recorder::run(report_config).await;
     });
 

@@ -1,8 +1,10 @@
 use crate::config::config::Config;
-use crate::record::constant::{RECORD_ENDPOINT, SLEEP_TIME_SECOND_RETRY};
+use crate::record::constant::{
+    DEFAULT_RECORD_INTERVAL_SECOND, RECORD_ENDPOINT, SLEEP_TIME_SECOND_RETRY,
+};
 use crate::system_info::SystemInfo;
 use crate::vo::fusion::Fusion;
-use log::{debug, error, warn};
+use log::{debug, error};
 use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -59,20 +61,19 @@ impl Recorder {
                     }
                 };
 
-                if server_config.token().is_none() || server_config.url().is_none() {
+                if !server_config.enable_record()
+                    || server_config.token().is_none()
+                    || server_config.url().is_none()
+                {
                     sleep(Duration::from_secs(SLEEP_TIME_SECOND_RETRY)).await;
-                    warn!(
-                        "Server URL or Token is none, retry after {} seconds",
-                        SLEEP_TIME_SECOND_RETRY
-                    );
                     continue;
                 }
 
                 let url = format!("{}{}", server_config.url().unwrap(), RECORD_ENDPOINT);
-                debug!("Server URL: {}", url);
 
                 let token = server_config.token().unwrap();
-                debug!("Token is: {}", token);
+
+                debug!("Server URL: {url}, Token is: {token}");
 
                 match Recorder::recorder_fusion_data(
                     &client,
@@ -83,7 +84,12 @@ impl Recorder {
                 .await
                 {
                     Ok(_) => {
-                        sleep(Duration::from_secs(1)).await;
+                        sleep(Duration::from_secs(
+                            server_config
+                                .record_interval()
+                                .unwrap_or(DEFAULT_RECORD_INTERVAL_SECOND),
+                        ))
+                        .await;
                     }
                     Err(err) => {
                         error!("Record data failed, error: {:?}", err);

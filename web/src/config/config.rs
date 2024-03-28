@@ -51,7 +51,12 @@ impl Config {
         };
 
         server
-            .merge(ServerConfig::new(args.server_token, args.server_url))
+            .merge(ServerConfig::new(
+                args.enable_record,
+                args.server_token,
+                args.server_url,
+                args.record_interval,
+            ))
             .then(|| {
                 db.set(SERVER_CONFIG, &server);
             });
@@ -158,7 +163,7 @@ impl Config {
                 Root::builder()
                     .appender("stdout")
                     .appender("logfile")
-                    .build(LevelFilter::Info),
+                    .build(LevelFilter::Warn),
             )
             .unwrap();
 
