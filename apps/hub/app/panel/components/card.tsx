@@ -162,7 +162,7 @@ export default function PanelCard({
             <Flex className="truncate" justifyContent="between">
                 <Flex className="truncate" justifyContent="start">
                     <Text className="flex items-center gap-1">
-                        <Activity className="h-4 w-4" />
+                        <Activity className="size-4" />
                         <Bold>Load</Bold>
                     </Text>
                 </Flex>
@@ -176,7 +176,7 @@ export default function PanelCard({
                 <Flex className="truncate" justifyContent="between">
                     <Flex className="truncate" justifyContent="start">
                         <Text className="flex items-center gap-1">
-                            <Cpu className="h-4 w-4" />
+                            <Cpu className="size-4" />
                             <Bold>CPU</Bold>
                         </Text>
                     </Flex>
@@ -194,7 +194,7 @@ export default function PanelCard({
                 <Flex className="flex-wrap gap-x-4" justifyContent="between">
                     <Flex className="w-auto truncate" justifyContent="start">
                         <Text className="flex items-center gap-1">
-                            <MemoryStick className="h-4 w-4" />
+                            <MemoryStick className="size-4" />
                             <Bold>Mem</Bold>
                         </Text>
                         <InfoTooltip data={memoryTotal} title="Swap" />
@@ -202,7 +202,7 @@ export default function PanelCard({
                     <Flex justifyContent="start" className="w-auto gap-4">
                         <STooltip content="Used">
                             <div className="flex items-center gap-1">
-                                <div className="flex h-4 w-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400">
+                                <div className="flex size-4 items-center justify-center rounded-full border border-amber-200 text-[10px] font-bold text-amber-600 dark:border-amber-600 dark:text-amber-400">
                                     U
                                 </div>
                                 <Text color="amber">
@@ -216,7 +216,7 @@ export default function PanelCard({
                         </STooltip>
                         <STooltip content="Total">
                             <div className="flex items-center gap-1">
-                                <div className="flex h-4 w-4 items-center justify-center rounded-full border border-emerald-200 text-[10px] font-bold text-emerald-600 dark:border-emerald-600 dark:text-emerald-400">
+                                <div className="flex size-4 items-center justify-center rounded-full border border-emerald-200 text-[10px] font-bold text-emerald-600 dark:border-emerald-600 dark:text-emerald-400">
                                     T
                                 </div>
                                 <Text color="emerald">
@@ -242,7 +242,7 @@ export default function PanelCard({
                 <Flex className="flex-wrap gap-x-4" justifyContent="between">
                     <Flex className="w-auto truncate" justifyContent="start">
                         <Text className="flex items-center gap-1 ">
-                            <Network className="h-4 w-4" />
+                            <Network className="size-4" />
                             <Bold>Net</Bold>
                         </Text>
                         <InfoTooltip data={networkTotal} />
@@ -253,7 +253,7 @@ export default function PanelCard({
                             className="flex items-center gap-1 dark:text-violet-400"
                         >
                             <STooltip content="Transmit">
-                                <ArrowUpCircle className="h-4 w-4" />
+                                <ArrowUpCircle className="size-4" />
                             </STooltip>
                             <STooltip content="Transmit">
                                 <Bold>
@@ -269,7 +269,7 @@ export default function PanelCard({
                             text-green-700 dark:text-green-500"
                         >
                             <STooltip content="Receive">
-                                <ArrowDownCircle className="h-4 w-4" />
+                                <ArrowDownCircle className="size-4" />
                             </STooltip>
                             <STooltip content="Receive">
                                 <Bold>
@@ -300,12 +300,12 @@ export default function PanelCard({
                 <Flex className="flex-wrap gap-x-4" justifyContent="between">
                     <Flex justifyContent="start" className="w-auto truncate">
                         <Text className="flex items-center gap-1">
-                            <HardDrive className="h-4 w-4" />
+                            <HardDrive className="size-4" />
                             <Bold>Disk</Bold>
                         </Text>
                         <InfoTooltip data={diskTotal} />
                     </Flex>
-                    <Flex justifyContent="start" className="w-auto gap-x-4">
+                    <Flex justifyContent="between" className="w-full gap-x-4">
                         <div className="flex gap-2">
                             <div className="flex items-center justify-center space-x-2">
                                 <Tracker
