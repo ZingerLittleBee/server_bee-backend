@@ -20,7 +20,7 @@ export default function DiskTabView() {
         }))
     }, [fusion])
 
-    const [value, setValue] = useState(data?.[0].group.value ?? '')
+    const [value, setValue] = useState(data?.[0].group?.value ?? '')
 
     const groups = data?.map((d) => d.group)
     const detail = data?.find((d) => d.disk.id === value)?.disk.detail

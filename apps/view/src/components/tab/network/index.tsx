@@ -34,7 +34,7 @@ export default function NetworkTabView() {
             : []
     }, [fusion])
 
-    const [value, setValue] = useState(data?.[0].group.value ?? '')
+    const [value, setValue] = useState(data?.[0].group?.value ?? '')
 
     const groups = data?.map((net) => net.group)
     const packet = data?.find((net) => net.network.id === value)?.network.packet
