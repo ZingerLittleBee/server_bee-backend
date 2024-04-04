@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::{NetworkExt, Networks, NetworksExt};
+use sysinfo::Networks;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct NetworkIO {

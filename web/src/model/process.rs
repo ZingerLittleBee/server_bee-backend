@@ -1,6 +1,6 @@
 use crate::model::disk::DiskIO;
 use serde::{Deserialize, Serialize};
-use sysinfo::{PidExt, Process as SysProcess, ProcessExt};
+use sysinfo::Process as SysProcess;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Process {
@@ -46,11 +46,20 @@ impl From<&SysProcess> for Process {
         Process {
             name: pro.name().to_string(),
             cmd: pro.cmd().to_vec(),
-            exe: pro.exe().to_str().unwrap_or_default().to_string(),
+            exe: pro
+                .exe()
+                .map(|p| p.to_str().unwrap_or_default().to_string())
+                .unwrap_or_default(),
             pid: pro.pid().as_u32(),
             environ: pro.environ().to_vec(),
-            cwd: pro.cwd().to_str().unwrap_or_default().to_string(),
-            root: pro.root().to_str().unwrap_or_default().to_string(),
+            cwd: pro
+                .cwd()
+                .map(|p| p.to_str().unwrap_or_default().to_string())
+                .unwrap_or_default(),
+            root: pro
+                .root()
+                .map(|p| p.to_str().unwrap_or_default().to_string())
+                .unwrap_or_default(),
             memory: pro.memory(),
             virtual_memory: pro.virtual_memory(),
             parent: pro.parent().map(|p| p.as_u32()),

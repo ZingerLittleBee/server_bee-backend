@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::{PidExt, Process as SysProcess, ProcessExt};
+use sysinfo::Process as SysProcess;
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct SimpleProcess {
