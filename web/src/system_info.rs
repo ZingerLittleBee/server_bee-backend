@@ -25,6 +25,10 @@ use sysinfo::{Components, DiskKind, Disks, Networks, System, Uid, Users};
 
 pub struct SystemInfo {
     sys: System,
+    networks: Networks,
+    disks: Disks,
+    components: Components,
+    users: Users,
     #[cfg(target_os = "linux")]
     sector_size_map: HashMap<String, u16>,
 
@@ -39,6 +43,10 @@ impl SystemInfo {
     pub fn new() -> Self {
         SystemInfo {
             sys: System::new_all(),
+            networks: Networks::new_with_refreshed_list(),
+            disks: Disks::new_with_refreshed_list(),
+            components: Components::new_with_refreshed_list(),
+            users: Users::new_with_refreshed_list(),
             #[cfg(target_os = "linux")]
             sector_size_map: SystemInfo::init_sector_size(),
             #[cfg(target_os = "linux")]
@@ -91,8 +99,8 @@ impl SystemInfo {
 
     pub fn get_disk_usage(&mut self) -> Usage {
         let mut disk_usage: Usage = Default::default();
-        let disks = Disks::new_with_refreshed_list();
-        for disk in disks.iter() {
+        self.disks.refresh();
+        for disk in self.disks.iter() {
             match disk.kind() {
                 DiskKind::HDD => {}
                 DiskKind::SSD => {}
@@ -107,8 +115,8 @@ impl SystemInfo {
 
     pub fn get_network_io(&mut self) -> NetworkIO {
         let mut network_io: NetworkIO = Default::default();
-        let networks = Networks::new_with_refreshed_list();
-        for (_, data) in networks.iter() {
+        self.networks.refresh();
+        for (_, data) in self.networks.iter() {
             network_io.received += data.received();
             network_io.total_received += data.total_received();
             network_io.transmitted += data.transmitted();
@@ -243,13 +251,13 @@ impl SystemInfo {
     }
 
     pub fn get_disk_detail(&mut self) -> Vec<DiskDetail> {
-        let disks = Disks::new_with_refreshed_list();
-        disks.iter().map(|x| x.into()).collect()
+        self.disks.refresh();
+        self.disks.iter().map(|x| x.into()).collect()
     }
 
     pub fn get_network_detail(&mut self) -> Vec<NetworkDetail> {
-        let networks = Networks::new_with_refreshed_list();
-        NetworkDetail::new_list(&networks)
+        self.networks.refresh();
+        NetworkDetail::new_list(&self.networks)
     }
 
     pub fn get_process(&mut self) -> Vec<SimpleProcess> {
@@ -261,19 +269,20 @@ impl SystemInfo {
     }
 
     pub fn get_temperature(&mut self) -> Vec<ComponentTemperature> {
-        let components = Components::new_with_refreshed_list();
-        components.iter().map(|x| x.into()).collect()
+        self.components.refresh();
+        self.components.iter().map(|x| x.into()).collect()
     }
 
     pub fn get_os_overview(&mut self) -> OsOverview {
-        let users = Users::new_with_refreshed_list();
+        self.users.refresh_list();
         OsOverview {
             name: System::name().unwrap_or_else(|| "<unknown>".to_owned()),
             kernel_version: System::kernel_version().unwrap_or_else(|| "<unknown>".to_owned()),
             os_version: System::long_os_version().unwrap_or_else(|| "<unknown>".to_owned()),
             hostname: System::host_name().unwrap_or_else(|| "<unknown>".to_owned()),
             cpu_info: self.get_cpu_info(),
-            users: users
+            users: self
+                .users
                 .iter()
                 .map(|user| User {
                     uid: user.id().to_string(),
@@ -354,8 +363,10 @@ impl SystemInfo {
             // user_id to username
             process_vo.user = if let Some(user_id) = &x.user_id {
                 if let Ok(uid) = Uid::from_str(user_id) {
-                    let users = Users::new_with_refreshed_list();
-                    users.get_user_by_id(&uid).map(|x| x.name().to_string())
+                    self.users.refresh_list();
+                    self.users
+                        .get_user_by_id(&uid)
+                        .map(|x| x.name().to_string())
                 } else {
                     None
                 }
