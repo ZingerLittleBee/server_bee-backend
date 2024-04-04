@@ -68,7 +68,7 @@ mod system_info_test {
         let mut system_info = SystemInfo::new();
 
         #[cfg(not(target_os = "linux"))]
-        let mut system_info = SystemInfo::new();
+        let system_info = SystemInfo::new();
 
         let disk_io = system_info.get_disk_io();
         assert!(disk_io.total_read >= disk_io.read);
