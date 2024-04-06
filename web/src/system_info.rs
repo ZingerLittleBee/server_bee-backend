@@ -21,12 +21,14 @@ use crate::server::{Sort, SortBy, SortOrder};
 use crate::vo::formator::Convert;
 use crate::vo::fusion::Fusion;
 use crate::vo::simple_process::SimpleProcessVo;
-use sysinfo::{
-    CpuExt, DiskExt, DiskKind, NetworkExt, NetworksExt, System, SystemExt, Uid, UserExt,
-};
+use sysinfo::{Components, DiskKind, Disks, Networks, System, Uid, Users};
 
 pub struct SystemInfo {
     sys: System,
+    networks: Networks,
+    disks: Disks,
+    components: Components,
+    users: Users,
     #[cfg(target_os = "linux")]
     sector_size_map: HashMap<String, u16>,
 
@@ -41,6 +43,10 @@ impl SystemInfo {
     pub fn new() -> Self {
         SystemInfo {
             sys: System::new_all(),
+            networks: Networks::new_with_refreshed_list(),
+            disks: Disks::new_with_refreshed_list(),
+            components: Components::new_with_refreshed_list(),
+            users: Users::new_with_refreshed_list(),
             #[cfg(target_os = "linux")]
             sector_size_map: SystemInfo::init_sector_size(),
             #[cfg(target_os = "linux")]
@@ -93,7 +99,8 @@ impl SystemInfo {
 
     pub fn get_disk_usage(&mut self) -> Usage {
         let mut disk_usage: Usage = Default::default();
-        for disk in self.sys.disks() {
+        self.disks.refresh();
+        for disk in self.disks.iter() {
             match disk.kind() {
                 DiskKind::HDD => {}
                 DiskKind::SSD => {}
@@ -108,7 +115,8 @@ impl SystemInfo {
 
     pub fn get_network_io(&mut self) -> NetworkIO {
         let mut network_io: NetworkIO = Default::default();
-        for (_, data) in self.sys.networks().iter() {
+        self.networks.refresh();
+        for (_, data) in self.networks.iter() {
             network_io.received += data.received();
             network_io.total_received += data.total_received();
             network_io.transmitted += data.transmitted();
@@ -118,11 +126,11 @@ impl SystemInfo {
     }
 
     pub fn get_boot_time(&mut self) -> u64 {
-        self.sys.boot_time()
+        System::boot_time()
     }
 
     pub fn get_uptime(&mut self) -> Vec<u64> {
-        let mut uptime = self.sys.uptime();
+        let mut uptime = System::boot_time();
         let days = uptime / 86400;
         uptime -= days * 86400;
         let hours = uptime / 3600;
@@ -133,7 +141,7 @@ impl SystemInfo {
 
     /// load average percentage
     pub fn get_load_avg(&mut self) -> Vec<f64> {
-        let load_avg = self.sys.load_average();
+        let load_avg = System::load_average();
         let core_num = self.sys.cpus().len() as f64;
         vec![
             load_avg.one / core_num,
@@ -243,11 +251,13 @@ impl SystemInfo {
     }
 
     pub fn get_disk_detail(&mut self) -> Vec<DiskDetail> {
-        self.sys.disks().iter().map(|x| x.into()).collect()
+        self.disks.refresh();
+        self.disks.iter().map(|x| x.into()).collect()
     }
 
     pub fn get_network_detail(&mut self) -> Vec<NetworkDetail> {
-        NetworkDetail::new_list(self.sys.networks())
+        self.networks.refresh();
+        NetworkDetail::new_list(&self.networks)
     }
 
     pub fn get_process(&mut self) -> Vec<SimpleProcess> {
@@ -259,34 +269,26 @@ impl SystemInfo {
     }
 
     pub fn get_temperature(&mut self) -> Vec<ComponentTemperature> {
-        self.sys.components().iter().map(|x| x.into()).collect()
+        self.components.refresh();
+        self.components.iter().map(|x| x.into()).collect()
     }
 
     pub fn get_os_overview(&mut self) -> OsOverview {
+        self.users.refresh_list();
         OsOverview {
-            name: self.sys.name().unwrap_or_else(|| "<unknown>".to_owned()),
-            kernel_version: self
-                .sys
-                .kernel_version()
-                .unwrap_or_else(|| "<unknown>".to_owned()),
-            os_version: self
-                .sys
-                .long_os_version()
-                .unwrap_or_else(|| "<unknown>".to_owned()),
-            hostname: self
-                .sys
-                .host_name()
-                .unwrap_or_else(|| "<unknown>".to_owned()),
+            name: System::name().unwrap_or_else(|| "<unknown>".to_owned()),
+            kernel_version: System::kernel_version().unwrap_or_else(|| "<unknown>".to_owned()),
+            os_version: System::long_os_version().unwrap_or_else(|| "<unknown>".to_owned()),
+            hostname: System::host_name().unwrap_or_else(|| "<unknown>".to_owned()),
             cpu_info: self.get_cpu_info(),
             users: self
-                .sys
-                .users()
+                .users
                 .iter()
                 .map(|user| User {
                     uid: user.id().to_string(),
                     gid: user.group_id().to_string(),
                     name: user.name().to_string(),
-                    groups: user.groups().iter().map(|x| x.to_string()).collect(),
+                    groups: user.groups().iter().map(|x| x.name().to_string()).collect(),
                 })
                 .collect(),
             boot_time: self.get_boot_time(),
@@ -361,7 +363,10 @@ impl SystemInfo {
             // user_id to username
             process_vo.user = if let Some(user_id) = &x.user_id {
                 if let Ok(uid) = Uid::from_str(user_id) {
-                    self.sys.get_user_by_id(&uid).map(|x| x.name().to_string())
+                    self.users.refresh_list();
+                    self.users
+                        .get_user_by_id(&uid)
+                        .map(|x| x.name().to_string())
                 } else {
                     None
                 }
@@ -418,7 +423,5 @@ impl SystemInfo {
     fn refresh_less(&mut self) {
         self.sys.refresh_cpu();
         self.sys.refresh_memory();
-        self.sys.refresh_networks();
-        self.sys.refresh_disks();
     }
 }

@@ -71,7 +71,7 @@ export const MemoryWidget = () => {
             return (
                 <TremorCard className="flex flex-row items-center space-x-1.5 p-2">
                     <div
-                        className="h-2 w-2 rounded-full"
+                        className="size-2 rounded-full"
                         style={{
                             backgroundColor: color,
                         }}

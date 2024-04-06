@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::{Component, ComponentExt};
+use sysinfo::Component;
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone)]
 pub struct ComponentTemperature {

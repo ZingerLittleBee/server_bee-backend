@@ -6,7 +6,7 @@ use actix_web::{post, web, HttpResponse, Responder};
 use log::warn;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
-use sysinfo::{Pid, ProcessExt, System, SystemExt};
+use sysinfo::{Pid, System};
 
 #[derive(Deserialize, Serialize, Default, Debug)]
 pub struct KilledInfo {

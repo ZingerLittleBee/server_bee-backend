@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::{Disk, DiskExt, DiskKind, DiskUsage};
+use sysinfo::{Disk, DiskKind, DiskUsage};
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone, Copy)]
 pub struct DiskIO {
@@ -45,7 +45,11 @@ impl From<&Disk> for DiskDetail {
                 DiskKind::Unknown(_) => "Unknown".to_string(),
             },
             device_name: disk.name().to_str().unwrap_or_default().to_string(),
-            file_system: String::from_utf8(disk.file_system().to_vec()).unwrap_or_default(),
+            file_system: disk
+                .file_system()
+                .to_str()
+                .map(|s| s.to_string())
+                .unwrap_or_default(),
             total_space: disk.total_space(),
             available_space: disk.available_space(),
             is_removable: disk.is_removable(),

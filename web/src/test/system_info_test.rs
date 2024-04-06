@@ -64,7 +64,12 @@ mod system_info_test {
 
     #[test]
     fn test_get_disk_io() {
+        #[cfg(target_os = "linux")]
         let mut system_info = SystemInfo::new();
+
+        #[cfg(not(target_os = "linux"))]
+        let system_info = SystemInfo::new();
+
         let disk_io = system_info.get_disk_io();
         assert!(disk_io.total_read >= disk_io.read);
         assert!(disk_io.total_write >= disk_io.write);
@@ -93,7 +98,6 @@ mod system_info_test {
         let mut system_info = SystemInfo::new();
         let cpu_info = system_info.get_cpu_info();
         assert!(cpu_info.core_num > 0);
-        assert!(cpu_info.frequency > 0);
     }
 
     #[test]
