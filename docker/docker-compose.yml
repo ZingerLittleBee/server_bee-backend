@@ -66,11 +66,11 @@ services:
     image: zingerbee/serverbee-web:latest
     container_name: serverbee-web
     restart: unless-stopped
-    command: [ "-h", "$SERVER_HOST", "-s", "$SERVER_TOKEN" ]
+    command: [ "-r", "-u", "$SERVER_URL", "-s", "$SERVER_TOKEN" ]
     ports:
       - "9527:9527"
     environment:
-      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_URL=${SERVER_URL}
       - SERVER_TOKEN=${SERVER_TOKEN}
     depends_on:
       - recorder
