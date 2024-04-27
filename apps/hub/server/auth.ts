@@ -1,10 +1,9 @@
 import { db } from '@/server/db'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { PrismaAdapter } from '@auth/prisma-adapter'
 import { compare } from 'bcrypt'
-import {
-    getServerSession,
+import NextAuth, {
     type DefaultSession,
-    type NextAuthOptions,
+    type NextAuthConfig,
     type User,
 } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -33,7 +32,7 @@ declare module 'next-auth' {
     }
 
     interface User {
-        id: string
+        id?: string
         username: string
     }
 }
@@ -45,7 +44,7 @@ const logger = getLogger('Auth')
  *
  * @see https://next-auth.js.org/configuration/options
  */
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
     session: {
         strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60,
@@ -90,7 +89,10 @@ export const authOptions: NextAuthOptions = {
 
                 // return { id: '123123', username: credentials.username }
 
-                const { username, password } = credentials
+                const { username, password } = credentials as {
+                    username: string
+                    password: string
+                }
                 const user = await db.user.findUnique({
                     where: {
                         name: username,
@@ -117,9 +119,11 @@ export const authOptions: NextAuthOptions = {
     ],
 }
 
+export const { auth, handlers, signIn, signOut } = NextAuth(authOptions)
+
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = () => getServerSession(authOptions)
+export const getServerAuthSession = () => auth()
