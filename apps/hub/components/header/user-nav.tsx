@@ -1,11 +1,9 @@
 import Link from 'next/link'
 import { DISCUSSION_URL, ISSUE_URL } from '@/constant/github'
 import { getServerAuthSession } from '@/server/auth'
-import { Bug, Cloud, Github, LifeBuoy, LogOut } from 'lucide-react'
+import { Bug, Cloud, Github, LifeBuoy } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { buttonVariants } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,6 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import SignOutPage from '@/app/auth/signout/page'
 
 export async function UserNav() {
     const session = await getServerAuthSession()
@@ -70,19 +69,7 @@ export async function UserNav() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="focus:bg-transparent">
-                    <Link
-                        href="/api/auth/signout"
-                        rel="noreferrer"
-                        className={cn(
-                            'w-full',
-                            buttonVariants({
-                                variant: 'outline',
-                            })
-                        )}
-                    >
-                        <LogOut className="mr-2 size-4" />
-                        <span>Log out</span>
-                    </Link>
+                    <SignOutPage />
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
