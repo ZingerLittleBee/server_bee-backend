@@ -1,4 +1,8 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
+import { signIn } from 'next-auth/react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,9 +16,27 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export default function SignInPage() {
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+
+    const handleSignIn = async () => {
+        const result = await signIn('credentials', {
+            redirect: false,
+            username,
+            password,
+        })
+
+        // TODO update status
+        if (result?.ok) {
+            console.log('Sign in successful')
+        } else {
+            console.error('Sign in failed')
+        }
+    }
+
     return (
         <div>
-            <Card className="grid mx-auto max-w-sm">
+            <Card className="mx-auto grid max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-2xl">Login</CardTitle>
                     <CardDescription>
@@ -25,15 +47,26 @@ export default function SignInPage() {
                     <div className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="username">Username</Label>
-                            <Input id="username" required />
+                            <Input
+                                id="username"
+                                required
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <div className="flex items-center">
                                 <Label htmlFor="password">Password</Label>
                             </div>
-                            <Input id="password" type="password" required />
+                            <Input
+                                id="password"
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
                         </div>
-                        <Button type="submit" className="w-full">
+                        <Button className="w-full" onClick={handleSignIn}>
                             Login
                         </Button>
                     </div>
