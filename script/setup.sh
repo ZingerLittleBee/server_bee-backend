@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 # Declare variables
 
 use_external_mongo=""
-SERVERHUB_URL=""
+# SERVERHUB_URL=""
 RECORDER_DOMAIN=""
 MONGO_INITDB_ROOT_USERNAME=""
 MONGO_INITDB_ROOT_PASSWORD=""
