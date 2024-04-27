@@ -58,8 +58,14 @@ export const authOptions: NextAuthOptions = {
         newUser: '/auth/new-user', // New users will be directed here on first sign in (leave the property out if not of interest)
     },
     callbacks: {
-        async signIn({ user }) {
+        signIn: async ({ user }) => {
             return !!user?.id
+        },
+        redirect: async ({ url, baseUrl }) => {
+            if (url.startsWith('/')) {
+                return `${baseUrl}${url}`
+            }
+            return baseUrl
         },
         jwt: async ({ token, user }) => {
             if (user) {

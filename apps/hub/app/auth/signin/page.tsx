@@ -14,23 +14,29 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function SignInPage() {
+    const { toast } = useToast()
+
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
     const handleSignIn = async () => {
         const result = await signIn('credentials', {
-            redirect: false,
             username,
             password,
         })
 
-        // TODO update status
         if (result?.ok) {
-            console.log('Sign in successful')
+            toast({
+                title: 'Sign in successful',
+            })
         } else {
-            console.error('Sign in failed')
+            toast({
+                title: 'Sign in failed',
+                description: 'Please try again',
+            })
         }
     }
 
