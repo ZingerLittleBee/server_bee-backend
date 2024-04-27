@@ -45,8 +45,6 @@ export default function InitPage() {
     if (!shouldRender) return <>Loading...</>
 
     const onSubmit = async () => {
-        console.log('username', username)
-        console.log('password', password)
         if (!username || !password) {
             toast({
                 variant: 'destructive',
@@ -60,6 +58,7 @@ export default function InitPage() {
             toast({
                 title: 'Account created',
             })
+            router.push('/')
         } else {
             toast({
                 variant: 'destructive',
@@ -69,7 +68,7 @@ export default function InitPage() {
     }
 
     return (
-        <Card className="max-w-[400px]">
+        <Card className="w-[380px]">
             <CardHeader>
                 <CardTitle>Create Account</CardTitle>
                 <CardDescription>
