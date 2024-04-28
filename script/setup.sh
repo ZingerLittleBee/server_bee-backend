@@ -131,16 +131,17 @@ installation() {
     # Prompt user to start installation
     echo -e "\n${INFO}Starting application installation...${NC}\n"
 
-    echo -e "${WARNING}Enter the ServerHub URL (Example: https://serverhub.app):${NC}"
-    echo -e "${INFO}(Make sure to ${WARNING}include the protocol${INFO}.)${NC}"
+    echo -e "${WARNING}Enter the ServerHub URL:${NC}"
+    echo -e "${INFO}Make sure to ${WARNING}include${INFO} the protocol.(Example: https://serverhub.app)${NC}"
     read -r SERVERHUB_URL
+    echo -e "\n${INFO}Make sure to ${WARNING}${SERVERHUB_URL}${INFO} point to the server IP address.${NC}"
 
-    echo -e "\n${WARNING}Enter the Recorder service domain (Example: recorder.serverhub.app):${NC}"
-    echo -e "${INFO}(Make sure to ${WARNING}exclude the protocol${INFO}.)${NC}"
+    echo -e "\n${WARNING}Enter the Recorder service domain:${NC}"
+    echo -e "${INFO}Make sure to ${WARNING}exclude${INFO} the protocol.(Example: recorder.serverhub.app)${NC}"
     read -r RECORDER_DOMAIN
     echo -e "\n${INFO}Make sure to ${WARNING}${RECORDER_DOMAIN}${INFO} point to the server IP address.${NC}"
 
-    echo -e "Press Enter to continue..."
+    echo -e "\nPress Enter to continue..."
     read -r
 
     # Call the function to set MongoDB variables
@@ -191,7 +192,7 @@ installation() {
     write_to_caddy_file "$RECORDER_DOMAIN"
 
     # Write the generated values to .env file using the function
-    write_to_env_file "$NEXTAUTH_URL" "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET"
+    write_to_env_file "$SERVERHUB_URL" "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET"
 
     if [[ $use_external_mongo == "y" ]]; then
         sed -i '/[ \t]*mongo/,/[ \t]*hub/{/[ \t]*hub/!d}' docker-compose.yml
