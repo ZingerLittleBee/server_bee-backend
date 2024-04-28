@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 # Declare variables
 
 use_external_mongo=""
-SERVERHUB_URL=""
+# SERVERHUB_URL=""
 RECORDER_DOMAIN=""
 MONGO_INITDB_ROOT_USERNAME=""
 MONGO_INITDB_ROOT_PASSWORD=""
@@ -50,18 +50,18 @@ check_tools_installed() {
 
 # Function to write values to .env file
 write_to_env_file() {
-    local serverhub_url=$1
-    local nextauth_secret=$2
-    local mongo_initdb_root_username=$3
-    local mongo_initdb_root_password=$4
-    local mongodb_uri=$5
-    local server_jwt_secret=$6
+#    local serverhub_url=$1
+    local nextauth_secret=$1
+    local mongo_initdb_root_username=$2
+    local mongo_initdb_root_password=$3
+    local mongodb_uri=$4
+    local server_jwt_secret=$5
 
     cat <<EOF >.env
 RUST_LOG=waring
 DATABASE_URL="file:/app/serverhub.db"
 NEXTAUTH_SECRET="${nextauth_secret}"
-NEXTAUTH_URL="${serverhub_url}"
+#NEXTAUTH_URL="${serverhub_url}"
 MONGO_INITDB_ROOT_USERNAME="${mongo_initdb_root_username}"
 MONGO_INITDB_ROOT_PASSWORD="${mongo_initdb_root_password}"
 MONGODB_URI="${mongodb_uri}"
@@ -73,12 +73,17 @@ EOF
 # Function to set MongoDB variables
 set_mongo_variables() {
     echo -e "${WARNING}Will you be using an external MongoDB service? (y/n):${NC}"
+    echo -e "${INFO}(If you are using an external MongoDB service, please provide the MongoDB URI.)${NC}"
+    echo -e "${INFO}(If you are using the built-in MongoDB, the script will generate the MongoDB URI automatically.)${NC}"
+    echo -e "${INFO}(Default: n)${NC}"
     read -r use_external_mongo
 
     use_external_mongo=${use_external_mongo:-n}
     use_external_mongo=$(echo "$use_external_mongo" | tr '[:upper:]' '[:lower:]')
 
     if [[ $use_external_mongo == "n" ]]; then
+        echo -e "${INFO}Use the built-in MongoDB${NC}"
+
         # Generate random values for MONGO_INITDB_ROOT_USERNAME and MONGO_INITDB_ROOT_PASSWORD
         MONGO_INITDB_ROOT_USERNAME=$(openssl rand -base64 12 | tr -d '/@:')
         MONGO_INITDB_ROOT_PASSWORD=$(openssl rand -base64 12 | tr -d '/@:')
@@ -127,14 +132,14 @@ installation() {
     # Prompt user to start installation
     echo -e "\n${INFO}Starting application installation...${NC}\n"
 
-    echo -e "${WARNING}Enter the ServerHub URL (Example: https://serverhub.app):${NC}"
-    echo -e "${INFO}(Make sure to ${WARNING}include the protocol${INFO}.)${NC}"
-    read -r SERVERHUB_URL
+#    echo -e "${WARNING}Enter the ServerHub URL (Example: https://serverhub.app):${NC}"
+#    echo -e "${INFO}(Make sure to ${WARNING}include the protocol${INFO}.)${NC}"
+#    read -r SERVERHUB_URL
 
     echo -e "\n${WARNING}Enter the Recorder service domain (Example: recorder.serverhub.app):${NC}"
     echo -e "${INFO}(Make sure to ${WARNING}exclude the protocol${INFO}.)${NC}"
     read -r RECORDER_DOMAIN
-    echo -e "\n${INFO}Make sure to ${WARNING}${SERVERHUB_URL#http*://}${NC} and ${WARNING}${RECORDER_DOMAIN}${INFO} point to the server IP address.${NC}"
+    echo -e "\n${INFO}Make sure to ${WARNING}${RECORDER_DOMAIN}${INFO} point to the server IP address.${NC}"
 
     echo -e "Press Enter to continue..."
     read -r
@@ -150,7 +155,7 @@ installation() {
     print_and_confirm_variables() {
         echo -e "\n${INFO}Please reconfirm input variable:${NC}"
         echo -e "========================================================"
-        echo -e "${INFO}SERVERHUB_URL:${NC} ${WARNING}$SERVERHUB_URL${NC}"
+#        echo -e "${INFO}SERVERHUB_URL:${NC} ${WARNING}$SERVERHUB_URL${NC}"
         echo -e "${INFO}RECORDER_DOMAIN:${NC} ${WARNING}$RECORDER_DOMAIN${NC}"
 
         if [[ -n $MONGO_INITDB_ROOT_USERNAME ]]; then
@@ -187,7 +192,7 @@ installation() {
     write_to_caddy_file "$RECORDER_DOMAIN"
 
     # Write the generated values to .env file using the function
-    write_to_env_file "$SERVERHUB_URL" "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET"
+    write_to_env_file "$NEXTAUTH_SECRET" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" "$MONGODB_URI" "$SERVER_JWT_SECRET"
 
     if [[ $use_external_mongo == "y" ]]; then
         sed -i '/[ \t]*mongo/,/[ \t]*hub/{/[ \t]*hub/!d}' docker-compose.yml
