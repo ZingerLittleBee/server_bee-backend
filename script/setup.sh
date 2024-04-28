@@ -211,6 +211,13 @@ uninstallation() {
 
     docker-compose down
 
+    echo -e "${ERROR}Whether to remove all docker images? (y/n)${NC}"
+    read -r confirm_remove_docker_images
+
+    if [[ $confirm_remove_docker_images == "y" ]]; then
+        remove_docker_images
+    fi
+
     echo -e "${ERROR}Whether to remove all data? (y/n)${NC}"
     read -r confirm_remove_data
 
@@ -237,9 +244,17 @@ update() {
 
     docker-compose down
 
+    remove_docker_images
+
     docker-compose up -d
 
     echo -e "${INFO}Update completed.${NC}"
+}
+
+remove_docker_images() {
+    echo -e "${INFO}Removing Docker images...${NC}"
+    docker images | grep 'zingerbee' | awk '{print $3}' | xargs docker rmi
+    echo -e "${INFO}Docker images removed.${NC}"
 }
 
 status() {
