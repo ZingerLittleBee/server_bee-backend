@@ -53,7 +53,7 @@ const NoGroup = 'no-group'
 export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
     const router = useRouter()
     const { data: groups } = api.group.list.useQuery()
-    const { mutateAsync } = api.server.create.useMutation()
+    const { mutateAsync: createServer } = api.server.create.useMutation()
     const { mutateAsync: updateServer } = api.server.update.useMutation()
     const setIsOpen = useBoundStore.use.setIsOpenServerForm()
     const setTokenDialogProps = useBoundStore.use.setTokenDialogProps()
@@ -84,11 +84,11 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
         }
 
         if (mode === FormMode.Create) {
-            const token = await mutateAsync(params)
+            const token = await createServer(params)
             setTokenDialogProps({
                 title: 'Server created!',
                 description: 'Copy the token for communication with the node',
-                tokens: [token],
+                serverId: token.serverId,
             })
             setIsOpen(false)
             setIsOpenTokenDialog(true)
@@ -198,7 +198,7 @@ export function ServerForm({ mode, id, server, onSubmit }: ServerFormProps) {
                                                         <span className="hover:underline">
                                                             {group.name}
                                                         </span>
-                                                        <span className="text-muted-foreground truncate text-sm">
+                                                        <span className="truncate text-sm text-muted-foreground">
                                                             {group.description}
                                                         </span>
                                                     </div>

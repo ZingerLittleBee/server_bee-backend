@@ -1,6 +1,7 @@
 import { dashboardRouter } from '@/server/api/routers/dashboard'
 import { groupRouter } from '@/server/api/routers/group'
 import { serverRouter } from '@/server/api/routers/server'
+import { serverTokenRouter } from '@/server/api/routers/serverToken'
 import { userRouter } from '@/server/api/routers/user'
 import { createTRPCRouter } from '@/server/api/trpc'
 
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
     dashboard: dashboardRouter,
     group: groupRouter,
     user: userRouter,
+    serverToken: serverTokenRouter,
 })
 
 // export type definition of API

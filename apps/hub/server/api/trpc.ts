@@ -9,7 +9,7 @@
 
 import { appRouter } from '@/server/api/root'
 import { getServerAuthSession } from '@/server/auth'
-import { db } from '@/server/db'
+import { db, mongo } from '@/server/db'
 import { initTRPC, TRPCError } from '@trpc/server'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
@@ -31,6 +31,7 @@ export const createTRPCContext = async (opts?: { headers: Headers }) => {
 
     return {
         db,
+        mongo,
         session,
         ...opts,
     }
@@ -110,7 +111,8 @@ export async function getCaller() {
     const createCaller = createCallerFactory(appRouter)
     const session = await getServerAuthSession()
     return createCaller({
-        session: session,
         db,
+        mongo,
+        session: session,
     })
 }

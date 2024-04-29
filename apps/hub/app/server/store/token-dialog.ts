@@ -22,7 +22,7 @@ export const createTokenDialogSlice: StateCreator<
 > = (set) => ({
     tokenDialogProps: {
         title: '',
-        tokens: [],
+        serverId: '',
     },
     isOpenTokenDialog: false,
     setTokenDialogProps: (tokenDialogProps) =>
