@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { useBoundStore } from '@/store'
-import { CheckIcon, Copy } from 'lucide-react'
+import { api } from '@/trpc/react'
+import { X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -16,18 +16,36 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import CopyButton from '@/components/copy-button'
+import { STooltip } from '@/components/s-tooltip'
 
 export type TokenDialogProps = {
     title: string
     description?: string
-    tokens: string[]
+    serverId: string
 }
 
 export function TokenDialog() {
     const isOpen = useBoundStore.use.isOpenTokenDialog()
     const setIsOpen = useBoundStore.use.setIsOpenTokenDialog()
     const tokenDialogProps = useBoundStore.use.tokenDialogProps()
-    const [copySuccess, setCopySuccess] = useState(false)
+
+    const { data: tokens, refetch } = api.serverToken.list.useQuery({
+        id: tokenDialogProps.serverId,
+    })
+
+    const { mutateAsync: generateToken } = api.serverToken.create.useMutation()
+    const { mutateAsync: deleteToken } = api.serverToken.delete.useMutation()
+
+    const handleGenerateToken = async () => {
+        await generateToken({ serverId: tokenDialogProps.serverId })
+        await refetch()
+    }
+
+    const handleDeleteToken = async (token: string) => {
+        await deleteToken({ token })
+        await refetch()
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen} defaultOpen={isOpen}>
@@ -39,7 +57,7 @@ export function TokenDialog() {
                             'Copy the token to node and use it to connect to your server.'}
                     </DialogDescription>
                 </DialogHeader>
-                {tokenDialogProps.tokens.map((token, index) => (
+                {tokens?.map(({ token }, index) => (
                     <div key={index} className="flex items-center space-x-2">
                         <div className="grid flex-1 gap-2">
                             <Label htmlFor="link" className="sr-only">
@@ -47,33 +65,24 @@ export function TokenDialog() {
                             </Label>
                             <Input id="link" defaultValue={token} readOnly />
                         </div>
-                        <Button
-                            type="submit"
-                            size="sm"
-                            className="px-3"
-                            onClick={async () => {
-                                await navigator.clipboard.writeText(token)
-                                setCopySuccess(true)
-                                setTimeout(() => {
-                                    setCopySuccess(false)
-                                }, 2000)
-                            }}
-                        >
-                            <span className="sr-only">Copy</span>
-                            {copySuccess ? (
-                                <CheckIcon className="h-4 w-4" />
-                            ) : (
-                                <Copy className="h-4 w-4" />
-                            )}
-                        </Button>
+                        <CopyButton content={token} />
+                        <STooltip content="Delete Token">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleDeleteToken(token)}
+                            >
+                                <span className="sr-only">Delete Token</span>
+                                <X className="size-4" />
+                            </Button>
+                        </STooltip>
                     </div>
                 ))}
                 <DialogFooter className="sm:justify-start">
                     <DialogClose asChild>
-                        <Button type="button" variant="secondary">
-                            Close
-                        </Button>
+                        <Button variant="secondary">Close</Button>
                     </DialogClose>
+                    <Button onClick={handleGenerateToken}>Generate</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

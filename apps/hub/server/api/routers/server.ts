@@ -1,12 +1,11 @@
-import { env } from '@/env'
 import { NotLoggedInError } from '@/server/api/error'
 import {
     createTRPCRouter,
+    getCaller,
     protectedProcedure,
     publicProcedure,
 } from '@/server/api/trpc'
 import { type Prisma } from '@serverbee/db'
-import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
 
 import { getLogger } from '@/lib/logging'
@@ -70,20 +69,17 @@ export const serverRouter = createTRPCRouter({
                 data: createData,
             })
 
-            const payload = {
-                userId: ctx.session.user.id,
+            const caller = await getCaller()
+
+            const token: {
+                id: number
+                token: string
+                isExpires: boolean
+                serverId: string
+            } = await caller.serverToken.create({
                 serverId: server.id,
-            }
-
-            const token = sign(payload, env.SERVER_JWT_SECRET)
-
-            const serverToken = await ctx.db.serverToken.create({
-                data: {
-                    token,
-                    server: { connect: { id: server.id } },
-                },
             })
-            return serverToken.token
+            return token
         }),
     update: protectedProcedure
         .input(
@@ -97,7 +93,6 @@ export const serverRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             if (!ctx.session.user) throw NotLoggedInError
-
             try {
                 await ctx.db.server.update({
                     where: {
@@ -121,21 +116,6 @@ export const serverRouter = createTRPCRouter({
                 logger.error(`Failed to update server: ${JSON.stringify(e)}`)
                 return false
             }
-        }),
-    getTokens: protectedProcedure
-        .input(
-            z.object({
-                id: z.string(),
-            })
-        )
-        .query(async ({ input, ctx }) => {
-            if (!ctx.session.user) throw NotLoggedInError
-            const queryResult = await ctx.db.serverToken.findMany({
-                where: {
-                    serverId: input.id,
-                },
-            })
-            return queryResult.map((item) => item.token)
         }),
     getOwnServerIds: protectedProcedure.query(async ({ ctx }) => {
         if (!ctx.session.user) throw NotLoggedInError
