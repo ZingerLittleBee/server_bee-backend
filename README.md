@@ -6,7 +6,7 @@ Language : 🇺🇸 English | [🇨🇳 简体中文](./README.zh-CN.md)
 
 Backend for iOS application named [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714)
 
-<a href="https://www.producthunt.com/posts/serverbee?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-serverbee" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=378908&theme=light" alt="ServerBee - Monitor&#0032;and&#0032;manage&#0032;all&#0032;your&#0032;desktop&#0032;systems | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+Web-based Single-Node, Multi-Node Monitoring and Terminal Management Tools
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ZingerLittleBee/server_bee-backend?style=for-the-badge)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ZingerLittleBee/server_bee-backend/release.yml?style=for-the-badge)
@@ -24,7 +24,10 @@ Mono repository for ServerBee
     - serverbee-recorder
 - [ServerBee Backend](./web/README.md) (The backend of serverbee, can be used as a standalone application)
     - serverbee-web (provide data from server)
-    - serverbee-deploy (provide **AutoLaunch**、**AutoUpdate**、**DownloadWebModule** for serverbee-web)
+    - ~~serverbee-deploy (provide **AutoLaunch**、**AutoUpdate**、**DownloadWebModule** for serverbee-web)~~(Deprecated)
+        - Linux use startup.sh to replace
+            - `bash <(curl -s https://raw.githubusercontent.com/ZingerLittleBee/server_bee-backend/main/script/startup.sh)`
+        - macOS、Windows use [ServerMilk](https://github.com/ZingerLittleBee/ServerMilk) to replace
 
 # Documentation
 

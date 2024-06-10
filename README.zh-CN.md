@@ -6,7 +6,7 @@ Language : [🇺🇸 English](./README.md) | 🇨🇳 简体中文
 
 iOS 应用 [ServerBee](https://apps.apple.com/us/app/serverbee/id6443553714) 的后端
 
-<a href="https://www.producthunt.com/posts/serverbee?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-serverbee" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=378908&theme=light" alt="ServerBee - Monitor&#0032;and&#0032;manage&#0032;all&#0032;your&#0032;desktop&#0032;systems | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+Web 单机、多机版监控、终端管理工具
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ZingerLittleBee/server_bee-backend?style=for-the-badge)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ZingerLittleBee/server_bee-backend/release.yml?style=for-the-badge)
@@ -24,7 +24,10 @@ ServerBee 的单一代码库
     - serverbee-recorder
 - [ServerBee Backend](web/README.zh-CN.md) (**ServerBee** 的后端可以作为独立应用程序使用)
     - serverbee-web (模块提供来自机器的数据)
-    - serverbee-deploy (模块提供 **开机启动**、**自动更新**、**下载 Web 模块** 的功能)
+    - ~~serverbee-deploy (模块提供 **开机启动**、**自动更新**、**下载 Web 模块** 的功能)~~(已弃用)
+        - Linux 使用 startup.sh 替换
+            - `bash <(curl -s https://raw.githubusercontent.com/ZingerLittleBee/server_bee-backend/main/script/startup.sh)`
+            - macOS、Windows 使用 [ServerMilk](https://github.com/ZingerLittleBee/ServerMilk) 替换
 
 ## 文档
 
