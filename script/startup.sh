@@ -89,6 +89,7 @@ installation() {
       # check if port is available, if not, input another port
       while true; do
         if [[ $(netstat -an | grep -c "$port") -eq 0 ]]; then
+          echo -e "Congratulations, port $port is available."
           break
         else
           echo -e "${ERROR}Port $port is already in use, please try another port.${NC}"
@@ -99,6 +100,8 @@ installation() {
             fi
         fi
       done
+  else
+      echo -e "${WARNING}netstat not found, please check if port $port is available manually.${NC}"
   fi
 
   echo -e "Enable auto start on boot? (y/n)"
